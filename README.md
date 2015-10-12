@@ -1,1 +1,1 @@
-# master-thesis
+# Extend WildFly Application Server logging capabilities
