@@ -1,2 +1,9 @@
 *.tex~
 *.bib~
+/thesis.aux
+/thesis.bbl
+/thesis.blg
+/thesis.log
+/thesis.out
+/thesis.pdf
+/thesis.toc
