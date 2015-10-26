@@ -1,0 +1,79 @@
+\documentclass[12pt,oneside]{fithesis2}
+\usepackage[english]{babel}       % Multilingual support
+\usepackage[utf8]{inputenc}       % UTF-8 encoding
+\usepackage[T1]{fontenc}          % T1 font encoding
+\usepackage[                      % A sans serif font that blends well with Palatino
+  scaled=0.86
+]{berasans}
+\usepackage[                      % A tt font if you do not like LM's tt
+  scaled=1.03
+]{inconsolata}
+\usepackage[                      % Clickable links
+  plainpages = false,               % We have multiple page numberings
+  pdfpagelabels                     % Generate pdf page labels
+]{hyperref}
+\usepackage{blindtext}
+\usepackage{url}            % Lorem ipsum generator
+
+\thesislang{en}                   % The language of the thesis
+\thesistitle{Extend WildFly Application Server logging capabilities}       % The title of the thesis
+\thesissubtitle{Diploma Thesis}  % The type of the thesis
+\thesisstudent{Bc. Radek Koubský}          % Your name
+\thesiswoman{true}                % Your gender
+\thesisfaculty{fi}                % Your faculty
+\thesisyear{\the\year}     % The academic term of your thesis defense
+\thesisadvisor{RNDr. Adam Rambousek, Ph.D.}   % Your advisor
+
+\begin{document}
+  \FrontMatter                    % The front matter
+    \ThesisTitlePage                % The title page
+    \begin{ThesisDeclaration}       % The declaration
+      \DeclarationText
+      \AdvisorName
+    \end{ThesisDeclaration}
+    \begin{ThesisThanks}            % The acknowledgements (optional)
+      I would like to thank my supervisor\,\dots
+    \end{ThesisThanks}
+    \begin{ThesisAbstract}          % The abstract
+      The aim of the bachelor work is to provide\,\dots
+    \end{ThesisAbstract}
+    \begin{ThesisKeyWords}          % The keywords
+      keyword1, keyword2\,\dots
+    \end{ThesisKeyWords}
+    \tableofcontents                % The table of contents
+%   \listoftables                   % The list of tables (optional)
+%   \listoffigures                  % The list of figures (optional)
+  
+  \MainMatter                     % The main matter
+    \chapter{Introduction}          % Chapters
+    \Blindtext
+\chapter{Byteman}
+This chapter aims to introduce \textit{Byteman}, a bytecode manipulation tool, and its usage in java applications. Fundamental principles, functions and structure of Byteman will be described.
+At the end of the chapter, an example of simple java application will be provided in order to understand bytecode injection which Byteman uses. More detailed documentation, tutorials and guidelines 
+which cover almost every aspect of Byteman can be found in different versions at official website \url{http://byteman.jboss.org/}. Primary source for this thesis is Byteman documentation 3.0.0 \cite{byteman_doc}.
+
+\section{Introduction to Byteman}
+Byteman is a bytecode manipulation tool which uses a bytecode injection\footnote{Bytecode injection (or bytecode instrumentation) is a process of modifying the actual bytecode of a class} in order to change a java application either as it is being loaded by \textit{Java virtula machine} or while the application is running \cite[Introduction to Byteman]{byteman_doc}.
+
+Because of the bytecode injection, there is no need to change the original source code nor to recompile, redeploy the application itself. As it was mentioned, it is possible to add, replace or remove injected code at runtime while the application continues in execution. Byteman also provides a way to inject code into the Java language by modifying classes such as \textit{java.lang.Thread} and other classes from \textit{java.lang} package. Byteman uses simple scripting language called Event Condition Action\footnote{Event Condition Action (ECA) languages are an intuitive and powerful paradigm for
+programming reactive systems \cite{eca}} rules to determine how the original Java code should be transformed according to event and condition.
+
+The original purpose of Byteman was to provide a mechanism for automation tests used in multi-threaded and multi-JVM Java applications using a technique called fault injection. Byteman can be used to inject faults which cause an application to invoke unusual or unexpected methods which are required for certain test scenarios. There are four areas supported by Byteman in automation testing \cite[Introduction to Byteman]{byteman_doc}:
+
+\begin{itemize}
+   \item tracing execution of specific code paths and displaying application or JVM state
+   \item subverting normal execution by changing state, making unscheduled method calls or forcing an unexpected return or throw
+   \item orchestrating the timing of activities performed by independent application threads
+   \item monitoring and gathering statistics summarising application and JVM operation
+\end{itemize}
+
+
+    \appendix
+    \chapter{First appendix}        % Appendices
+    \Blindtext
+    \chapter{Another appendix}
+    \Blindtext
+
+\bibliographystyle{IEEEtran}
+\bibliography{sources}
+\end{document}
