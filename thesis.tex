@@ -67,7 +67,12 @@ The original purpose of Byteman was to provide a mechanism for automation tests 
    \item monitoring and gathering statistics summarising application and JVM operation
 \end{itemize}
 
+However, the concept of bytecode injection involves Byteman in much larger scope of use apart from the testing area. The rule engine which forms the core of Byteman is able to inject bytecode into
+almost every place in a call stack of a running java application. Thus the capability of bytecode injection enables manipulation of a java program without any limitations in the design of the language (e.g. access level modifiers).
 
+Byteman offers a suite of built-in operations and conditions in order to support activities and tasks emphasized above. Built-in operations (such as delays, waits, countdowns, flag operations and signals) are mainly used for coordination of threads in multi-threaded applications where multiple threads run with no order and it is needed to control the flow of particular threads.
+
+Byteman is an \textit{Open Source} project and plays important role in \textit{JBoss Community}. It helps other JBoss projects with test automation and quality assurance.
     \appendix
     \chapter{First appendix}        % Appendices
     \Blindtext
