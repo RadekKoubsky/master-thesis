@@ -72,6 +72,10 @@ almost every place in a call stack of a running java application. Thus the capab
 
 Byteman offers a suite of built-in operations and conditions in order to support activities and tasks emphasized above. Built-in operations (such as delays, waits, countdowns, flag operations and signals) are mainly used for coordination of threads in multi-threaded applications where multiple threads run with no order and it is needed to control the flow of particular threads.
 
+To simplify process of using Byteman in common usage or in the test automation, the Byteman rulecheck plugin and the BMUnit projects were created in later releases of Byteman.
+
+Byteman rulecheck plugin\footnote{Byteman rulecheck plugin - \url{https://developer.jboss.org/wiki/CheckingYourBytemanRuleScriptsUnderMaven}} is a maven plugin which consits of a rule parser and a type checker. It runs the rule parser and type checker before every execution of any maven test to ensure that rules are still valid when a test code is modified.
+
 Byteman is an \textit{Open Source} project and plays important role in \textit{JBoss Community}. It helps other JBoss projects with test automation and quality assurance.
     \appendix
     \chapter{First appendix}        % Appendices
