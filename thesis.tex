@@ -8,12 +8,14 @@
 \usepackage[                      % A tt font if you do not like LM's tt
   scaled=1.03
 ]{inconsolata}
+\usepackage{blindtext}
+\usepackage{url}
 \usepackage[                      % Clickable links
   plainpages = false,               % We have multiple page numberings
   pdfpagelabels                     % Generate pdf page labels
-]{hyperref}
-\usepackage{blindtext}
-\usepackage{url}            % Lorem ipsum generator
+]{hyperref}            % Lorem ipsum generator
+\usepackage{listings}
+\lstset{language=C, frame=lrtb, captionpos=b, breaklines=true, literate={\\\-}{}{0\discretionary{-}{}{}}}
 
 \thesislang{en}                   % The language of the thesis
 \thesistitle{Extend WildFly Application Server logging capabilities}       % The title of the thesis
@@ -53,10 +55,9 @@ At the end of the chapter, an example of simple java application will be provide
 which cover almost every aspect of Byteman can be found in different versions at official website \url{http://byteman.jboss.org/}. Primary source for this thesis is Byteman documentation 3.0.0 \cite{byteman_doc}.
 
 \section{Introduction to Byteman}
-Byteman is a bytecode manipulation tool which uses a bytecode injection\footnote{Bytecode injection (or bytecode instrumentation) is a process of modifying the actual bytecode of a class} in order to change a java application either as it is being loaded by \textit{Java virtula machine} or while the application is running \cite[Introduction to Byteman]{byteman_doc}.
+Byteman is a bytecode manipulation tool which uses a bytecode injection\footnote{Bytecode injection (or bytecode instrumentation) is a process of modifying the actual bytecode of a class} in order to change a java application either as it is being loaded by \textit{Java virtual machine} or while the application is running \cite[Introduction to Byteman]{byteman_doc}.
 
-Because of the bytecode injection, there is no need to change the original source code nor to recompile, redeploy the application itself. As it was mentioned, it is possible to add, replace or remove injected code at runtime while the application continues in execution. Byteman also provides a way to inject code into the Java language by modifying classes such as \textit{java.lang.Thread} and other classes from \textit{java.lang} package. Byteman uses simple scripting language called Event Condition Action\footnote{Event Condition Action (ECA) languages are an intuitive and powerful paradigm for
-programming reactive systems \cite{eca}} rules to determine how the original Java code should be transformed according to event and condition.
+Because of the bytecode injection, there is no need to change the original source code nor to recompile, redeploy the application itself. As it was mentioned, it is possible to add, replace or remove injected code at runtime while the application continues in execution. Byteman also provides a way to inject code into the Java language by modifying classes such as \textit{java.lang.Thread} and other classes from \textit{java.lang} package. Byteman uses simple scripting language called \textit{Event Condition Action)} (\ref{sec:eca_sec}) rules to determine how the original Java code should be transformed according to event and condition.
 
 The original purpose of Byteman was to provide a mechanism for automation tests used in multi-threaded and multi-JVM Java applications using a technique called fault injection. Byteman can be used to inject faults which cause an application to invoke unusual or unexpected methods which are required for certain test scenarios. There are four areas supported by Byteman in automation testing \cite[Introduction to Byteman]{byteman_doc}:
 
@@ -72,11 +73,42 @@ almost every place in a call stack of a running java application. Thus the capab
 
 Byteman offers a suite of built-in operations and conditions in order to support activities and tasks emphasized above. Built-in operations (such as delays, waits, countdowns, flag operations and signals) are mainly used for coordination of threads in multi-threaded applications where multiple threads run with no order and it is needed to control the flow of particular threads.
 
-To simplify process of using Byteman in common usage or in the test automation, the Byteman rulecheck plugin and the BMUnit projects were created in later releases of Byteman.
+To simplify process of using Byteman in common usage or in the test automation, the Byteman rulecheck plugin and the BMUnit proje-cts were created in later releases of Byteman.
 
-Byteman rulecheck plugin\footnote{Byteman rulecheck plugin - \url{https://developer.jboss.org/wiki/CheckingYourBytemanRuleScriptsUnderMaven}} is a maven plugin which consits of a rule parser and a type checker. It runs the rule parser and type checker before every execution of any maven test to ensure that rules are still valid when a test code is modified.
+Byteman rulecheck plugin\footnote{\url{https://developer.jboss.org/wiki/CheckingYourBytemanRuleScriptsUnderMaven}} is a maven plugin which consists of a rule parser and a type checker. It runs the rule parser and type checker before every execution of any maven test to ensure that rules are still valid when a test code is modified.
+
+BMUnit\footnote{\url{https://developer.jboss.org/wiki/BMUnitUsingBytemanWithJUnitOrTestNGFromMavenAndAnt}} is a java library which provides integration of Byteman with the two most used test frameworks, JUnit\footnote{\url{http://junit.org/}} and TestNG\footnote{\url{http://testng.org}}. BMUnit uses java annotations to load Byteman agent into JVM during tests, and to specify which rules should be installed by the agent before a test run (and uninstalled after test is completed).
 
 Byteman is an \textit{Open Source} project and plays important role in \textit{JBoss Community}. It helps other JBoss projects with test automation and quality assurance.
+
+\section{Event Condition Action Rules}
+\label{sec:eca_sec}
+Event Condition Action (ECA) languages are an intuitive and powerful paradigm for programming reactive systems \cite{eca}. Byteman employs ECA rule engine to inject bytecode at specified location during execution. A set of rules is defined in Byteman script which is a file with \textit{.btm} suffix. Rules are used to determine how a specific part of an application should be transformed at runtime. A rule comprises a three components, event, condition and action, which have following semantics\cite{eca}:
+
+\begin{enumerate}
+   \item when \textit{Event} occurs
+   \item if \textit{Condition} is verified
+   \item then execute \textit{Action}
+\end{enumerate}
+
+The ECA formalism provides a clear and easy-to-understand way how the bytecode injection should be performed.
+
+Syntax of the rule consists of several parts which can be parsed by the rule engine. Following code snippet ilustrates rule scheme and its structure \cite[Rule Events]{byteman_doc}:
+
+\begin{lstlisting}[caption = Byteman rule scheme, label = byteman_scheme]
+# rule skeleton
+RULE <rule name>
+# comment line in rule body
+CLASS <class name>
+METHOD <method name>
+BIND <bindings>
+IF <condition>
+DO <actions>
+ENDRULE
+\end{lstlisting}
+
+Comments in Byteman script can be placed either between definitions of rules or within the rule body. Comment line begins with \textit{\#} symbol and must start and end with new line to be parsed correctly.
+
     \appendix
     \chapter{First appendix}        % Appendices
     \Blindtext
