@@ -57,7 +57,7 @@ which cover almost every aspect of Byteman can be found in different versions at
 \section{Introduction to Byteman}
 Byteman is a bytecode manipulation tool which uses a bytecode injection\footnote{Bytecode injection (or bytecode instrumentation) is a process of modifying the actual bytecode of a class} in order to change a java application either as it is being loaded by \textit{Java virtual machine} or while the application is running \cite[Introduction to Byteman]{byteman_doc}.
 
-Because of the bytecode injection, there is no need to change the original source code nor to recompile, redeploy the application itself. As it was mentioned, it is possible to add, replace or remove injected code at runtime while the application continues in execution. Byteman also provides a way to inject code into the Java language by modifying classes such as \textit{java.lang.Thread} and other classes from \textit{java.lang} package. Byteman uses simple scripting language called \textit{Event Condition Action)} (\ref{sec:eca_sec}) rules to determine how the original Java code should be transformed according to event and condition.
+Because of the bytecode injection, there is no need to change the original source code nor to recompile, redeploy the application itself. As it was mentioned, it is possible to add, replace or remove injected code at runtime while the application continues in execution. Byteman also provides a way to inject code into the Java language by modifying classes such as \textit{java.lang.Thread} and other classes from \textit{java.lang} package. Byteman uses simple scripting language called \textit{Event Condition Action)} (\ref{subsec:eca_sec}) rules to determine how the original Java code should be transformed according to event and condition.
 
 The original purpose of Byteman was to provide a mechanism for automation tests used in multi-threaded and multi-JVM Java applications using a technique called fault injection. Byteman can be used to inject faults which cause an application to invoke unusual or unexpected methods which are required for certain test scenarios. There are four areas supported by Byteman in automation testing \cite[Introduction to Byteman]{byteman_doc}:
 
@@ -81,9 +81,14 @@ BMUnit\footnote{\url{https://developer.jboss.org/wiki/BMUnitUsingBytemanWithJUni
 
 Byteman is an \textit{Open Source} project and plays important role in \textit{JBoss Community}. It helps other JBoss projects with test automation and quality assurance.
 
-\section{Event Condition Action Rules}
-\label{sec:eca_sec}
-Event Condition Action (ECA) languages are an intuitive and powerful paradigm for programming reactive systems \cite{eca}. Byteman employs ECA rule engine to inject bytecode at specified location during execution. A set of rules is defined in Byteman script which is a file with \textit{.btm} suffix. Rules are used to determine how a specific part of an application should be transformed at runtime. A rule comprises a three components, event, condition and action, which have following semantics\cite{eca}:
+\section{The Byteman Rule Language}
+This section introduces fundamentals of the Byteman Rule Language, its syntax, semantics and functionality. The Byteman Rule Language is the only way how to inject bytecode into Java applications via Byteman. Understanding of the Byteman Rule Language is required in order to write Byteman rule scripts which forms the core functionality of this thesis. Following text is mainly focused on such parts of the Byteman Rule Language which are used in this work. Full description of the Byteman Rule Language is included in Byteman documentation \cite[The Byteman Rule Language]{byteman_doc}.
+
+\subsection{Event Condition Action Rules}
+\label{subsec:eca_sec}
+Event Condition Action (ECA) languages are an intuitive and powerful paradigm for programming reactive systems \cite{eca}. The Byteman Rule Language is built on the Event Condition Action language and adopts its core features. Byteman employs ECA rule engine to inject bytecode at specified location during execution. The whole process of the bytecode injection is done by strict and unambiguous steps which arise from the ECA language.
+
+A set of rules is defined in Byteman script which is a file with a \textit{.btm} suffix. Rules are used to determine how a specific part of an application should be transformed at runtime. A rule comprises three components, event, condition and action, which have following semantics\cite{eca}:
 
 \begin{enumerate}
    \item when \textit{Event} occurs
@@ -91,7 +96,7 @@ Event Condition Action (ECA) languages are an intuitive and powerful paradigm fo
    \item then execute \textit{Action}
 \end{enumerate}
 
-The ECA formalism provides a clear and easy-to-understand way how the bytecode injection should be performed.
+The ECA formalism provides a clear and easy-to-understand way how the bytecode injection should be performed without ambiguity.
 
 Syntax of the rule consists of several parts which can be parsed by the rule engine. Following code snippet ilustrates rule scheme and its structure \cite[Rule Events]{byteman_doc}:
 
@@ -108,6 +113,25 @@ ENDRULE
 \end{lstlisting}
 
 Comments in Byteman script can be placed either between definitions of rules or within the rule body. Comment line begins with \textit{\#} symbol and must start and end with new line to be parsed correctly.
+
+A rule starts with a name placed after the \textit{RULE} keyword. The name can have any form of a character sequence which length is at least one non-white space character. Rule names can be duplicated, however, it causes ambiguity in debugging rule scripts. The rule name is the only indetifier if an error occurs while parsing, type checking, compilation or execution of the rule.
+
+\subsection{Rule events}
+Byteman specifies a rule event as a \textit{location} in a target \textit{method} within a target \textit{class} \cite[Rule Events]{byteman_doc}. There are three types of target method: \textit{a static method}, \textit{an instance method} and \textit{a constructor}. Implicit location is \textit{AT ENTRY} if location was not specified.
+
+Target class and target method are defined after the \textit{CLASS} and \textit{METHOD} keywords and must be in defined order on separate lines. The class name describes a class with or without the package specification. The method name can be defined either as a plain name or as a name with arguments and return type. The constructor method is defined by the special string \verb|<init>| in a method name.
+
+Following code is an example of the rule event specification:
+
+\begin{lstlisting}[caption = Rule event specification, label = rule_event_code]
+#Log CMTTxInterceptor - invoke in our tx
+RULE logCMTTxInterceptor.invokeInOurTx
+CLASS org.jboss.as.ejb3.tx.CMTTxInterceptor
+METHOD invokeInOurTx(InterceptorContext, TransactionManager, EJBComponent)
+AT ENTRY
+...
+ENDRULE
+\end{lstlisting}
 
     \appendix
     \chapter{First appendix}        % Appendices
