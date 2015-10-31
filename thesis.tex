@@ -133,6 +133,9 @@ AT ENTRY
 ENDRULE
 \end{lstlisting}
 
+
+For the rule above, only one trigger point will by inserted into the class \textit{CMTTxInterceptor} from package \textit{org.jboss.as.ejb3.tx}. The triggered method is the method with name \textit{invokeInOurTx} and list of three parameters: \textit{InterceptorContext}, \textit{TransactionManager} and \textit{EJBComponent}. Note that the package qualification of all method parameters is omitted. The type checker will look up the package of each parameter of the matched method. Same approach applies for the return type of the method. 
+
     \appendix
     \chapter{First appendix}        % Appendices
     \Blindtext
