@@ -9,7 +9,7 @@
   scaled=1.03
 ]{inconsolata}
 \usepackage{blindtext}
-\usepackage{url}
+\usepackage[hyphens]{url}
 \usepackage[                      % Clickable links
   plainpages = false,               % We have multiple page numberings
   pdfpagelabels                     % Generate pdf page labels
@@ -48,36 +48,34 @@
   
   \MainMatter                     % The main matter
     \chapter{Introduction}          % Chapters
-    \Blindtext
 \chapter{Byteman}
-This chapter aims to introduce \textit{Byteman}, a bytecode manipulation tool, and its usage in java applications. Fundamental principles, functions and structure of Byteman will be described.
+This chapter aims to introduce \textit{Byteman}, a bytecode manipulation tool, and its usage in Java applications. Fundamental principles, functions and structure of Byteman will be described.
 At the end of the chapter, an example of simple java application will be provided in order to understand bytecode injection which Byteman uses. More detailed documentation, tutorials and guidelines 
 which cover almost every aspect of Byteman can be found in different versions at official website \url{http://byteman.jboss.org/}. Primary source for this thesis is Byteman documentation 3.0.0 \cite{byteman_doc}.
 
 \section{Introduction to Byteman}
 Byteman is a bytecode manipulation tool which uses a bytecode injection\footnote{Bytecode injection (or bytecode instrumentation) is a process of modifying the actual bytecode of a class} in order to change a java application either as it is being loaded by \textit{Java virtual machine} or while the application is running \cite[Introduction to Byteman]{byteman_doc}.
 
-Because of the bytecode injection, there is no need to change the original source code nor to recompile, redeploy the application itself. As it was mentioned, it is possible to add, replace or remove injected code at runtime while the application continues in execution. Byteman also provides a way to inject code into the Java language by modifying classes such as \textit{java.lang.Thread} and other classes from \textit{java.lang} package. Byteman uses simple scripting language called \textit{Event Condition Action)} (\ref{subsec:eca_sec}) rules to determine how the original Java code should be transformed according to event and condition.
+Because of the bytecode injection, there is no need to change the original source code nor to recompile, redeploy the application itself. As it was mentioned, it is possible to add, replace or remove injected code at runtime while the application continues in execution. Byteman also provides a way to inject code into the Java language by modifying classes such as \textit{java.lang.Thread} and other classes from \textit{java.lang} package. Byteman uses simple scripting language called \textit{Event Condition Action} (\ref{subsec:eca_sec}) rules to determine how the original Java code should be transformed according to event and condition.
 
 The original purpose of Byteman was to provide a mechanism for automation tests used in multi-threaded and multi-JVM Java applications using a technique called fault injection. Byteman can be used to inject faults which cause an application to invoke unusual or unexpected methods which are required for certain test scenarios. There are four areas supported by Byteman in automation testing \cite[Introduction to Byteman]{byteman_doc}:
 
 \begin{itemize}
    \item tracing execution of specific code paths and displaying application or JVM state
-   \item subverting normal execution by changing state, making unscheduled method calls or forcing an unexpected return or throw
+   \item subverting normal execution by changing state, making unsche-duled method calls or forcing an unexpected return or throw
    \item orchestrating the timing of activities performed by independent application threads
-   \item monitoring and gathering statistics summarising application and JVM operation
+   \item monitoring and gathering statistics summarising application a-nd JVM operation
 \end{itemize}
-
 However, the concept of bytecode injection involves Byteman in much larger scope of use apart from the testing area. The rule engine which forms the core of Byteman is able to inject bytecode into
-almost every place in a call stack of a running java application. Thus the capability of bytecode injection enables manipulation of a java program without any limitations in the design of the language (e.g. access level modifiers).
+almost every place in a call stack of a running java application. Thus the capability of bytecode injection enables manipulation of a Java program without any limitations in the design of the language (e.g. access level modifiers).
 
 Byteman offers a suite of built-in operations and conditions in order to support activities and tasks emphasized above. Built-in operations (such as delays, waits, countdowns, flag operations and signals) are mainly used for coordination of threads in multi-threaded applications where multiple threads run with no order and it is needed to control the flow of particular threads.
 
 To simplify process of using Byteman in common usage or in the test automation, the Byteman rulecheck plugin and the BMUnit proje-cts were created in later releases of Byteman.
 
-Byteman rulecheck plugin\footnote{\url{https://developer.jboss.org/wiki/CheckingYourBytemanRuleScriptsUnderMaven}} is a maven plugin which consists of a rule parser and a type checker. It runs the rule parser and type checker before every execution of any maven test to ensure that rules are still valid when a test code is modified.
+Byteman rulecheck plugin\footnote{\url{https://developer.jboss.org/wiki/CheckingYourBytemanRuleScriptsUnd-erMaven}} is a maven plugin which consists of a rule parser and a type checker. It runs the rule parser and type checker before every execution of any maven test to ensure that rules are still valid when a test code is modified.
 
-BMUnit\footnote{\url{https://developer.jboss.org/wiki/BMUnitUsingBytemanWithJUnitOrTestNGFromMavenAndAnt}} is a java library which provides integration of Byteman with the two most used test frameworks, JUnit\footnote{\url{http://junit.org/}} and TestNG\footnote{\url{http://testng.org}}. BMUnit uses java annotations to load Byteman agent into JVM during tests, and to specify which rules should be installed by the agent before a test run (and uninstalled after test is completed).
+BMUnit\footnote{\url{https://developer.jboss.org/wiki/BMUnitUsingBytemanWithJUnitOrTest-NGFromMavenAndAnt}} is a java library which provides integration of Byteman with the two most used test frameworks, JUnit\footnote{\url{http://junit.org/}} and TestNG\footnote{\url{http://testng.org}}. BMUnit uses java annotations to load Byteman agent into JVM during tests, and to specify which rules should be installed by the agent before a test run (and uninstalled after test is completed).
 
 Byteman is an \textit{Open Source} project and plays important role in \textit{JBoss Community}. It helps other JBoss projects with test automation and quality assurance.
 
@@ -91,6 +89,7 @@ Event Condition Action (ECA) languages are an intuitive and powerful paradigm fo
 A set of rules is defined in Byteman script which is a file with a \textit{.btm} suffix. Rules are used to determine how a specific part of an application should be transformed at runtime. A rule comprises three components, event, condition and action, which have following semantics\cite{eca}:
 
 \begin{enumerate}
+\label{itm:eca_if_then}
    \item when \textit{Event} occurs
    \item if \textit{Condition} is verified
    \item then execute \textit{Action}
@@ -98,7 +97,7 @@ A set of rules is defined in Byteman script which is a file with a \textit{.btm}
 
 The ECA formalism provides a clear and easy-to-understand way how the bytecode injection should be performed without ambiguity.
 
-Syntax of the rule consists of several parts which can be parsed by the rule engine. Following code snippet ilustrates rule scheme and its structure \cite[Rule Events]{byteman_doc}:
+Syntax of the rule consists of several parts which can be parsed by the rule engine. Following code snippet illustrates rule scheme and its structure \cite[Rule Events]{byteman_doc}:
 
 \begin{lstlisting}[caption = Byteman rule scheme, label = byteman_scheme]
 # rule skeleton
@@ -114,12 +113,12 @@ ENDRULE
 
 Comments in Byteman script can be placed either between definitions of rules or within the rule body. Comment line begins with \textit{\#} symbol and must start and end with new line to be parsed correctly.
 
-A rule starts with a name placed after the \textit{RULE} keyword. The name can have any form of a character sequence which length is at least one non-white space character. Rule names can be duplicated, however, it causes ambiguity in debugging rule scripts. The rule name is the only indetifier if an error occurs while parsing, type checking, compilation or execution of the rule.
-
+A rule starts with a name placed after the \textit{RULE} keyword. The name can have any form of a character sequence which length is at least one non-white space character. Rule names can be duplicated, however, it causes ambiguity in debugging rule scripts. The rule name is the only identifier if an error occurs while parsing, type checking, compilation or execution of the rule.
+provided with
 \subsection{Rule events}
-Byteman specifies a rule event as a \textit{location} in a target \textit{method} within a target \textit{class} \cite[Rule Events]{byteman_doc}. There are three types of target method: \textit{a static method}, \textit{an instance method} and \textit{a constructor}. Implicit location is \textit{AT ENTRY} if location was not specified.
+A rule event is an event related to an event part of the ECA language specification \ref{itm:eca_if_then}. Byteman specifies the rule event as a \textit{location} in a target \textit{method} within a target \textit{class} \cite[Rule Events]{byteman_doc}. There are three types of target method: \textit{a static method}, \textit{an instance method} and \textit{a constructor}. Implicit location is \textit{AT ENTRY} if location was not specified.
 
-Target class and target method are defined after the \textit{CLASS} and \textit{METHOD} keywords and must be in defined order on separate lines. The class name describes a class with or without the package specification. The method name can be defined either as a plain name or as a name with arguments and return type. The constructor method is defined by the special string \verb|<init>| in a method name.
+Target class and target method are defined after the \textit{CLASS} and \textit{METHOD} keywords and must be in defined order on separate lines. The class name describes a class with or without the package specification. The method name can be defined either as a plain name or as a name with arguments and return type. The constructor method is defined by the special string \verb|<init>| in the method name.
 
 Following code is an example of the rule event specification:
 
@@ -133,8 +132,82 @@ AT ENTRY
 ENDRULE
 \end{lstlisting}
 
+For the rule above, only one trigger point will by inserted into the class \textit{CMTTxInterceptor} from package \textit{org.jboss.as.ejb3.tx}. The triggered method is the method with name \textit{invokeInOurTx} and list of three parameters: \textit{InterceptorContext}, \textit{TransactionManager} and \textit{EJBComponent}. Note that the package qualification of all method parameters is omitted. The type checker will look up the package of each parameter of the matched method. Same approach applies for the return type of the method. Inner classes can be located with \textit{\$} expression e.g.: \textit{my.package.OuterClass\$InnerClass}.
 
-For the rule above, only one trigger point will by inserted into the class \textit{CMTTxInterceptor} from package \textit{org.jboss.as.ejb3.tx}. The triggered method is the method with name \textit{invokeInOurTx} and list of three parameters: \textit{InterceptorContext}, \textit{TransactionManager} and \textit{EJBComponent}. Note that the package qualification of all method parameters is omitted. The type checker will look up the package of each parameter of the matched method. Same approach applies for the return type of the method. 
+The rule event can employ any class of a Java application except following classes:
+
+\begin{itemize}
+   \item classes in package \textit{java.lang}
+   \item classes belonging to the Bytemam itself (\textit{org.jboss.byteman} package)
+\end{itemize}
+
+Injecting into Java classes is not allowed by default. Nevertheless, this option can be disabled by configuring the Java agent (here will be reference to Java agent section).
+
+The example above uses the \textit{AT ENTRY} location specifier. Byteman includes rich set of location specifiers for the rule events. Following list of location specifiers is used in this work, for the full set of location specifiers, see section \cite[Location Specifiers]{byteman_doc}.
+
+\begin{itemize}
+\item	AT ENTRY
+\item	AT EXIT
+\item	AT LINE \textit{number}
+\item	AFTER WRITE \textit{\$var-or-idx [count | ALL ]}
+\item	AT INVOKE \textit{[ type .] method [ ( argtypes ) ] [count | ALL ]}
+\item	AFTER INVOKE \textit{[ type .] method [ ( argtypes ) ][count | ALL ]}
+\end{itemize}
+
+Location specifier must be placed after the \textit{METHOD} specifier. If location specifier is omitted, the rule engine uses the \textit{AT ENTRY} location specifier.
+
+An \textit{AT ENTRY} specifier defines a trigger point before the first bytecode instruction of a target method. If the target method is the constructor method, the trigger point is added immediately after the call to super constructor or to call to alternative constructor.
+package
+An \textit{AT EXIT} specifier defines a trigger point after the last bytecode instruction of the target method. The last bytecode instruction in this case means each return statement in standard program flow where no exception has occurred.
+
+An \textit{AT LINE} specifier defines a trigger point before the first bytecode instruction which has source code line number greater than or equal to the line number argument provided in the specifier. The line number argument must be text which can be parsed to an integer number. If executable code does not exist at or after the line number, no trigger point will be inserted.
+
+An \textit{AFTER WRITE} specifier starts with a \textit{\$} prefix and continues with local variable name, parameter name or parameter index of the target method. It locates a trigger point after the bytecode instruction which is responsible for the assignment of the named variable, parameter, or the parameter at specified index. The count argument defines the \textit{Nth} assignment to the variable, default value is 1.
+
+An \textit{AT INVOKE} specifier locates a trigger point before the first instruction which invokes a method provided as an argument of the specifier. Trigger point can be an invocation of a method or a constructor within the target method. The name of the invoked method can be described with or without package qualification. Method parameters are expressed as a list of parameters types separated by comma. Parameter type may contain package qualification or the package is inferred by the type checker.
+
+An \textit{AFTER INVOKE} specifier locates a trigger point before the first instruction which follows an invocation of a method provided as an argument of the specifier. Method description follows same rules as in the \textit{AT INVOKE} specifier.
+
+\subsection{Rule Bindings}
+The rule binding specification allows either assignments to the new variables defined in a rule body or reassignments of existing variables in the target method. The assignments are performed each time the rule is triggered \cite[Rule Bindings]{byteman_doc}. Following example shows simple binding in the rule body: 
+
+\begin{lstlisting}[caption = Rule binding specification, label = rule_binding_code]
+RULE logChainInitiationObserver.onMessage
+CLASS org.apache.cxf.transport.ChainInitiationObserver
+METHOD onMessage(Message)
+AT ENTRY
+BIND bindMessage:Message = $1;
+IF bindMessage != null
+DO ...
+ENDRULE
+\end{lstlisting}
+
+Binding defined in the rule above starts with the \textit{BIND} keyword which is followed with the variable \textit{bindMessage} on the left side, and the value on the right side. The assigned value is the value of the target method parameter at index 1. The type \textit{Message} of the \textit{bindMessage} variable is defined between the ":" character and "=" operator. If the type specification of the variable is omitted, it will be inferred from the type of the \textit{\$1} value. If there is more than one binding, each binding is ended with semicolon.
+
+\subsection{Rule Expressions}
+Rule expressions can be used in the rule body and provide several operations such as method invocations, built-in calls and field references. Byteman defines following set of expressions \cite[Rule Expressions]{byteman_doc}:
+
+\begin{itemize}
+	\item references to previously bound variables
+	\item references to the trigger method recipient or parameters
+	\item references to the local variables in scope at the trigger point
+	\item references to special variables:
+\begin{lstlisting}[frame=]
+$!, $^, $#, $*, $@, $CLASS and $METHOD
+\end{lstlisting}
+	\item static field references
+	\item primitive literals
+	\item field accesses
+	\item static or instance method invocations
+	\item built-in operation invocations
+\end{itemize}
+
+It is possible to combine simple expressions to construct complex expressions using standard Java operators:
+\begin{lstlisting}[frame=]
++, -, *, /, %, &, |, ^, &&, ||, !, =, ==, !=, <. <=, >, >=, new, etc.
+\end{lstlisting}
+
+A reference to a trigger method instance is provided with \textit{\$0} symbol. If the triggered method is a static method, the \textit{\$0} expression is invalid. A reference to the triggered method parameters is provided with \textit{\$} symbol and index (1, 2, 3...). Index specifies position of a parameter in the triggered method.
 
     \appendix
     \chapter{First appendix}        % Appendices
