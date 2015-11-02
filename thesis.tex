@@ -157,7 +157,7 @@ The example above uses the \textit{AT ENTRY} location specifier. Byteman include
 Location specifier must be placed after the \textit{METHOD} specifier. If location specifier is omitted, the rule engine uses the \textit{AT ENTRY} location specifier.
 
 An \textit{AT ENTRY} specifier defines a trigger point before the first bytecode instruction of a target method. If the target method is the constructor method, the trigger point is added immediately after the call to super constructor or to call to alternative constructor.
-package
+
 An \textit{AT EXIT} specifier defines a trigger point after the last bytecode instruction of the target method. The last bytecode instruction in this case means each return statement in standard program flow where no exception has occurred.
 
 An \textit{AT LINE} specifier defines a trigger point before the first bytecode instruction which has source code line number greater than or equal to the line number argument provided in the specifier. The line number argument must be text which can be parsed to an integer number. If executable code does not exist at or after the line number, no trigger point will be inserted.
@@ -208,6 +208,25 @@ It is possible to combine simple expressions to construct complex expressions us
 \end{lstlisting}
 
 A reference to a trigger method instance is provided with \textit{\$0} symbol. If the triggered method is a static method, the \textit{\$0} expression is invalid. A reference to the triggered method parameters is provided with \textit{\$} symbol and index (1, 2, 3...). Index specifies position of a parameter in the triggered method.
+
+A \textit{\$CLASS} special variable provides a \textit{String} representation of the full package qualified class whose method is the target of a rule. In most cases, the variable has the same value as the target class after the \textit{CLASS} keyword. However, if the target class is an interface, the value of the \textit{\$CLASS} variable can vary depending on interface implementation.
+
+A \textit{\$METHOD} special variable provides a \textit{String} representation of the full name of the target method of a rule. Note that the method name is same as the target method specified after the \textit{METHOD} event specifier. The printed name of the method consists of full package qualified return type, bare method name and full package qualified list of parameters types.
+
+A \textit{\$@} expression can be used only with \textit{AT INVOKE} location specifier. The value of the expression refers to an \textit{Object[]} array. The first slot in the array is an instance of a class whose method is specified in \textit{AT INVOKE} (if the target method is static, the value is null). Values in slots at indexes 1, 2, 3... are values of the target method parameters.
+
+Following rule shows usage of the expressions mentioned above:
+\begin{lstlisting}[caption = Rule Expressions, label = rule_expressions_code]
+RULE logPutData
+CLASS org.jboss.as.webservices.deployers.WSComponentInstanceAssociationInterceptor
+METHOD processInvocation(InterceptorContext)
+AT INVOKE putPrivateData(Class, Object)
+IF true
+DO log($CLASS, "DEBUG", "Putting component instance to interceptor context:" +
+"\nClass: " + $@[1] + "\nInstance: " + $@[2]);
+ENDRULE
+\end{lstlisting}
+
 
     \appendix
     \chapter{First appendix}        % Appendices
