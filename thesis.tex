@@ -132,7 +132,7 @@ AT ENTRY
 ENDRULE
 \end{lstlisting}
 
-For the rule above, only one trigger point will by inserted into the class \textit{CMTTxInterceptor} from package \textit{org.jboss.as.ejb3.tx}. The triggered method is the method with name \textit{invokeInOurTx} and list of three parameters: \textit{InterceptorContext}, \textit{TransactionManager} and \textit{EJBComponent}. Note that the package qualification of all method parameters is omitted. The type checker will look up the package of each parameter of the matched method. Same approach applies for the return type of the method. Inner classes can be located with \textit{\$} expression e.g.: \textit{my.package.OuterClass\$InnerClass}.
+For the rule above, only one trigger point will by inserted into the class \textit{CMTTxInterceptor} from package \textit{org.jboss.as.ejb3.tx}. The triggermethod is the method with name \textit{invokeInOurTx} and list of three parameters: \textit{InterceptorContext}, \textit{TransactionManager} and \textit{EJBComponent}. Note that the package qualification of all method parameters is omitted. The type checker will look up the package of each parameter of the matched method. Same approach applies for the return type of the method. Inner classes can be located with \textit{\$} expression e.g.: \textit{my.package.OuterClass\$InnerClass}.
 
 The rule event can employ any class of a Java application except the following classes:
 
@@ -185,6 +185,7 @@ ENDRULE
 Binding defined in the rule above starts with the \textit{BIND} keyword which is followed with the variable \textit{bindMessage} on the left side, and the value on the right side. The assigned value is the value of the target method parameter at index 1. The type \textit{Message} of the \textit{bindMessage} variable is defined between the ":" character and "=" operator. If the type specification of the variable is omitted, it will be inferred from the type of the \textit{\$1} value. If there is more than one binding, each binding is ended with semicolon.
 
 \subsection{Rule Expressions}
+\label{subsec:rule_exp}
 Rule expressions can be used in the rule body and provide several operations such as method invocations, built-in calls and field references. Byteman defines the following set of expressions \cite[Rule Expressions]{byteman_doc}:
 
 \begin{itemize}
@@ -207,7 +208,7 @@ It is possible to combine simple expressions to construct complex expressions us
 +, -, *, /, %, &, |, ^, &&, ||, !, =, ==, !=, <. <=, >, >=, new, etc.
 \end{lstlisting}
 
-A reference to a trigger method instance is provided with \textit{\$0} symbol. If the triggered method is a static method, the \textit{\$0} expression is invalid. A reference to the triggered method parameters is provided with \textit{\$} symbol and index (1, 2, 3...). Index specifies position of a parameter in the triggered method.
+A reference to a trigger method instance is provided with \textit{\$0} symbol. If the trigger method is a static method, the \textit{\$0} expression is invalid. A reference to the trigger method parameters is provided with \textit{\$} symbol and index (1, 2, 3...). Index specifies position of a parameter in the trigger method.
 
 A \textit{\$CLASS} special variable provides a \textit{String} representation of the full package qualified class whose method is the target of a rule. In most cases, the variable has the same value as the target class after the \textit{CLASS} keyword. However, if the target class is an interface, the value of the \textit{\$CLASS} variable can vary depending on interface implementation.
 
@@ -227,6 +228,14 @@ DO log($CLASS, "DEBUG", "Putting component instance to interceptor context:" +
 ENDRULE
 \end{lstlisting}
 
+\subsection{Rule actions}
+Rule actions can be represented by rule expressions \ref{subsec:rule_exp} or return or throw actions. A rule expression which is used in action may have any type including void type \cite[Rule actions]{byteman_doc}.
+
+A rule expression can employ standard built-in methods (link) or methods defined in additional helper class (link) bound to a rule.
+
+A return action starts with the \textit{return} keyword and can return a plain constant or a complex rule expression which is evaluated to a return value. Type of the constant or the complex expression must be assignable to the return type of the trigger method. If the type of the trigger method is void, the return value in of the return action can be omitted \cite[Rule actions]{byteman_doc}..
+
+A throw action consists of the \textit{throw} keyword and an expression which is a constructor of a \textit{throwable} to be thrown in a trigger method. The type of the \textit{throwable} can be class \textit{java.lang.RuntimeException}, \textit{java.lang.Error} or its subclasses.
 
     \appendix
     \chapter{First appendix}        % Appendices
