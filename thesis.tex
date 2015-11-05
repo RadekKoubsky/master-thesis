@@ -212,7 +212,7 @@ A reference to a trigger method instance is provided with \textit{\$0} symbol. I
 
 A \textit{\$CLASS} special variable provides a \textit{String} representation of the full package qualified class whose method is the target of a rule. In most cases, the variable has the same value as the target class after the \textit{CLASS} keyword. However, if the target class is an interface, the value of the \textit{\$CLASS} variable can vary depending on interface implementation.
 
-A \textit{\$METHOD} special variable provides a \textit{String} representation of the full name of the target method of a rule. Note that the method name is same as the target method specified after the \textit{METHOD} event specifier. The printed name of the method consists of full package qualified return type, bare method name and full package qualified list of parameters types.
+A \textit{\$METHOD} special variab\cite[Rule actions]{byteman_doc}le provides a \textit{String} representation of the full name of the target method of a rule. Note that the method name is same as the target method specified after the \textit{METHOD} event specifier. The printed name of the method consists of full package qualified return type, bare method name and full package qualified list of parameters types.
 
 A \textit{\$@} expression can be used only with \textit{AT INVOKE} location specifier. The value of the expression refers to an \textit{Object[]} array. The first slot in the array is an instance of a class whose method is specified in \textit{AT INVOKE} (if the target method is static, the value is null). Values in slots at indexes 1, 2, 3... are values of the target method parameters.
 
@@ -229,13 +229,34 @@ ENDRULE
 \end{lstlisting}
 
 \subsection{Rule actions}
-Rule actions can be represented by rule expressions \ref{subsec:rule_exp} or return or throw actions. A rule expression which is used in action may have any type including void type \cite[Rule actions]{byteman_doc}.
+Rule actions can be represented by rule expressions \ref{subsec:rule_exp} or return or throw actions. A rule expression which is used in an action may have any type including void type \cite[Rule actions]{byteman_doc}. Several rule expressions are separated by semicolon. However, if an action contains only a single rule expression, the semicolon is omitted.
 
 A rule expression can employ standard built-in methods (link) or methods defined in additional helper class (link) bound to a rule.
 
-A return action starts with the \textit{return} keyword and can return a plain constant or a complex rule expression which is evaluated to a return value. Type of the constant or the complex expression must be assignable to the return type of the trigger method. If the type of the trigger method is void, the return value in of the return action can be omitted \cite[Rule actions]{byteman_doc}..
+A return action starts with the \textit{return} keyword and can return a plain constant or a complex rule expression which is evaluated to a return value. Type of the constant or the complex expression must be assignable to the return type of the trigger method. If the type of the trigger method is void, the return value of the return action can be omitted \cite[Rule actions]{byteman_doc}.
 
-A throw action consists of the \textit{throw} keyword and an expression which is a constructor of a \textit{throwable} to be thrown in a trigger method. The type of the \textit{throwable} can be class \textit{java.lang.RuntimeException}, \textit{java.lang.Error} or its subclasses.
+A throw action consists of two parts, the \textit{throw} keyword and a constructor of a \textit{throwable}. A constructor starts with the standard \textit{new} keyword followed by a class definition which can be: \textit{java.lang.RuntimeException}, \textit{java.lang.Error}, subclasses of previous two classes or \textit{throwable} defined in the trigger method signature \cite[Rule actions]{byteman_doc}.
+
+The following rule shows an example of rule action according to the definitions above:
+\begin{lstlisting}[caption = Rule Action, label = rule_action_code]
+RULE example of an action
+CLASS org.jboss.resteasy.core.ResourceMethodInvoker
+METHOD invoke(HttpRequest, HttpResponse, Object)
+AT ENTRY
+IF true
+DO debug("Returning empty response.");
+   return Response.noContent().build();
+ENDRULE
+\end{lstlisting}
+
+The rule ''example of an action'' employs built-in operation \textit{public boolean debug(String message)}  and return action. Note that the type of the return value which is returned by \textit{Response.noContent().build()} must be assignable to return type of the trigger method.
+
+\subsection{Built-In Calls}
+Built-in calls are operations which can be used within a rule body. Byteman provides a set of build-in calls in order to write comprehensive rules without additional complexity.
+
+Build-in calls are implemented as public methods of the default \textit{Helper} class. An instance of the \textit{Helper} class is assigned to a rule instance every time an instance is being created by the rule engine. Thus a rule can use all public methods exposed by the instance of the \textit{Helper} class \cite[Built-In Calls]{byteman_doc}.
+
+Built-in methods can be recognized as methods of \textit{this} in the context of a rule. Thus, when the type checker finds a method without caller, the method will be type checked as a method of the \textit{Helper} class. Therefore, the rule engine invokes the implementations of the built-in methods on the instance of \textit{Helper} class bound to a rule call.
 
     \appendix
     \chapter{First appendix}        % Appendices
