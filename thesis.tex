@@ -116,6 +116,7 @@ Comments in Byteman script can be placed either between definitions of rules or 
 A rule starts with a name placed after the \textit{RULE} keyword. The name can have any form of a character sequence which length is at least one non-white space character. Rule names can be duplicated, however, it causes ambiguity in debugging rule scripts. The rule name is the only identifier if an error occurs while parsing, type checking, compilation or execution of the rule.
 provided with
 \subsection{Rule events}
+\label{subsec:rule_events}
 A rule event is an event related to an event part of the ECA language specification \ref{itm:eca_if_then}. Byteman specifies the rule event as a \textit{location} in a target \textit{method} within a target \textit{class} \cite[Rule Events]{byteman_doc}. There are three types of target method: \textit{a static method}, \textit{an instance method} and \textit{a constructor}. Implicit location is \textit{AT ENTRY} if location was not specified.
 
 Target class and target method are defined after the \textit{CLASS} and \textit{METHOD} keywords and must be in defined order on separate lines. The class name describes a class with or without the package specification. The method name can be defined either as a plain name or as a name with arguments and return type. The constructor method is defined by the special string \verb|<init>| in the method name.
@@ -252,11 +253,35 @@ ENDRULE
 The rule ''example of an action'' employs built-in operation \textit{public boolean debug(String message)}  and return action. Note that the type of the return value which is returned by \textit{Response.noContent().build()} must be assignable to return type of the trigger method.
 
 \subsection{Built-In Calls}
-Built-in calls are operations which can be used within a rule body. Byteman provides a set of build-in calls in order to write comprehensive rules without additional complexity.
+Built-in calls are operations which can be used within a rule body. Byteman provides a set of build-in calls in order to write comprehensive rules without additional complexity \cite[Built-In Calls]{byteman_doc}.
 
-Build-in calls are implemented as public methods of the default \textit{Helper} class. An instance of the \textit{Helper} class is assigned to a rule instance every time an instance is being created by the rule engine. Thus a rule can use all public methods exposed by the instance of the \textit{Helper} class \cite[Built-In Calls]{byteman_doc}.
+Build-in calls are implemented as public methods of the default \textit{Helper} class. An instance of the \textit{Helper} class is assigned to a rule instance every time an instance is being created by the rule engine. Thus a rule can use all public methods exposed by the instance of the \textit{Helper} class.
 
-Built-in methods can be recognized as methods of \textit{this} in the context of a rule. Thus, when the type checker finds a method without caller, the method will be type checked as a method of the \textit{Helper} class. Therefore, the rule engine invokes the implementations of the built-in methods on the instance of \textit{Helper} class bound to a rule call.
+Built-in methods can be recognized as methods of \textit{this} in the context of a rule. Thus, when the type checker finds a method without caller, the method will be type checked as a method of the \textit{Helper} class. At the execution time the rule engine invokes the implementations of the built-in methods on the instance of the \textit{Helper} class bound to a rule.
+
+The architecture of the built-in calls allows simple extension of existing built-in operations. New built-in operations can be added to the rule engine by implementing new methods in the \textit{Helper} class. There is no need make changes in the parser,  type checker or compiler.
+
+The build-in operations are grouped into the following categories\cite{byteman_doc}:
+\begin{itemize}
+	\item	Thread Coordination Operations
+	\item	Rule State Management Operations
+	\item	Trace and Debug Operations
+	\item	Stack Management Operations
+	\item	Default Helper Lifecycle Methods
+\end{itemize}
+ 
+Full list of built-in operations and its description can be found in the documentation of Byteman \cite{byteman_doc}.
+
+\subsection{User-Defined Rule Helpers}
+Built-in operations in the previous subsection provide default functionality for a user of Byteman. However, it is possible to define a \textit{CustomHelper} class which can override, replace or extend the existing default \textit{Helper} class \cite[User-Defined Rule Helpers]{byteman_doc}.
+
+The only requirement for the \textit{CustomHelper} is to extend base \textit{Helper} class. The \textit{CustomHelper} automatically inherits all built-in methods from the base \textit{Helper} if the methods are not overridden. A new method in the \textit{CustomHelper} must have \textit{public} access level modifier. Thus, a rule can use methods exposed the \textit{CustomHelper}.
+
+A \textit{CustomHelper} can be bound either to a single rule or to all rules (without specific helper class) defined in a rule script. Custom helpers are identified by the full package qualified class definition.
+
+A \textit{CustomHelper} bound to a single rule is defined after the \textit{METHOD} event \ref{subsec:rule_events} in a rule definition.
+	
+A \textit{CustomHelper} bound to a set of rules without helper class is placed before the first rule definition in the set. The \textit{CustomHelper} is applied to all rules in the se until the first occurrence of another \textit{CustomHelper}.
 
     \appendix
     \chapter{First appendix}        % Appendices
