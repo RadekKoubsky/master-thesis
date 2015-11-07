@@ -275,13 +275,51 @@ Full list of built-in operations and its description can be found in the documen
 \subsection{User-Defined Rule Helpers}
 Built-in operations in the previous subsection provide default functionality for a user of Byteman. However, it is possible to define a \textit{CustomHelper} class which can override, replace or extend the existing default \textit{Helper} class \cite[User-Defined Rule Helpers]{byteman_doc}.
 
-The only requirement for the \textit{CustomHelper} is to extend base \textit{Helper} class. The \textit{CustomHelper} automatically inherits all built-in methods from the base \textit{Helper} if the methods are not overridden. A new method in the \textit{CustomHelper} must have \textit{public} access level modifier. Thus, a rule can use methods exposed the \textit{CustomHelper}.
+The only requirement for the \textit{CustomHelper} is to extend the base \textit{Helper} class. The \textit{CustomHelper} automatically inherits all built-in methods from the base \textit{Helper} if the methods are not overridden. A new method in the \textit{CustomHelper} must have \textit{public} access level modifier. Thus, a rule can use methods exposed by the \textit{CustomHelper}.
+\newpage
+The rule in the following example employs helper class \textit{MyHelper}:
+\begin{lstlisting}[caption = Rule with user-defined helper class, label = rule_with_helper]
+RULE rule with helper
+CLASS org.jboss.as.ejb3.security.SecurityContextInterceptor
+METHOD processInvocation(InterceptorContext)
+HELPER com.examples.MyHelper
+AT ENTRY
+IF true
+DO myMethod();
+ENDRULE
+\end{lstlisting}
+
+When the rule above is executed, an instance of \textit{MyHelper} class is created and method \textit{myMethod()} is invoked in the rule action. \textit{MyHelper} class is defined as standard Java class:
+\begin{lstlisting}[caption = User-Defined helper class, label = rule_helper, language=Java]
+public class MyHelper extends Helper{
+	protected MyHelper(final Rule rule) {
+		super(rule);
+	}
+	public String myMethod(){
+		System.out.println("Printed text from MyHelper class.");
+	}
+}
+\end{lstlisting}
 
 A \textit{CustomHelper} can be bound either to a single rule or to all rules (without specific helper class) defined in a rule script. Custom helpers are identified by the full package qualified class definition.
 
 A \textit{CustomHelper} bound to a single rule is defined after the \textit{METHOD} event \ref{subsec:rule_events} in a rule definition.
 	
-A \textit{CustomHelper} bound to a set of rules without helper class is placed before the first rule definition in the set. The \textit{CustomHelper} is applied to all rules in the se until the first occurrence of another \textit{CustomHelper}.
+A \textit{CustomHelper} bound to all rules without a helper class is placed at the start of a rule script before the definition of the first rule. The common \textit{CustomHelper} is applied to all rules in the rule script except rules with specific \textit{CustomHelper}.
+
+For example, the first two rules use \textit{CommonHelper}, the third rule uses \textit{SpecificHelper}:
+\begin{lstlisting}[caption = Rules with common helper, label = rules_common_helper]
+HELPER com.examples.CommonHelper
+RULE rule A ...
+
+RULE rule B ...
+
+RULE rule C with specific helper...
+CLASS ...
+METHOD ....
+HELPER com.examples.SpecificHelper
+ENDRULE
+\end{lstlisting}
 
     \appendix
     \chapter{First appendix}        % Appendices
