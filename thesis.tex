@@ -321,6 +321,17 @@ HELPER com.examples.SpecificHelper
 ENDRULE
 \end{lstlisting}
 
+\section{Agent Transformation}
+Byteman employs Java agent to modify bytecode of the target Java application. The Java agent uses package \textit{java.lang.Instrumentation} for bytecode instrumentation \cite{instrumentation}: ''Bytecode instrumentation is a valuable technique for transparently enhancing virtual execution environments, for purposes such as monitoring or profiling.''
+
+The Byteman agent and rule scripts are loaded at JVM boostrap. When an application is launched, the agent analyzes application bytecode and looks for trigger points which are defined by the rule events \ref{subsec:rule_events}. If a rule event matches a location in bytecode, the rule engine inserts \textit{trigger call} into the location in bytecode. A \textit{trigger call} is performed by the rule engine and consists of the following parts \cite[Agent Transformation]{byteman_doc}:
+
+\begin{itemize}
+	\item	the trigger method, i.e. the method which contains the trigger point
+	\item	the rule which has been matched
+	\item	the arguments to the trigger method
+\end{itemize}
+
     \appendix
     \chapter{First appendix}        % Appendices
     \Blindtext
