@@ -66,8 +66,7 @@ The original purpose of Byteman was to provide a mechanism for automation tests 
    \item orchestrating the timing of activities performed by independent application threads
    \item monitoring and gathering statistics summarising application a-nd JVM operation
 \end{itemize}
-However, the concept of bytecode injection involves Byteman in much larger scope of use apart from the testing area. The rule engine, which forms the core of Byteman, is able to inject bytecode into
-almost every place in a call stack of a running java application. Thus the capability of bytecode injection enables manipulation of a Java program without any limitations in the design of the language (e.g. access level modifiers).
+However, the concept of bytecode injection involves Byteman in much larger scope of use apart from the testing area. The rule engine \ref{sec:rule_engine}, which forms the core of Byteman, is able to inject bytecode into almost every place in a call stack of a running java application. Thus the capability of bytecode injection enables manipulation of a Java program without any limitations in the design of the language (e.g. access level modifiers).
 
 Byteman offers a suite of built-in operations and conditions in order to support activities and tasks emphasized above. Built-in operations (such as delays, waits, countdowns, flag operations and signals) are mainly used for coordination of threads in multi-threaded applications where multiple threads run with no order and it is needed to control the flow of particular threads.
 
@@ -80,11 +79,13 @@ BMUnit\footnote{\url{https://developer.jboss.org/wiki/BMUnitUsingBytemanWithJUni
 Byteman is an \textit{Open Source} project and plays important role in \textit{JBoss Community}. It helps other JBoss projects with test automation and quality assurance.
 
 \section{The Byteman Rule Language}
-This section introduces fundamentals of the Byteman Rule Language, its syntax, semantics and functionality. The Byteman Rule Language is the only way how to inject bytecode into Java applications via Byteman. Understanding of the Byteman Rule Language is required in order to write Byteman rule scripts which forms the core functionality of this thesis. The following text is mainly focused on such parts of the Byteman Rule Language which are used in this work. Full description of the Byteman Rule Language is included in Byteman documentation \cite[The Byteman Rule Language]{byteman_doc}.
+This section introduces fundamentals of the Byteman Rule Language, its syntax, semantics and functionality. The Byteman Rule Language is the only way how to inject bytecode into Java applications via Byteman. Understanding of the Byteman Rule Language is required in order to write Byteman rule scripts which form the core functionality of this thesis. The following text is mainly focused on such parts of the Byteman Rule Language which are used in this work. Full description of the Byteman Rule Language is included in Byteman documentation \cite[The Byteman Rule Language]{byteman_doc}.
 
 \subsection{Event Condition Action Rules}
 \label{subsec:eca_sec}
-Event Condition Action (ECA) languages are an intuitive and powerful paradigm for programming reactive systems \cite{eca}. The Byteman Rule Language is built on the Event Condition Action language and adopts its core features. Byteman employs ECA rule engine to inject bytecode at specified location during execution. The whole process of the bytecode injection is done by strict and unambiguous steps which arise from the ECA language.
+According to \cite{eca}: ''Event Condition Action (ECA) languages are an intuitive and powerful paradigm for programming reactive systems.'' 
+
+The Byteman Rule Language is built on the Event Condition Action language and adopts its core features. Byteman employs ECA rule engine to inject bytecode at specified location during execution. The whole process of the bytecode injection is done by strict and unambiguous steps which arise from the ECA language.
 
 A set of rules is defined in Byteman script which is a file with a \textit{.btm} suffix. Rules are used to determine how a specific part of an application should be transformed at runtime. A rule comprises three components, event, condition and action, which have the following semantics\cite{eca}:
 
@@ -170,7 +171,8 @@ An \textit{AT INVOKE} specifier locates a trigger point before the first instruc
 An \textit{AFTER INVOKE} specifier locates a trigger point before the first instruction which follows an invocation of a method provided as an argument of the specifier. Method description follows same rules as in the \textit{AT INVOKE} specifier.
 
 \subsection{Rule Bindings}
-The rule binding specification is used for binding values to variables in a context of a rule. It is possible to assign a value to a new variable or reassign an existing variable. The context of the rule provides access to methods and variables of target class instance (if the target method is not static) and local variables in the scope of the trigger method. The assignments are performed each time the rule is triggered \cite[Rule Bindings]{byteman_doc}. The following example shows simple binding in the rule body: 
+\label{subsec:rule_bindings}
+The rule binding specification is used for binding values to variables in a context of a rule. It is possible to assign a value to a new variable or reassign an existing variable. The context of the rule provides access to methods and fields of target class instance (if the target method is not static) and local variables in the scope of the trigger method. The assignments are performed each time the rule is triggered \cite[Rule Bindings]{byteman_doc}. The following example shows simple binding in the rule body: 
 
 \begin{lstlisting}[caption = Rule binding specification, label = rule_binding_code]
 RULE logChainInitiationObserver.onMessage
@@ -209,7 +211,7 @@ It is possible to combine simple expressions to construct complex expressions us
 +, -, *, /, %, &, |, ^, &&, ||, !, =, ==, !=, <. <=, >, >=, new, etc.
 \end{lstlisting}
 
-A reference to a trigger method instance is provided with \textit{\$0} symbol. If the trigger method is a static method, the \textit{\$0} expression is invalid. A reference to the trigger method parameters is provided with \textit{\$} symbol and index (1, 2, 3...). Index specifies position of a parameter in the trigger method.
+A reference to a trigger method instance is provided by the \textit{\$0} symbol. If the trigger method is a static method, the \textit{\$0} expression is invalid. A reference to the trigger method parameters is provided by the \textit{\$} symbol and index (1, 2, 3...). Index specifies position of a parameter in the trigger method.
 
 A \textit{\$CLASS} special variable provides a \textit{String} representation of the full package qualified class whose method is the target of a rule. In most cases, the variable has the same value as the target class after the \textit{CLASS} keyword. However, if the target class is an interface, the value of the \textit{\$CLASS} variable can vary depending on interface implementation.
 
@@ -322,15 +324,41 @@ ENDRULE
 \end{lstlisting}
 
 \section{Agent Transformation}
-Byteman employs Java agent to modify bytecode of the target Java application. The Java agent uses package \textit{java.lang.Instrumentation} for bytecode instrumentation \cite{instrumentation}: ''Bytecode instrumentation is a valuable technique for transparently enhancing virtual execution environments, for purposes such as monitoring or profiling.''
+Byteman employs Java agent to modify bytecode of the target Java application. From \cite{agent_def}: ''An agent is anything that can be viewed as perceiving its environment through sensors and acting upon that environment through effectors.''
 
-The Byteman agent and rule scripts are loaded at JVM boostrap. When an application is launched, the agent analyzes application bytecode and looks for trigger points which are defined by the rule events \ref{subsec:rule_events}. If a rule event matches a location in bytecode, the rule engine inserts \textit{trigger call} into the location in bytecode. A \textit{trigger call} is performed by the rule engine and consists of the following parts \cite[Agent Transformation]{byteman_doc}:
+The Java agent uses package \textit{java.lang.Instrumentation} for bytecode instrumentation \cite{instrumentation}: ''Bytecode instrumentation is a valuable technique for transparently enhancing virtual execution environments, for purposes such as monitoring or profiling.''
+
+The Byteman agent and rule scripts are loaded at JVM boostrap. When an application is launched, the agent analyzes application bytecode and looks for trigger points which are defined by the rule events \ref{subsec:rule_events}. If a rule event matches a location in bytecode, the agent inserts \textit{trigger call} into that location. A \textit{trigger call} is performed by the rule engine and consists of the following parts \cite[Agent Transformation]{byteman_doc}:
 
 \begin{itemize}
 	\item	the trigger method, i.e. the method which contains the trigger point
 	\item	the rule which has been matched
 	\item	the arguments to the trigger method
 \end{itemize}
+
+If there is more than one rule for the same trigger point, a sequence of \textit{trigger calls} will be added to the bytecode. The order of \textit{trigger calls} reflects the order of rules defined in a rule script. A special case is rules with an \textit{AFTER} location specifier \ref{subsec:rule_events}. In this case, \textit{trigger calls} are executed in reverse order in which rules were defined in a rule script.
+
+When a program flow reaches a location with a \textit{trigger call}, the rule engine searches for the rule which is bound to the trigger call and executes it. At the start of the rule execution, the rule engine initializes variables defined in rule bindings \ref{subsec:rule_bindings}. Then, the execution continues in the ECA formalism \ref{subsec:eca_sec}: if the rule condition is verified, the rule action is executed.
+
+The rule engine obtains an instance of a target method and method arguments from a \textit{trigger call}. To access the instance and method arguments in a rule body, \textit{\$0} (the instance) and \textit{\$1, \$2...} (method arguments) expressions are used \ref{subsec:rule_exp}. Local variables are also passed by the \textit{trigger call} and can be accessed with \textit{\$} symbol followed by a name of a local variable e.g. \textit{\$variableName}.
+
+The agent also provides exception handler which is wrapped around the \textit{trigger call} in order to process exceptions which can be thrown during the execution of a rule \cite[Agent Transformation]{byteman_doc}.
+
+\section{Rule engine}
+\label{sec:rule_engine}
+The following components form the Byteman rule engine: a rule parser, type checker and interpreter/compiler. The agent invokes the rule parser at JVM bootstrap in order to search for potential trigger points \cite[ECA Rule Engine]{byteman_doc}.
+
+When a rule is type checked, the type checker needs to access properties of the target class and all classes (including fields, method signatures etc.) which the target class employs. For this reason, the rule must be type checked and compiled after the corresponding bytecode of the target class was loaded i.e. at the first time the rule was triggered. A positive side effect of the type checking process is reduction of cost as rules, which are not triggered, are not type checked and compiled.
+
+Depending on the event specification, there can be one or more trigger points associated with a rule. However, if the rule specification identifies exactly one trigger point for the target class, the class can be loaded by different class loaders. Thus, the rule engine ensures that a rule is type checked for each trigger point.
+
+If there is an error during type check or compilation, the rule engine informs user about the error and the \textit{trigger calls} will not be executed.
+
+The rule engine uses \textit{helper adapter}, an auxiliary class, for the execution of a rule. The \textit{helper adapter} extends the \textit{Helper} class and provides additional functionality for the execution. The \textit{execute} method, which is invoked at the trigger point, is responsible for the rule execution itself.
+
+When a rule is executed, a instance of the \textit{helper adapter} is created. The instance initializes the rule with all bindings fields to provide metadata for the trigger call. Then, the rule engine calls the \textit{execute} method to execute the rule.
+
+A new instance of \textit{helper adapter} is created for each invocation of the rule, thus, concurrent \textit{trigger calls} are performed in thread safe environment.
 
     \appendix
     \chapter{First appendix}        % Appendices
