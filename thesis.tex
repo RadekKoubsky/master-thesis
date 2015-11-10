@@ -346,7 +346,7 @@ The agent also provides exception handler which is wrapped around the \textit{tr
 
 \section{Rule engine}
 \label{sec:rule_engine}
-The following components form the Byteman rule engine: a rule parser, type checker and interpreter/compiler. The agent invokes the rule parser at JVM bootstrap in order to search for potential trigger points \cite[ECA Rule Engine]{byteman_doc}.
+Byteman rule engine is heart of the Byteman, it executes rules to inject bytecode into Java application.. The following components form the Byteman rule engine: a rule parser, type checker and interpreter/compiler. The agent invokes the rule parser at JVM bootstrap in order to search for potential trigger points \cite[ECA Rule Engine]{byteman_doc}.
 
 When a rule is type checked, the type checker needs to access properties of the target class and all classes (including fields, method signatures etc.) which the target class employs. For this reason, the rule must be type checked and compiled after the corresponding bytecode of the target class was loaded i.e. at the first time the rule was triggered. A positive side effect of the type checking process is reduction of cost as rules, which are not triggered, are not type checked and compiled.
 
@@ -358,7 +358,63 @@ The rule engine uses \textit{helper adapter}, an auxiliary class, for the execut
 
 When a rule is executed, a instance of the \textit{helper adapter} is created. The instance initializes the rule with all bindings fields to provide metadata for the trigger call. Then, the rule engine calls the \textit{execute} method to execute the rule.
 
-A new instance of \textit{helper adapter} is created for each invocation of the rule, thus, concurrent \textit{trigger calls} are performed in thread safe environment.
+A new instance of \textit{helper adapter} is created for each invocation of same rule, thus, undesirable interference of concurrent \textit{trigger calls} is avoided.
+
+\section{Using Byteman in Java applications}
+Using Byteman in a Java application means running the Java agent in the background of an application. For this purpose, the \textit{-javaagent} option must be passed to the Java virtual machine which runs the Java application. The Java agent is configured in the following format \cite[Running Applications with Byteman]{byteman_doc}:
+\begin{lstlisting}[frame=]
+-javaagent:path_to_Byteman.jar=option1, option2, ...
+\end{lstlisting}
+Byteman agent provides set of agent options for different purposes, the following list shows several important options \cite[Available -javaagent Options]{byteman_doc}:
+
+\begin{itemize}
+	\item	\verb|script:scriptfile|
+	\item	\verb|sys:jarfile|
+	\item	\verb|boot:jarfile|
+\end{itemize}
+
+The \textit{script:scriptfile} defines Byteman rule script file which is loaded at JVM startup. The \textit{scriptfile} is the name of the file. Byteman agent enables multiple \textit{script:scriptfile} options in order to load more than one rule script.
+
+The \textit{sys:jarfile} option provides loading a \textit{.jar} file whose classes are available on the system class path. This ensures that classes in the jar file can be found when rules are executed by the rule engine. The \textit{jarfile} is path to existing \textit{jar} file. This option is typically used for user-defined \textit{Helper} classes to be available in rules.
+
+The \textit{boot:jarfile} option is similar to the \textit{sys:jarfile}. Only difference is availability of classes in the \textit{.jar} file on the bootstrap class path. This is required when bytecode is injected into classes from \textit{java.lang} package and other JVM classes.
+
+The full description of all agent options can be found at \cite[Available -javaagent Options]{byteman_doc}.
+
+\subsection{Example of Byteman in Java application}
+The following definition of a java class represents simple Java application which will be used to show Byteman basic functionality:
+\begin{lstlisting}[caption = Java class bypassed by the Byteman, label = class_use_case, language=Java]
+package com.examples;
+public class BytemanTest{
+	public static void main(String[] args){
+		System.out.println("Inside the BytemanTest.main");
+	}
+}
+\end{lstlisting}
+The class above contains only \textit{main} method which prints text "Inside the BytemanTest.main" to system output.
+
+The next step is to create Byteman rule script \textit{script.btm} and definition of a rule which is responsible for injecting bytecode into the class above. The following rule is defined for the \textit{BytemanTest} class and its \textit{main} method:
+\begin{lstlisting}[caption = Example of Byteman rule, label = rule_use_case]
+RULE testByteman
+CLASS com.examples.BytemanTest
+METHOD main
+AT ENTRY
+IF true
+DO debug("Main method bypassed by Byteman.");
+ENDRULE
+\end{lstlisting}
+To run the application with Byteman, the \textit{-javaagent} option must be placed before the run of the application \textit{com.examples.BytemanTest}. The following example runs the application in Linux command line:
+\begin{lstlisting}[frame=]
+> java -javaagent:${BYTEMAN_HOME}/lib/byteman.jar=script:script.btm com.examples.BytemanTest
+\end{lstlisting}
+
+Running the application with the command above produces the following output in command line:
+\begin{lstlisting}[frame=]
+> java -javaagent:${BYTEMAN_HOME}...
+Main method bypassed by Byteman.
+Inside the BytemanTest.main
+>
+\end{lstlisting}
 
     \appendix
     \chapter{First appendix}        % Appendices
