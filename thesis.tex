@@ -1,4 +1,5 @@
 \documentclass[12pt,oneside]{fithesis2}
+\usepackage{graphicx}
 \usepackage[english]{babel}       % Multilingual support
 \usepackage[utf8]{inputenc}       % UTF-8 encoding
 \usepackage[T1]{fontenc}          % T1 font encoding
@@ -50,9 +51,33 @@
     \chapter{Introduction}   
     
 \chapter{Wildfly}
-In this chapter, the Wildfly Application server will be described. Because of the size of the server, only specific part will be mentioned and description of its internal structure and configuration will be provided. Further information about Wildfly can be found at official website \url{http://wildfly.org/}. Wildfly 8 Documetation \cite{wildfly_doc} is used as the main source for this chapter.
+In this chapter, the \textit{Wildfly Application Server} (former JBoss AS) will be described. Because of the size of the server, only specific part will be mentioned and description of its internal structure and configuration will be provided. Further information about Wildfly can be found at official website \url{http://wildfly.org/}. Wildfly 8 Documetation \cite{wildfly_doc} is used as the main source for this chapter.
 
-Wildfly is one of the leading application servers in enterprise world. From \cite[Getting Started with WildFly 8]{wildfly_doc}: ''WildFly 8 is an exceptionally fast, lightweight and powerful implementation of the Java Enterprise Edition 7 Platform specifications.''
+Wildfly is one of the leading application servers in the area of enterprise solutions. From \cite[Getting Started with WildFly 8]{wildfly_doc}: ''WildFly 8 is an exceptionally fast, lightweight and powerful implementation of the Java Enterprise Edition 7 Platform specifications.''
+
+Wildfly is \textit{Open Source} and is supported by the \textit{JBoss Community}. However, there is commercial version of Wildfly, \textit{JBoss Enterprise Application Platform}, which is licensed and supported by Red Hat.
+
+\section{Strucure of Wildfly}
+The structure of Wildfly has been changed in past years due to maintainability and performance. In the version JBoss AS 7, the core of the server was changed and consists of two parts \cite{jboss_as_book}:
+
+\begin{itemize}
+	\item \textbf{JBoss Modules}: ''This handles the class loading of resources in the container.
+	You can think of JBoss Modules as a thin bootstrap wrapper for executing
+	an application in a modular environment.''
+	\item \textbf{Modular Service Container (MSC)}: ''This provides a way to install,
+	uninstall, and manage the services used by a container. MSC further
+	enables the injection of resources into services and dependency
+	management between services.''
+\end{itemize}
+
+The core described above has remained to the last version of Wildfly. The following diagram illustrates basic structure of the Wildfly core \cite{wildfly_book}:
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=150mm]{images/wildfly_core}
+	\caption{Wildfly core architecture}
+	\label{wildfly_core}
+\end{figure}
 
 \chapter{Byteman}
 This chapter aims to introduce \textit{Byteman}, a bytecode manipulation tool, and its use in Java applications. Fundamental principles, functions and structure of Byteman will be described.
