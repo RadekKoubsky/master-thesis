@@ -58,7 +58,9 @@ Wildfly is one of the leading application servers in the area of enterprise solu
 Wildfly is \textit{Open Source} and is supported by the \textit{JBoss Community}. However, there is commercial version of Wildfly, \textit{JBoss Enterprise Application Platform}, which is licensed and supported by Red Hat.
 
 \section{Strucure of Wildfly}
-The structure of Wildfly has been changed in past years due to maintainability and performance. In the version JBoss AS 7, the core of the server was changed and consists of two parts \cite{jboss_as_book}:
+The structure of Wildfly has been changed in past years due to maintainability and performance. Wildfly is formed by the wildfly core and set of subsystems. Subsystems are defined as on-demand services which are called by applications deployed on the server. Each subsystem is responsible for specific functionality.
+
+The core of the server was significantly changed in the version JBoss AS 7. It consists of two parts \cite{jboss_as_book}:
 
 \begin{itemize}
 	\item \textbf{JBoss Modules}: ''This handles the class loading of resources in the container.
@@ -70,7 +72,7 @@ The structure of Wildfly has been changed in past years due to maintainability a
 	management between services.''
 \end{itemize}
 
-The core described above has remained to the last version of Wildfly. The following diagram illustrates basic structure of the Wildfly core \cite{wildfly_book}:
+The structure of the core described above has remained to the last version of Wildfly. The following diagram illustrates basic architecture of the Wildfly core \cite{wildfly_book}:
 
 \begin{figure}[ht!]
 	\centering
@@ -78,6 +80,13 @@ The core described above has remained to the last version of Wildfly. The follow
 	\caption{Wildfly core architecture}
 	\label{wildfly_core}
 \end{figure}
+
+
+
+\section{JBoss Modules}
+Class loading is problematic domain in the context of application servers. Wildfly comes with the \textit{JBoss Modules} class loading system which provides effective way of loading classes into class path. \textit{JBoss Modules} is defined as follows \cite[Introduction]{jboss_modules_doc}: ''JBoss Modules is a standalone implementation of a modular (non-hierarchical) class loading and execution environment for Java.''
+
+Each 
 
 \chapter{Byteman}
 This chapter aims to introduce \textit{Byteman}, a bytecode manipulation tool, and its use in Java applications. Fundamental principles, functions and structure of Byteman will be described.
