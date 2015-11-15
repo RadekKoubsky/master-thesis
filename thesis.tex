@@ -86,7 +86,14 @@ The structure of the core described above has remained to the last version of Wi
 \section{JBoss Modules}
 Class loading is problematic domain in the context of application servers. Wildfly comes with the \textit{JBoss Modules} class loading system which provides effective way of loading classes into class path. \textit{JBoss Modules} is defined as follows \cite[Introduction]{jboss_modules_doc}: ''JBoss Modules is a standalone implementation of a modular (non-hierarchical) class loading and execution environment for Java.''
 
-Each 
+\textit{JBoss Modules} is implemented as delegating class loader model which is thread-safe, fast, and highly concurrent. Each \textit{JAR} which is loaded into class path is handled as a \textit{module}. A module must define list of dependencies only to modules it depends on. Modules are loaded only on request by an application. Thus, the performance of the application is dependent on modules which are currently used by the application.
+
+Wildfly defines two types of modules \cite{wildfly_book}:
+
+\begin{itemize}
+	\item Static modules
+	\item Dynamic modules
+\end{itemize}
 
 \chapter{Byteman}
 This chapter aims to introduce \textit{Byteman}, a bytecode manipulation tool, and its use in Java applications. Fundamental principles, functions and structure of Byteman will be described.
