@@ -57,7 +57,7 @@ Wildfly is one of the leading application servers in the area of enterprise solu
 
 Wildfly is \textit{Open Source} and is supported by the \textit{JBoss Community}. However, there is commercial version of Wildfly, \textit{JBoss Enterprise Application Platform}, which is licensed and supported by Red Hat.
 
-\section{Strucure of Wildfly}
+\section{Structure of Wildfly}
 The structure of Wildfly has been changed in past years due to maintainability and performance. Wildfly is formed by the wildfly core and set of subsystems. Subsystems are defined as on-demand services which are called by applications deployed on the server. Each subsystem is responsible for specific functionality.
 
 The core of the server was significantly changed in the version JBoss AS 7. It consists of two parts \cite{jboss_as_book}:
@@ -81,8 +81,6 @@ The structure of the core described above has remained to the last version of Wi
 	\label{wildfly_core}
 \end{figure}
 
-
-
 \section{JBoss Modules}
 Class loading is problematic domain in the context of application servers. Wildfly comes with the \textit{JBoss Modules} class loading system which provides effective way of loading classes into class path. \textit{JBoss Modules} is defined as follows \cite[Introduction]{jboss_modules_doc}: ''JBoss Modules is a standalone implementation of a modular (non-hierarchical) class loading and execution environment for Java.''
 
@@ -94,6 +92,27 @@ Wildfly defines two types of modules \cite{wildfly_book}:
 	\item Static modules
 	\item Dynamic modules
 \end{itemize}
+
+Static modules are defined in form of hierarchical directory structure. In Wildfly 8, static modules are located within \textit{JBOSS\_HOME/modules/system/layers/base} directory. A directory structure of a module is derived from the name and version of the module. The specific directory of the module contains module descriptor and resources required by the module (\textit{JAR} files).
+
+The module descriptor is represented by \textit{module.xml} file. The following example shows module descriptor of the \textit{javax.batch.api module.xml} module \cite{wildfly_book}:
+\begin{lstlisting}[caption = Example of a module descriptor, label = module_descriptor, language=XML]
+<module xmlns="urn:jboss:module:1.3" name="javax.batch.api">
+	<resources>
+		<resource-root path="jboss-batch-api_1.0_spec-1.0.0.Final.jar"/>
+	</resources>
+	<dependencies>
+		<module name="javax.api"/>
+		<module name="javax.enterprise.api"/>
+	</dependencies>    
+</module>
+\end{lstlisting}
+
+The root \verb|<module>| element defines resources and dependencies of the module. 
+
+Resources are defined within the\verb|<resources>| element which contains one or more \verb|resource-root>| elements. Each \verb|<resource-root>| element has the \textit{path} attribute which specifies path to the \textit{JAR} file. The example above uses only one resource, the \textit{jboss-batch-api\_1.0\_spec-1.0.0.Final.jar} file located in the module directory next to the \textit{module.xml} file. 
+
+The \verb|<dependencies>| element defines dependencies for a module. A module is defined by the \verb|<module>| element which identifies specific module in the hierarchical directory structure. In the example above, \textit{javax.api} and \textit{javax.enterprise.api} modules will be resolved in the name resolution process.
 
 \chapter{Byteman}
 This chapter aims to introduce \textit{Byteman}, a bytecode manipulation tool, and its use in Java applications. Fundamental principles, functions and structure of Byteman will be described.
