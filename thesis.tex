@@ -93,18 +93,27 @@ Wildfly defines two types of modules \cite{wildfly_book}:
 	\item Dynamic modules
 \end{itemize}
 
+The following diagram shows architecture of static and dynamic modules \cite{wildfly_book}:
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=\textwidth]{images/jboss_modules}
+	\caption{JBoss modules architecture}
+	\label{jboss_modules}
+\end{figure}
+
 Static modules are defined in form of hierarchical directory structure. In Wildfly 8, static modules are located within \textit{JBOSS\_HOME/modules/system/layers/base} directory. A directory structure of a module is derived from the name and version of the module. The specific directory of the module contains module descriptor and resources required by the module (\textit{JAR} files).
 
 The module descriptor is represented by \textit{module.xml} file. The following example shows module descriptor of the \textit{javax.batch.api module.xml} module \cite{wildfly_book}:
 \begin{lstlisting}[caption = Example of a module descriptor, label = module_descriptor, language=XML]
 <module xmlns="urn:jboss:module:1.3" name="javax.batch.api">
-	<resources>
-		<resource-root path="jboss-batch-api_1.0_spec-1.0.0.Final.jar"/>
-	</resources>
-	<dependencies>
-		<module name="javax.api"/>
-		<module name="javax.enterprise.api"/>
-	</dependencies>    
+ <resources>
+  <resource-root path="jboss-batch-api_1.0_spec-1.0.0.Final.jar"/>
+ </resources>
+ <dependencies>
+  <module name="javax.api"/>
+  <module name="javax.enterprise.api"/>
+ </dependencies>    
 </module>
 \end{lstlisting}
 
@@ -113,6 +122,29 @@ The root \verb|<module>| element defines resources and dependencies of the modul
 Resources are defined within the\verb|<resources>| element which contains one or more \verb|resource-root>| elements. Each \verb|<resource-root>| element has the \textit{path} attribute which specifies path to the \textit{JAR} file. The example above uses only one resource, the \textit{jboss-batch-api\_1.0\_spec-1.0.0.Final.jar} file located in the module directory next to the \textit{module.xml} file. 
 
 The \verb|<dependencies>| element defines dependencies for a module. A module is defined by the \verb|<module>| element which identifies specific module in the hierarchical directory structure. In the example above, \textit{javax.api} and \textit{javax.enterprise.api} modules will be resolved in the name resolution process.
+
+Dynamic modules are defined for each deployment of an application. There are two approaches how to create dynamic module \cite{wildfly_book}.
+
+First option is to add definition of a module and its dependencies to the \textit{MANIFEST} file within the \textit{JAR} of an application. For example in the Main class:
+
+\begin{lstlisting}[frame=]
+mypackage/MyClass:
+Dependencies: org.jboss.logging
+\end{lstlisting}
+
+\newpage
+The second way is to configure \textit{deployment-structure.xml} by adding module dependency to it:
+
+\begin{lstlisting}[caption = Configuring deployment structure file, label = module_descriptor, language=XML]
+<jboss-deployment-structure>
+ <deployment>
+  <dependencies>
+   <module name="org.jboss.logging" />
+  </dependencies>
+ </deployment>
+</jboss-deployment-structure>
+\end{lstlisting}
+
 
 \chapter{Byteman}
 This chapter aims to introduce \textit{Byteman}, a bytecode manipulation tool, and its use in Java applications. Fundamental principles, functions and structure of Byteman will be described.
