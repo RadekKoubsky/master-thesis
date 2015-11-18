@@ -16,7 +16,7 @@
   pdfpagelabels                     % Generate pdf page labels
 ]{hyperref}            % Lorem ipsum generator
 \usepackage{listings}
-\lstset{language=C, frame=lrtb, captionpos=b, breaklines=true, literate={\\\-}{}{0\discretionary{-}{}{}}}
+\lstset{frame=lrtb, captionpos=b, breaklines=true, literate={\\\-}{}{0\discretionary{-}{}{}}}
 
 \thesislang{en}                   % The language of the thesis
 \thesistitle{Extend WildFly Application Server logging capabilities}       % The title of the thesis
@@ -145,6 +145,30 @@ The second way is to configure \textit{deployment-structure.xml} by adding modul
 </jboss-deployment-structure>
 \end{lstlisting}
 
+\section{Wildfly logging subsystem}
+Logging subsystem is responsible for all logs which appear in the application server i.e. in every subsystem and user applications. The logging subsystem consists of the following parts: \textit{handler configurations}, \textit{logger}, \textit{the root logger declarations} and \textit{logging profiles}. Loggers declare set of handlers which send logs to the defined destination such as console, a file, network and others \cite[Logging Configuration]{wildfly_doc}.
+
+The logging configuration can be defined in XML files (standalone.xml, domain.xml etc.), web console or command line interface. The following example illustrates a snippet of logging subsystem from XML configuration file:
+
+\begin{lstlisting}[caption = Configuring deployment structure file, label = module_descriptor, language=XML]
+<subsystem xmlns="urn:jboss:domain:logging:1.0">
+ <console-handler name="CONSOLE" autoflush="true">
+  <level name="DEBUG"/>
+  <formatter>
+   <pattern-formatter pattern="%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%E%n"/>
+  </formatter>
+ </console-handler>
+ <logger category="com.arjuna">
+  <level name="WARN"/>
+ </logger>
+ <root-logger>
+  <level name="DEBUG"/>
+   <handlers>
+    <handler name="CONSOLE"/>
+   </handlers>
+ </root-logger>
+</subsystem>
+\end{lstlisting}
 
 \chapter{Byteman}
 This chapter aims to introduce \textit{Byteman}, a bytecode manipulation tool, and its use in Java applications. Fundamental principles, functions and structure of Byteman will be described.
