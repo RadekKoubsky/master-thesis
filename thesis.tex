@@ -173,7 +173,7 @@ The logging configuration can be defined in XML files (standalone.xml, domain.xm
 \end{lstlisting}
 
 \subsection{Loggers}
-Log messages are created by loggers. Definition of a logger consists of a category which is represented by package or class name. Whenever the logger tries to log a message, it first checks if the level of the message is greater than level of the logger. After evaluating the level condition, a filter determines whether the log message is loggable or not. Detailed description of all filters can be found in the Logging documentation of Wildfly \cite[Logging Configuration]{wildfly_doc}.
+Log messages are created by loggers. Definition of a logger consists of a category which is represented by package or class name. Whenever the logger tries to log a message, it first checks the level of the message. If the level of the message is greater than the level of the logger, a filter is applied to the log message.  The filter determines whether the log message is loggable or not according to filter rule. The loggign subsystem provides rich set of filter rules (expressions), detailed description of all filters and rules can be found in the Logging documentation \cite[Logging Configuration]{wildfly_doc}.
 
 Wildfly logging subsystem defines the following set of logger levels \cite[Logging Configuration]{wildfly_doc}:
 
@@ -197,7 +197,7 @@ Wildfly logging subsystem defines the following set of logger levels \cite[Loggi
 \end{multicols}
 
 \subsection{Handlers}
-Handlers represent next step in the log processing. If a log message is loggable, handler processes the message e.g. sends the message to system console or stores the message to a file.
+Handlers represent next step in the log processing. If a log message is loggable, a handler processes the message e.g. sends the message to system console or stores the message to a file.
 
 Logging subsystem provides the following set of handlers \cite[Logging Configuration]{wildfly_doc}:
 \begin{itemize}
@@ -212,9 +212,9 @@ Logging subsystem provides the following set of handlers \cite[Logging Configura
 However, a custom handler can be implemented for user specific requirements.
 
 \subsection{Defining custom handler}
-Logging subsystem provides straightforward process of custom handler implementation. A custom logger handler is standard module in the JBoss Modules architecture \ref{jboss_modules_sec}.
+Logging subsystem provides straightforward process of custom handler implementation. A custom handler is standard module in the JBoss Modules architecture \ref{jboss_modules_sec}.
 
-The simplest way how to create a custom handler is to extend \textit{java.util.logging.Handler} class which is part of \textit{Java Logging API} and provides standard log handler lifecycle.
+The simplest way how to create a custom handler is to extend \textit{java.util.logging.Handler} class which is part of \textit{Java Logging API}. The \textit{Java Logging API} provides standard log handler lifecycle which is used to built a custom handler.
 
 The following example shows custom handler class \textit{MyHandler.java}:
 \begin{lstlisting}[caption = Custom handler class, label = custom_handler_class, language=Java]
