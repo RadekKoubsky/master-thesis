@@ -52,6 +52,7 @@
     \chapter{Introduction}   
     
 \chapter{Wildfly}
+\label{wildfly_chapter}
 In this chapter, the \textit{Wildfly Application Server} (former JBoss AS) will be described. Because of the size of the server, only specific part will be mentioned and description of its internal structure and configuration will be provided. Further information about Wildfly can be found at official website \url{http://wildfly.org/}. Wildfly 8 Documetation \cite{wildfly_doc} is used as the main source for this chapter.
 
 Wildfly is one of the leading application servers in the area of enterprise solutions. From \cite[Getting Started with WildFly 8]{wildfly_doc}: ''WildFly 8 is an exceptionally fast, lightweight and powerful implementation of the Java Enterprise Edition 7 Platform specifications.''
@@ -625,11 +626,23 @@ Inside the BytemanTest.main
 >
 \end{lstlisting}
 
-    \appendix
-    \chapter{First appendix}        % Appendices
-    \Blindtext
-    \chapter{Another appendix}
-    \Blindtext
+\chapter{Elasticsearch and Kibana}
+This chapter briefly describes Elasticsearch and Kibana technologies which are used for storage and visualization of data. In the context of this work, the data represents log messages from Wildfly Application Server \ref{wildfly_chapter}. The aim of this chapter is to provide basic insight into Elasticsearch and Kibana and show how to configure and run them.
+
+\section{Elasticsearch}
+Elasticsearch is mainly known as search engine. From \cite{elasticsearch_defnitive_guide}: ''Elasticsearch is an open-source search engine built on top of Apache Lucene™, a fulltext search-engine library.''
+
+It is an abstract layer between complex \textit{Apache Lucene}\footnote{Lucene is arguably the most advanced, high-performance, and fully featured search engine library in existence today—both open source and proprietary \cite{elasticsearch_defnitive_guide}} library and user applications. Elasticsearch does not require for its users to fully understand the complexity of Lucene, it provides API for working with Lucene in simple way.
+
+However, Elasticsearch is not only search engine, it can be defined as follows \cite{elasticsearch_defnitive_guide}:
+
+\begin{itemize}
+	\item A distributed real-time document store where \textit{every field} is indexed and searchable
+	\item A distributed search engine with real-time analytics
+	\item Capable of scaling to hundreds of servers and petabytes of structured and unstructured data
+\end{itemize}
+
+Elasticsearch is implemented in Java and packaged into standalone server. Access to the Elasticsearch server can be done in various ways, such as RESTful API\footnote{Representational State Transfer (REST) is architectural style, developed as an abstract model of the Web architecture \cite{rest}}, web client (Java, .NET, Python etc.) or command line interface.
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
