@@ -644,6 +644,16 @@ However, Elasticsearch is not only search engine, it can be defined as follows \
 
 Elasticsearch is implemented in Java and packaged into standalone server. Access to the Elasticsearch server can be done in various ways, such as RESTful API\footnote{Representational State Transfer (REST) is architectural style, developed as an abstract model of the Web architecture \cite{rest}}, web client (Java, .NET, Python etc.) or command line interface.
 
+
+\section{Basic concept}
+Several concepts form the fundamentals of the Elasticsearch core. Therefore understanding of these concepts is required before using Elasticsearch in practice \cite{elasticsearch_doc}.
+
+\subsection{Cluster}
+A \textit{Cluster} consists of one or more nodes (servers) that together stores all data. Unified indexing and search operations are performed across all nodes in a cluster. Every cluster has its own name which is unique, default value of the name is \verb|elasticsearch|.
+
+\subsection{Node}
+A node represents a server within a cluster. A node is responsible for storing, indexing and searching operations in the context of a cluster that the node belongs to. A node is identified by name which has to be unique.
+
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
 \end{document}
