@@ -649,10 +649,25 @@ Elasticsearch is implemented in Java and packaged into standalone server. Access
 Several concepts form the fundamentals of the Elasticsearch core. Therefore understanding of these concepts is required before using Elasticsearch in practice \cite{elasticsearch_doc}.
 
 \subsection{Cluster}
-A \textit{Cluster} consists of one or more nodes (servers) that together stores all data. Unified indexing and search operations are performed across all nodes in a cluster. Every cluster has its own name which is unique, default value of the name is \verb|elasticsearch|.
+A \textit{Cluster} consists of one or more nodes (servers) that together store all data. Unified indexing and search operations are performed across all nodes in a cluster. Every cluster has its own name which is unique, default value of the name is \verb|elasticsearch|.
 
 \subsection{Node}
-A node represents a server within a cluster. A node is responsible for storing, indexing and searching operations in the context of a cluster that the node belongs to. A node is identified by name which has to be unique.
+A \textit{Node} represents a server within a cluster. It is responsible for store, indexing and search operations in the context of a cluster that it belongs to. A node is identified by name. The name is used to configure which server in network is related to particular node in a cluster.
+
+A node joins a cluster by specifying the cluster name. If the cluster name is not defined, nodes are configured to join the cluster with name \verb|elasticsearch| by default. Elasticsearch does not define any limitations for the number of nodes in a single cluster.
+
+\subsection{Index}
+A set of documents with similar attributes can be bound to an \textit{Index}. Whenever an operation is performed on a document, the index related to the document is employed.
+
+An index is defined as a string containing only lowercase characters. The number of indexes in a cluster is not limited.
+
+\subsection{Type}
+A \textit{Type} is another way of data partitioning within an index. Depending on an user requirements, one or more types can be defined for an index. A type is usually used for documents which have common fields.
+
+\subsection{Document}
+Data in Elasticsearch are stored as a \textit{Document}. Once a document is created under an index, data within a document are searchable in a cluster. A document is represented in JSON (JavaScript Object Notation) which is well known data interchange format.
+
+Although a document is related to an index, it must be also bound to a type within an index.
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
