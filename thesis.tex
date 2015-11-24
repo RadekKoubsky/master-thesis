@@ -53,14 +53,12 @@
     
 \chapter{Wildfly}
 \label{wildfly_chapter}
-In this chapter, the \textit{Wildfly Application Server} (former JBoss AS) will be described. Because of the size of the server, only specific part will be mentioned and description of its internal structure and configuration will be provided. Further information about Wildfly can be found at official website \url{http://wildfly.org/}. Wildfly 8 Documetation \cite{wildfly_doc} is used as the main source for this chapter.
+In this chapter, the \textit{Wildfly Application Server} (former JBoss AS) is described. Because of the size of the server, only specific part are mentioned and description of its internal structure and configuration is provided. Further information about Wildfly can be found at official website \url{http://wildfly.org/}. Wildfly 8 Documetation \cite{wildfly_doc} is used as the main source for this chapter.
 
-Wildfly is one of the leading application servers in the area of enterprise solutions. From \cite[Getting Started with WildFly 8]{wildfly_doc}: ''WildFly 8 is an exceptionally fast, lightweight and powerful implementation of the Java Enterprise Edition 7 Platform specifications.''
-
-Wildfly is \textit{Open Source} and is supported by the \textit{JBoss Community}. However, there is commercial version of Wildfly, \textit{JBoss Enterprise Application Platform}, which is licensed and supported by Red Hat.
+Wildfly is one of the leading application servers in the area of enterprise solutions. From \cite[Getting Started with WildFly 8]{wildfly_doc}: ''WildFly 8 is an exceptionally fast, lightweight and powerful implementation of the Java Enterprise Edition 7 Platform specifications.'' The Wildfly project is licensed as \textit{Open Source} and supported by the \textit{JBoss Community}. However, there is commercial version of Wildfly, \textit{JBoss Enterprise Application Platform}, which is licensed and supported by Red Hat.
 
 \section{Structure of Wildfly}
-The structure of Wildfly has been changed in past years due to maintainability and performance. Wildfly is formed by the wildfly core and set of subsystems. Subsystems are defined as on-demand services which are called by applications deployed on the server. Each subsystem is responsible for specific functionality.
+The structure of Wildfly has been changed in recent years due to requirements on maintainability and performance. Wildfly is formed by the wildfly core and set of subsystems. Subsystems are defined as on-demand services which are called by applications deployed on the server. Each subsystem is responsible for specific functionality.
 
 The core of the server was significantly changed in the version JBoss AS 7. It consists of two parts \cite{jboss_as_book}:
 
@@ -87,7 +85,7 @@ The structure of the core described above has remained to the last version of Wi
 \label{jboss_modules_sec}
 Class loading is problematic domain in the context of application servers. Wildfly comes with the \textit{JBoss Modules} class loading system which provides effective way of loading classes into class path. \textit{JBoss Modules} is defined as follows \cite[Introduction]{jboss_modules_doc}: ''JBoss Modules is a standalone implementation of a modular (non-hierarchical) class loading and execution environment for Java.''
 
-\textit{JBoss Modules} is implemented as delegating class loader model which is thread-safe, fast, and highly concurrent. Each \textit{JAR} which is loaded into class path is handled as a \textit{module}. A module must define list of dependencies only to modules it depends on. Modules are loaded only on request by an application. Thus, the performance of the application is dependent on modules which are currently used by the application.
+\textit{JBoss Modules} is implemented as delegating class loader model which is thread-safe, fast, and highly concurrent. Each \textit{JAR} which is loaded into class path is handled as a \textit{module}. A module must define list of dependencies only to modules it depends on. Modules are loaded only on request by an application, thus the performance of the application is dependent on modules which are currently used by the application.
 
 Wildfly defines two types of modules \cite{wildfly_book}:
 
@@ -122,21 +120,20 @@ The module descriptor is represented by \textit{module.xml} file. The following 
 
 The root \verb|<module>| element defines resources and dependencies of the module. 
 
-Resources are defined within the\verb|<resources>| element which contains one or more \verb|resource-root>| elements. Each \verb|<resource-root>| element has the \textit{path} attribute which specifies path to the \textit{JAR} file. The example above uses only one resource, the \textit{jboss-batch-api\_1.0\_spec-1.0.0.Final.jar} file located in the module directory next to the \textit{module.xml} file. 
+Resources are defined within the \verb|<resources>| element which contains one or more \verb|resource-root>| elements. Each \verb|<resource-root>| element has the \textit{path} attribute which specifies path to the \textit{JAR} file. The example above uses only one resource, the \textit{jboss-batch-api\_1.0\_spec-1.0.0.Final.jar} file located in the module directory next to the \textit{module.xml} file.
 
-The \verb|<dependencies>| element defines dependencies for a module. A module is defined by the \verb|<module>| element which identifies specific module in the hierarchical directory structure. In the example above, \textit{javax.api} and \textit{javax.enterprise.api} modules will be resolved in the name resolution process.
+The next element, \verb|<dependencies>|, is used to define dependencies for a module. A dependency is defined by the \verb|<module>| element which identifies specific module in the hierarchical directory structure. In the example above, \textit{javax.api} and \textit{javax.enterprise.api} modules will be resolved in the name resolution process as dependencies for the \textit{javax.batch.api} module.
 
 Dynamic modules are defined for each deployment of an application. There are two approaches how to create dynamic module \cite{wildfly_book}.
 
-First option is to add definition of a module and its dependencies to the \textit{MANIFEST} file within the \textit{JAR} of an application. For example in the Main class:
+First option is to define dependencies within a file called \textit{MANIFEST} which is placed in a \textit{JAR} file of an application. Dependencies of a \textit{JAR} file are defined in the \textit{Dependencies} header; each dependency is separated by comma. The following line is an example of a \textit{MANIFEST} file with one dependency:
 
 \begin{lstlisting}[frame=]
-mypackage/MyClass:
 Dependencies: org.jboss.logging
 \end{lstlisting}
 
 \newpage
-The second way is to configure \textit{deployment-structure.xml} by adding module dependency to it:
+The second option is to configure \textit{deployment-structure.xml} by adding module dependency to it:
 
 \begin{lstlisting}[caption = Configuring deployment structure file, label = dynamic_module_descriptor, language=XML]
 <jboss-deployment-structure>
@@ -174,7 +171,7 @@ The logging configuration can be defined in XML files (standalone.xml, domain.xm
 \end{lstlisting}
 
 \subsection{Loggers}
-Log messages are created by loggers. Definition of a logger consists of a category which is represented by package or class name. Whenever the logger tries to log a message, it first checks the level of the message. If the level of the message is greater than the level of the logger, a filter is applied to the log message.  The filter determines whether the log message is loggable or not according to filter rule. The loggign subsystem provides rich set of filter rules (expressions), detailed description of all filters and rules can be found in the Logging documentation \cite[Logging Configuration]{wildfly_doc}.
+Log messages are created by loggers. Definition of a logger consists of a category which is represented by package or class name. Whenever the logger tries to log a message, it first checks the level of the message. If the level of the message is greater than the level of the logger, a filter is applied to the log message.  A filter determines whether the log message is loggable or not according to filter rule. The logging subsystem provides rich set of rules (expressions) for filters; detailed description of all rules can be found in the Logging documentation \cite[Logging Configuration]{wildfly_doc}.
 
 Wildfly logging subsystem defines the following set of logger levels \cite[Logging Configuration]{wildfly_doc}:
 
@@ -259,14 +256,14 @@ Final step of the custom handler implementation is to add the custom handler to 
 After all previous steps, the \textit{MyHandler} will be used for processing of log messages in Wildfly.
 
 \chapter{Byteman}
-This chapter aims to introduce \textit{Byteman}, a bytecode manipulation tool, and its use in Java applications. Fundamental principles, functions and structure of Byteman will be described.
-At the end of the chapter, an example of simple java application will be provided in order to understand bytecode injection which Byteman uses. More detailed documentation, tutorials and guidelines 
+This chapter aims to introduce \textit{Byteman}, a bytecode manipulation tool, and its use in Java applications. Fundamental principles, functions, and structure of Byteman are described.
+At the end of the chapter, an example of simple java application is provided in order to understand bytecode injection which Byteman uses. More detailed documentation, tutorials, and guidelines 
 which cover almost every aspect of Byteman can be found in different versions at official website \url{http://byteman.jboss.org/}. Primary source for this thesis is Byteman documentation 3.0.0 \cite{byteman_doc}.
 
 \section{Introduction to Byteman}
-Byteman is a bytecode manipulation tool which uses a bytecode injection\footnote{Bytecode injection (or bytecode instrumentation) is a process of modifying the actual bytecode of a class} in order to change a java application as it is being loaded by \textit{Java virtual machine} or while the application is running \cite[Introduction to Byteman]{byteman_doc}.
+Byteman is a bytecode manipulation tool which uses bytecode injection\footnote{Bytecode injection (or bytecode instrumentation) is a process of modifying the actual bytecode of a class} in order to change a java application as it is being loaded by \textit{Java virtual machine} or while the application is running \cite[Introduction to Byteman]{byteman_doc}.
 
-Because of the bytecode injection, there is no need to change the original source code nor to recompile or redeploy the application itself. As it was mentioned, it is possible to add, replace or remove injected code at runtime while the application continues in execution. Byteman also provides a way to inject code into the Java language by modifying classes such as \textit{java.lang.Thread} and other classes from \textit{java.lang} package. Byteman uses simple scripting language called \textit{Event Condition Action} (\ref{subsec:eca_sec}) rules to determine how the original Java code should be transformed according to event and condition.
+Because of the bytecode injection, there is no need to change the original source code nor to recompile or redeploy the application itself. In other words, it is possible to add, replace or remove injected code at runtime without interrupting a Java application. Byteman also provides a way to inject code into the Java language by modifying classes such as \textit{java.lang.Thread} and other classes from \textit{java.lang} package. Byteman uses simple scripting language called \textit{Event Condition Action} (\ref{subsec:eca_sec}) rules to determine how the original Java code should be transformed according to event and condition.
 
 The original purpose of Byteman was to provide a mechanism for automation tests used in multi-threaded and multi-JVM Java applications using a technique called fault injection. Byteman can be used to inject faults which cause an application to invoke unusual or unexpected methods which are required for certain test scenarios. There are four areas supported by Byteman in automation testing \cite[Introduction to Byteman]{byteman_doc}:
 
@@ -276,15 +273,11 @@ The original purpose of Byteman was to provide a mechanism for automation tests 
    \item orchestrating the timing of activities performed by independent application threads
    \item monitoring and gathering statistics summarising application a-nd JVM operation
 \end{itemize}
-However, the concept of bytecode injection involves Byteman in much larger scope of use apart from the testing area. The rule engine \ref{sec:rule_engine}, which forms the core of Byteman, is able to inject bytecode into almost every place in a call stack of a running java application. Thus the capability of bytecode injection enables manipulation of a Java program without any limitations in the design of the language (e.g. access level modifiers).
+Apart from the testing area, the concept of bytecode injection involves Byteman in much larger scope of use. The rule engine \ref{sec:rule_engine}, which forms the core of Byteman, is able to inject bytecode into almost every place in a call stack of a running java application. Thus the capability of bytecode injection enables manipulation of a Java program without any limitations in the design of the language (e.g. access level modifiers).
 
 Byteman offers a suite of built-in operations and conditions in order to support activities and tasks emphasized above. Built-in operations (such as delays, waits, countdowns, flag operations and signals) are mainly used for coordination of threads in multi-threaded applications where multiple threads run with no order and it is needed to control the flow of particular threads.
 
-To simplify process of using Byteman in common use or in the test automation, the Byteman rulecheck plugin and the BMUnit proje-cts were created in later releases of Byteman.
-
-Byteman rulecheck plugin\footnote{\url{https://developer.jboss.org/wiki/CheckingYourBytemanRuleScriptsUnd-erMaven}} is a maven plugin which consists of a rule parser and a type checker. It runs the rule parser and type checker before every execution of any maven test to ensure that rules are still valid when a test code is modified.
-
-BMUnit\footnote{\url{https://developer.jboss.org/wiki/BMUnitUsingBytemanWithJUnitOrTest-NGFromMavenAndAnt}} is a java library which provides integration of Byteman with the two most used test frameworks, JUnit\footnote{\url{http://junit.org/}} and TestNG\footnote{\url{http://testng.org}}. BMUnit uses java annotations to load Byteman agent into JVM during tests, and to specify which rules should be installed by the agent before a test run (and uninstalled after test is completed).
+To simplify process of using Byteman in common use or in the test automation, the Byteman rulecheck plugin and the BMUnit projects were created in later releases of Byteman. Byteman rulecheck plugin\footnote{\url{https://developer.jboss.org/wiki/CheckingYourBytemanRuleScriptsUnd-erMaven}} is a maven plugin which consists of a rule parser and a type checker. It runs the rule parser and type checker before every execution of any maven test to ensure that rules are still valid when a test code is modified. BMUnit\footnote{\url{https://developer.jboss.org/wiki/BMUnitUsingBytemanWithJUnitOrTest-NGFromMavenAndAnt}} is a java library which provides integration of Byteman with the two most used test frameworks, JUnit\footnote{\url{http://junit.org/}} and TestNG\footnote{\url{http://testng.org}}. BMUnit uses java annotations to load Byteman agent into JVM during tests, and to specify which rules should be installed by the agent before a test run (and uninstalled after test is completed).
 
 Byteman is an \textit{Open Source} project and plays important role in \textit{JBoss Community}. It helps other JBoss projects with test automation and quality assurance.
 
@@ -306,7 +299,7 @@ A set of rules is defined in Byteman script which is a file with a \textit{.btm}
    \item then execute \textit{Action}
 \end{enumerate}
 
-The ECA formalism provides a clear and easy-to-understand way how the bytecode injection should be performed without ambiguity.
+The ECA formalism provides clear and easy-to-understand approach for performing bytecode injection without ambiguity.
 
 Syntax of the rule consists of several parts which can be parsed by the rule engine. The following code snippet illustrates rule scheme and its structure \cite[Rule Events]{byteman_doc}:
 
@@ -325,7 +318,7 @@ ENDRULE
 Comments in Byteman script can be placed either between definitions of rules or within the rule body. Comment line begins with \textit{\#} symbol and must start and end with new line to be parsed correctly.
 
 A rule starts with a name placed after the \textit{RULE} keyword. The name can have any form of a character sequence which length is at least one non-white space character. Rule names can be duplicated, however, it causes ambiguity in debugging rule scripts. The rule name is the only identifier if an error occurs while parsing, type checking, compilation or execution of the rule.
-provided with
+
 \subsection{Rule events}
 \label{subsec:rule_events}
 A rule event is an event related to an event part of the ECA language specification \ref{itm:eca_if_then}. Byteman specifies the rule event as a \textit{location} in a target \textit{method} within a target \textit{class} \cite[Rule Events]{byteman_doc}. There are three types of target method: \textit{a static method}, \textit{an instance method} and \textit{a constructor}. Implicit location is \textit{AT ENTRY} if location was not specified.
@@ -344,7 +337,7 @@ AT ENTRY
 ENDRULE
 \end{lstlisting}
 
-For the rule above, only one trigger point will by inserted into the class \textit{CMTTxInterceptor} from package \textit{org.jboss.as.ejb3.tx}. The triggermethod is the method with name \textit{invokeInOurTx} and list of three parameters: \textit{InterceptorContext}, \textit{TransactionManager} and \textit{EJBComponent}. Note that the package qualification of all method parameters is omitted. The type checker will look up the package of each parameter of the matched method. Same approach applies for the return type of the method. Inner classes can be located with \textit{\$} expression e.g.: \textit{my.package.OuterClass\$InnerClass}.
+For the rule above, only one trigger point will by inserted into the class \textit{CMTTxInterceptor} from package \textit{org.jboss.as.ejb3.tx}. The triggermethod is the method with name \textit{invokeInOurTx} and list of three parameters: \textit{InterceptorContext}, \textit{TransactionManager} and \textit{EJBComponent}. Note that the package qualification of all method parameters is omitted. The type checker will look up the package of each parameter of the matched method. Similarly, the same approach applies for the return type of the method. Inner classes can be located with \textit{\$} expression e.g.: \textit{my.package.OuterClass\$InnerClass}.
 
 The rule event can employ any class of a Java application except the following classes:
 
@@ -374,7 +367,7 @@ An \textit{AT EXIT} specifier defines a trigger point after the last bytecode in
 
 An \textit{AT LINE} specifier defines a trigger point before the first bytecode instruction which has source code line number greater than or equal to the line number argument provided in the specifier. The line number argument must be text which can be parsed to an integer number. If executable code does not exist at or after the line number, no trigger point will be inserted.
 
-An \textit{AFTER WRITE} specifier starts with a \textit{\$} prefix and continues with local variable name, parameter name or parameter index of the target method. It locates a trigger point after the bytecode instruction which is responsible for the assignment of the named variable, parameter, or the parameter at specified index. The count argument defines the \textit{Nth} assignment to the variable, the default value is 1.
+An \textit{AFTER WRITE} specifier starts with a \textit{\$} prefix and continues with local variable name, parameter name or parameter index of the target method. This specifier locates a trigger point after the bytecode instruction which is responsible for the assignment of the named variable, parameter, or the parameter at specified index. The count argument defines the \textit{Nth} assignment to the variable, the default value is 1.
 
 An \textit{AT INVOKE} specifier locates a trigger point before the first instruction which invokes a method provided as an argument of the specifier. Trigger point can be an invocation of a method or a constructor within the target method. The name of the invoked method can be described with or without package qualification. Method parameters are expressed as a list of parameters types separated by comma. Parameter type may contain package qualification or the package is inferred by the type checker.
 
@@ -395,7 +388,7 @@ DO ...
 ENDRULE
 \end{lstlisting}
 
-Binding defined in the rule above starts with the \textit{BIND} keyword which is followed with the variable \textit{bindMessage} on the left side, and the value on the right side. The assigned value is the value of the target method parameter at index 1. The type \textit{Message} of the \textit{bindMessage} variable is defined between the ":" character and "=" operator. If the type specification of the variable is omitted, it will be inferred from the type of the \textit{\$1} value. If there is more than one binding, each binding is ended with semicolon.
+Binding defined in the rule above starts with the \textit{BIND} keyword which is followed with the variable \textit{bindMessage} on the left side, and the value on the right side. The assigned value is the value of the target method parameter at index 1. The type \textit{Message} of the \textit{bindMessage} variable is defined between the ":" character and "=" operator. If the type specification of the variable is omitted, it will be inferred from the type of the \textit{\$1} value. In case of multiple bindings, each binding is ended with semicolon.
 
 \subsection{Rule Expressions}
 \label{subsec:rule_exp}
@@ -627,7 +620,7 @@ Inside the BytemanTest.main
 \end{lstlisting}
 
 \chapter{Elasticsearch and Kibana}
-This chapter briefly describes Elasticsearch and Kibana technologies which are used for storage and visualization of data. In the context of this work, the data represents log messages from Wildfly Application Server \ref{wildfly_chapter}. The aim of this chapter is to provide basic insight into Elasticsearch and Kibana and show how to configure and run them.
+This chapter briefly describes Elasticsearch and Kibana technologies which are used for storage and visualization of data. In the context of this work, the data represents log messages from Wildfly Application Server \ref{wildfly_chapter}.
 
 \section{Elasticsearch}
 Elasticsearch is mainly known as search engine. From \cite{elasticsearch_defnitive_guide}: ''Elasticsearch is an open-source search engine built on top of Apache Lucene™, a fulltext search-engine library.''
@@ -645,29 +638,38 @@ However, Elasticsearch is not only search engine, it can be defined as follows \
 Elasticsearch is implemented in Java and packaged into standalone server. Access to the Elasticsearch server can be done in various ways, such as RESTful API\footnote{Representational State Transfer (REST) is architectural style, developed as an abstract model of the Web architecture \cite{rest}}, web client (Java, .NET, Python etc.) or command line interface.
 
 
-\section{Basic concept}
+\subsection{Basic concept}
 Several concepts form the fundamentals of the Elasticsearch core. Therefore understanding of these concepts is required before using Elasticsearch in practice \cite{elasticsearch_doc}.
 
-\subsection{Cluster}
+\subsubsection{Cluster}
 A \textit{Cluster} consists of one or more nodes (servers) that together store all data. Unified indexing and search operations are performed across all nodes in a cluster. Every cluster has its own name which is unique, default value of the name is \verb|elasticsearch|.
 
-\subsection{Node}
+\subsubsection{Node}
 A \textit{Node} represents a server within a cluster. It is responsible for store, indexing and search operations in the context of a cluster that it belongs to. A node is identified by name. The name is used to configure which server in network is related to particular node in a cluster.
 
 A node joins a cluster by specifying the cluster name. If the cluster name is not defined, nodes are configured to join the cluster with name \verb|elasticsearch| by default. Elasticsearch does not define any limitations for the number of nodes in a single cluster.
 
-\subsection{Index}
+\subsubsection{Index}
 A set of documents with similar attributes can be bound to an \textit{Index}. Whenever an operation is performed on a document, the index related to the document is employed.
 
 An index is defined as a string containing only lowercase characters. The number of indexes in a cluster is not limited.
 
-\subsection{Type}
+\subsubsection{Type}
 A \textit{Type} is another way of data partitioning within an index. Depending on an user requirements, one or more types can be defined for an index. A type is usually used for documents which have common fields.
 
-\subsection{Document}
+\subsubsection{Document}
 Data in Elasticsearch are stored as a \textit{Document}. Once a document is created under an index, data within a document are searchable in a cluster. A document is represented in JSON (JavaScript Object Notation) which is well known data interchange format.
 
 Although a document is related to an index, it must be also bound to a type within an index.
+
+\subsection{Accessing Elasticsearch}
+Connecting to Elasticsearch cluster can be done in several ways depending on user requirements. There are two main approaches for working with Elasticsearch: \textit{RESTful API} and \textit{Java API}.
+
+The RESTful API is used by the command line interface and web clients. Web clients are implemented in various languages such as .NET, JavaScript, Python and many others.
+
+The Java API provides two built-in clients which directly communicate with Elasticsearch using the native \textit{Elasticsearch transport protocol}.
+
+
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
