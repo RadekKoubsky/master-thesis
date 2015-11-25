@@ -665,11 +665,14 @@ Although a document is related to an index, it must be also bound to a type with
 \subsection{Accessing Elasticsearch}
 Connecting to Elasticsearch cluster can be done in several ways depending on user requirements. There are two main approaches for working with Elasticsearch: \textit{RESTful API} and \textit{Java API}.
 
-The RESTful API is used by the command line interface and web clients. Web clients are implemented in various languages such as .NET, JavaScript, Python and many others.
-
 The Java API provides two built-in clients which directly communicate with Elasticsearch using the native \textit{Elasticsearch transport protocol}.
 
+\subsubsection{RESTful API}
+Elasticsearch provides comprehensive RESTful API which is used by the command line interface and web clients. RESTful API uses HTTP protocol and JSON as a data format, the default port for communication is \textit{9200}. 
 
+The command line interface is the basic technique for communication with Elasticsearch. It uses the \textit{cURL}\footnote{cURL is a computer software project providing a library and command-line tool for transferring data using various protocols} for making HTTP requests and displaying content returned in responses.
+
+Another use of the RESTful API are web clients. The web clients are built on the RESTful API and provides access to Elasticsearch in various languages such as .NET, JavaScript, Python and many others.
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
