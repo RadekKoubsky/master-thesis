@@ -665,14 +665,52 @@ Although a document is related to an index, it must be also bound to a type with
 \subsection{Accessing Elasticsearch}
 Connecting to Elasticsearch cluster can be done in several ways depending on user requirements. There are two main approaches for working with Elasticsearch: \textit{RESTful API} and \textit{Java API}.
 
-The Java API provides two built-in clients which directly communicate with Elasticsearch using the native \textit{Elasticsearch transport protocol}.
-
 \subsubsection{RESTful API}
-Elasticsearch provides comprehensive RESTful API which is used by the command line interface and web clients. RESTful API uses HTTP protocol and JSON as a data format, the default port for communication is \textit{9200}. 
+Elasticsearch provides comprehensive RESTful API which uses HTTP protocol and JSON as a data format, the default port for communication is \textit{9200}. The RESTful API is used by the command line interface and web clients.
 
 The command line interface is the basic technique for communication with Elasticsearch. It uses the \textit{cURL}\footnote{cURL is a computer software project providing a library and command-line tool for transferring data using various protocols} for making HTTP requests and displaying content returned in responses.
 
-Another use of the RESTful API are web clients. The web clients are built on the RESTful API and provides access to Elasticsearch in various languages such as .NET, JavaScript, Python and many others.
+The web clients are built on the RESTful API and provides access to Elasticsearch in various languages such as .NET, JavaScript, Python and many others.
+
+An Elasticsearch request is similar to an HTTP request, it consists of the following parts \cite{elasticsearch_defnitive_guide}:
+
+\begin{lstlisting}[frame=]
+curl -X<VERB> '<PROTOCOL>://<HOST>:<PORT>/<PATH>?<QUERY_STRING>' -d '<BODY>'
+\end{lstlisting}
+
+The parts embraced within the \verb|< >| define:
+
+\begin{itemize}
+	\item \textit{\textbf{VERB}} -- an HTTP method: \textit{GET}, \textit{POST}, \textit{PUT}, \textit{HEAD} or \textit{DELETE}
+	\item \textit{\textbf{PROTOCOL}} -- an application protocol; \textit{HTTP} or \textit{HTTPS}
+	\item \textit{\textbf{HOST}} -- specifies the name of a node within a cluster e.g. \textit{localhost} for the local machine node
+	\item \textit{\textbf{PORT}} -- the port used by the Elasticsearch, default value is 9200
+	\item \textit{\textbf{PATH}} -- API Endpoint which exposes data on specified path (for example \textit{\_count} returns number of documents within a cluster)
+	\item \textit{\textbf{QUERY\_STRING}} -- query string containing list of query parameters e.g. \textit{?pretty} for pretty printed JSON
+	\item \textit{\textbf{BODY}} -- the request body in the JSON format
+\end{itemize}
+
+According to the rules above, the following command creates a document with \textit{id} 1 which belongs to \textit{bookstore} index and \textit{order} type:
+
+\begin{lstlisting}[caption = Example of indexing data in Elasticsearch, label = elastic_xput]
+curl -XPUT 'http://localhost:9200/bookstore/order/1' -d '
+{ 
+"number": "20150001", 
+"price": "2015-01-15"
+}'
+\end{lstlisting}
+
+The same document can be retrieved by the \textit{GET} method:
+\begin{lstlisting}[caption = Example of retrieving data from Elasticsearch, label = elastic_xget]
+curl -XGET 'http://localhost:9200/bookstore/order/1?pretty'
+{ 
+"number": "20150001", 
+"price": "2015-01-15"
+}
+\end{lstlisting}
+
+\subsubsection{Java API}
+The Java API provides two built-in clients which directly communicate with Elasticsearch using the native \textit{Elasticsearch transport protocol}.
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
