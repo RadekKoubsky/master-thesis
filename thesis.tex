@@ -663,7 +663,7 @@ Data in Elasticsearch are stored as a \textit{Document}. Once a document is crea
 Although a document is related to an index, it must be also bound to a type within an index.
 
 \subsection{Accessing Elasticsearch}
-Connecting to Elasticsearch cluster can be done in several ways depending on user requirements. There are two main approaches for working with Elasticsearch: \textit{RESTful API} and \textit{Java API}.
+Connecting to Elasticsearch cluster can be done in several ways depending on user requirements. There are two main approaches for working with Elasticsearch: \textit{RESTful API} and \textit{Java API} \cite[Talking to Elasticsearch]{elasticsearch_defnitive_guide}.
 
 \subsubsection{RESTful API}
 Elasticsearch provides comprehensive RESTful API which uses HTTP protocol and JSON as a data format, the default port for communication is \textit{9200}. The RESTful API is used by the command line interface and web clients.
@@ -672,7 +672,7 @@ The command line interface is the basic technique for communication with Elastic
 
 The web clients are built on the RESTful API and provides access to Elasticsearch in various languages such as .NET, JavaScript, Python and many others.
 
-An Elasticsearch request is similar to an HTTP request, it consists of the following parts \cite{elasticsearch_defnitive_guide}:
+An Elasticsearch request is similar to an HTTP request, it consists of the following parts \cite[Talking to Elasticsearch]{elasticsearch_defnitive_guide}:
 
 \begin{lstlisting}[frame=]
 curl -X<VERB> '<PROTOCOL>://<HOST>:<PORT>/<PATH>?<QUERY_STRING>' -d '<BODY>'
@@ -710,7 +710,9 @@ curl -XGET 'http://localhost:9200/bookstore/order/1?pretty'
 \end{lstlisting}
 
 \subsubsection{Java API}
-The Java API provides two built-in clients which directly communicate with Elasticsearch using the native \textit{Elasticsearch transport protocol}.
+The Java API is the main API used for interaction with Elasticsearch. It directly communicates with Elasticsearch cluster using the native \textit{Elasticsearch transport protocol} over port \textit{9300}. Note that nodes within a cluster also use port \textit{9300} for communication in the cluster \cite[Talking to Elasticsearch]{elasticsearch_defnitive_guide}. The Java API provides fully asynchronous environment, thus, all operations are performed parallelly. In addition, the Bulk API can be used to aggregate and execute multiple client operations e.g. index several documents in a single request \cite[Java API]{elasticsearch_java_api_doc}. The core of all other APIs \cite{elasticsearch_doc} is formed by the Java API which internally executes requests from the APIs.
+
+The Java API provides two built-in clients, the \textit{Node client} and the \textit{Transport client}.
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
