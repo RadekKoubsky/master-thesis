@@ -710,9 +710,9 @@ curl -XGET 'http://localhost:9200/bookstore/order/1?pretty'
 \end{lstlisting}
 
 \subsubsection{Java API}
-The Java API is the main API used for interaction with Elasticsearch. It directly communicates with Elasticsearch cluster using the native \textit{Elasticsearch transport protocol} over port \textit{9300}. Note that nodes within a cluster also use port \textit{9300} for communication in the cluster \cite[Talking to Elasticsearch]{elasticsearch_defnitive_guide}. The Java API provides fully asynchronous environment, thus, all operations are performed parallelly. In addition, the Bulk API can be used to aggregate and execute multiple client operations e.g. index several documents in a single request \cite[Java API]{elasticsearch_java_api_doc}. The core of all other APIs \cite{elasticsearch_doc} is formed by the Java API which internally executes requests from the APIs.
+The Java API is the main API used for interaction with Elasticsearch. It directly communicates with Elasticsearch cluster using the native \textit{Elasticsearch transport protocol} over port \textit{9300}. Note that nodes within a cluster also use port \textit{9300} for communication in the cluster \cite[Talking to Elasticsearch]{elasticsearch_defnitive_guide}. The Java API provides fully asynchronous environment, thus, all operations are performed parallelly. In addition, the Bulk API can be used to aggregate and execute multiple client operations e.g. index several documents in a single request \cite[Java API]{elasticsearch_java_api_doc}. The core of all other APIs \cite{elasticsearch_doc} is formed by the Java API which internally executes requests from the APIs. The Java API provides two built-in clients, the \textit{Node client} and the \textit{Transport client}.
 
-The Java API provides two built-in clients, the \textit{Node client} and the \textit{Transport client}.
+The \textit{Node client} operates as a single node within a cluster. However, it does not hold any data, it only redirects all requests to proper node in a cluster. To find the corresponding node which holds requested data, the \textit{Node client} administrates information about every node and its data in a cluster. Thus, it is able to forward a request directly to the correct node without performing a "double hop".
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
