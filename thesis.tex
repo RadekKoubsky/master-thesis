@@ -619,10 +619,10 @@ Inside the BytemanTest.main
 >
 \end{lstlisting}
 
-\chapter{Elasticsearch and Kibana}
-This chapter briefly describes Elasticsearch and Kibana technologies which are used for storage and visualization of data. In the context of this work, the data represents log messages from Wildfly Application Server \ref{wildfly_chapter}.
+\chapter{Elasticsearch}
+This chapter briefly describes Elasticsearch technology which is used to store and search data. In the context of this work, the data represents log messages from Wildfly Application Server \ref{wildfly_chapter}.
 
-\section{Elasticsearch}
+\section{Introduction to Elasticsearch}
 Elasticsearch is mainly known as search engine. From \cite{elasticsearch_defnitive_guide}: ''Elasticsearch is an open-source search engine built on top of Apache Lucene™, a fulltext search-engine library.''
 
 It is an abstract layer between complex \textit{Apache Lucene}\footnote{Lucene is arguably the most advanced, high-performance, and fully featured search engine library in existence today—both open source and proprietary \cite{elasticsearch_defnitive_guide}} library and user applications. Elasticsearch does not require for its users to fully understand the complexity of Lucene, it provides API for working with Lucene in simple way.
@@ -638,34 +638,34 @@ However, Elasticsearch is not only search engine, it can be defined as follows \
 Elasticsearch is implemented in Java and packaged into standalone server. Access to the Elasticsearch server can be done in various ways, such as RESTful API\footnote{Representational State Transfer (REST) is architectural style, developed as an abstract model of the Web architecture \cite{rest}}, web client (Java, .NET, Python etc.) or command line interface.
 
 
-\subsection{Basic concept}
+\section{Basic concept}
 Several concepts form the fundamentals of the Elasticsearch core. Therefore understanding of these concepts is required before using Elasticsearch in practice \cite{elasticsearch_doc}.
 
-\subsubsection{Cluster}
+\subsection{Cluster}
 A \textit{Cluster} consists of one or more nodes (servers) that together store all data. Unified indexing and search operations are performed across all nodes in a cluster. Every cluster has its own name which is unique, default value of the name is \verb|elasticsearch|.
 
-\subsubsection{Node}
+\subsection{Node}
 A \textit{Node} represents a server within a cluster. It is responsible for store, indexing and search operations in the context of a cluster that it belongs to. A node is identified by name. The name is used to configure which server in network is related to particular node in a cluster.
 
 A node joins a cluster by specifying the cluster name. If the cluster name is not defined, nodes are configured to join the cluster with name \verb|elasticsearch| by default. Elasticsearch does not define any limitations for the number of nodes in a single cluster.
 
-\subsubsection{Index}
+\subsection{Index}
 A set of documents with similar attributes can be bound to an \textit{Index}. Whenever an operation is performed on a document, the index related to the document is employed.
 
 An index is defined as a string containing only lowercase characters. The number of indexes in a cluster is not limited.
 
-\subsubsection{Type}
+\subsection{Type}
 A \textit{Type} is another way of data partitioning within an index. Depending on an user requirements, one or more types can be defined for an index. A type is usually used for documents which have common fields.
 
-\subsubsection{Document}
+\subsection{Document}
 Data in Elasticsearch are stored as a \textit{Document}. Once a document is created under an index, data within a document are searchable in a cluster. A document is represented in JSON (JavaScript Object Notation) which is well known data interchange format.
 
 Although a document is related to an index, it must be also bound to a type within an index.
 
-\subsection{Accessing Elasticsearch}
+\section{Accessing Elasticsearch}
 Connecting to Elasticsearch cluster can be done in several ways depending on user requirements. There are two main approaches for working with Elasticsearch: \textit{RESTful API} and \textit{Java API} \cite[Talking to Elasticsearch]{elasticsearch_defnitive_guide}.
 
-\subsubsection{RESTful API}
+\subsection{RESTful API}
 Elasticsearch provides comprehensive RESTful API which uses HTTP protocol and JSON as a data format, the default port for communication is \textit{9200}. The RESTful API is used by the command line interface and web clients.
 
 The command line interface is the basic technique for communication with Elasticsearch. It uses the \textit{cURL}\footnote{cURL is a computer software project providing a library and command-line tool for transferring data using various protocols} for making HTTP requests and displaying content returned in responses.
@@ -709,10 +709,14 @@ curl -XGET 'http://localhost:9200/bookstore/order/1?pretty'
 }
 \end{lstlisting}
 
-\subsubsection{Java API}
+\subsection{Java API}
 The Java API is the main API used for interaction with Elasticsearch. It directly communicates with Elasticsearch cluster using the native \textit{Elasticsearch transport protocol} over port \textit{9300}. Note that nodes within a cluster also use port \textit{9300} for communication in the cluster \cite[Talking to Elasticsearch]{elasticsearch_defnitive_guide}. The Java API provides fully asynchronous environment, thus, all operations are performed parallelly. In addition, the Bulk API can be used to aggregate and execute multiple client operations e.g. index several documents in a single request \cite[Java API]{elasticsearch_java_api_doc}. The core of all other APIs \cite{elasticsearch_doc} is formed by the Java API which internally executes requests from the APIs. The Java API provides two built-in clients, the \textit{Node client} and the \textit{Transport client}.
 
-The \textit{Node client} operates as a single node within a cluster. However, it does not hold any data, it only redirects all requests to proper node in a cluster. To find the corresponding node which holds requested data, the \textit{Node client} administrates information about every node and its data in a cluster. Thus, it is able to forward a request directly to the correct node without performing a "double hop".
+\subsubsection{Node client}
+The \textit{Node client} operates as a single node within a cluster, thus, it must join the cluster to be a part of it. However, it does not hold any data, it only redirects all requests to proper node in a cluster. To find the corresponding node which holds requested data, the \textit{Node client} administrates information about every node and its data in a cluster. Thus, it is able to forward a request directly to the correct node without performing a "double hop".
+
+\subsubsection{Transport client}
+The \textit{Transport client} acts as a standard client in the client-server paradigm. It connects to a remote cluster using one or more transport addresses. Request which are sent over the transport addresses are processed in the round robin principle, thus, "double hop" is performed most of the time.
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
