@@ -146,6 +146,7 @@ The second option is to configure \textit{deployment-structure.xml} by adding mo
 \end{lstlisting}
 
 \section{Wildfly logging subsystem}
+\label{wildfly_logging}
 Logging subsystem is responsible for displaying all logs which appear in the application server i.e. in every subsystem and user applications. The logging subsystem consists of the following parts: \textit{handler configurations}, \textit{logger}, \textit{the root logger declarations} and \textit{logging profiles}. Loggers declare set of handlers which send logs to defined destinations such as console, a file, network and others \cite[Logging Configuration]{wildfly_doc}.
 
 The logging configuration can be defined in XML files (standalone.xml, domain.xml etc.), web console or command line interface. The following example illustrates a snippet of logging subsystem configuration from XML configuration file:
@@ -717,6 +718,9 @@ The \textit{Node client} operates as a single node within a cluster, thus, it mu
 
 \subsubsection{Transport client}
 The \textit{Transport client} acts as a standard client in the client-server paradigm. It connects to a remote cluster using one or more transport addresses. Request which are sent over the transport addresses are processed in the round robin principle, thus, "double hop" is performed most of the time.
+
+\chapter{Analysis and Design}
+This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part of this work focuses on existing techniques which can be used to add log messages to the Wildfly server without modifying the server source code itself. As the Wildfly server is implemented in the Java language, only Java based technologies are taken in consideration for the purpose of this work.
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
