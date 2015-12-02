@@ -722,6 +722,15 @@ The \textit{Transport client} acts as a standard client in the client-server par
 \chapter{Analysis and Design}
 This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part of this work focuses on existing techniques which can be used to add log messages to the Wildfly server without modifying the server source code itself. As the Wildfly server is implemented in the Java language, only Java based technologies are taken in consideration for the purpose of this work.
 
+\section{Requirements}
+The main requirement of this work is to extend Wildfly logging capabilities. The result of such extension should include ability to log events to Elasticsearch, visualize log events using Kibana tool and add new log events to selected parts of the Wildfly without modifying Wildfly source code. This requirement can be split into the following set of functional requirements:
+
+\begin{itemize}
+	\item Log events to Elasticsearch
+	\item Visualize log events using Kibana
+	\item Add new log events to selected parts of the Wildfly
+\end{itemize}
+
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
 \end{document}
