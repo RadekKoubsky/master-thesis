@@ -18,6 +18,7 @@
 \usepackage{listings}
 \lstset{frame=lrtb, captionpos=b, breaklines=true, literate={\\\-}{}{0\discretionary{-}{}{}}}
 \usepackage{multicol}
+\usepackage{enumitem}
 
 \thesislang{en}                   % The language of the thesis
 \thesistitle{Extend WildFly Application Server logging capabilities}       % The title of the thesis
@@ -117,7 +118,7 @@ The module descriptor is represented by \textit{module.xml} file. The following 
  </dependencies>    
 </module>
 \end{lstlisting}
-
+\noindent	
 The root \verb|<module>| element defines resources and dependencies of the module. 
 
 Resources are defined within the \verb|<resources>| element which contains one or more \verb|resource-root>| elements. Each \verb|<resource-root>| element has the \textit{path} attribute which specifies path to the \textit{JAR} file. The example above uses only one resource, the \textit{jboss-batch-api\_1.0\_spec-1.0.0.Final.jar} file located in the module directory next to the \textit{module.xml} file.
@@ -207,7 +208,7 @@ Logging subsystem provides the following set of handlers \cite[Logging Configura
 	\item size-rotating-file-handler
 	\item syslog-handler
 \end{itemize}
-
+\noindent
 However, a custom handler can be implemented for user specific requirements.
 
 \subsection{Defining custom handler}
@@ -230,7 +231,7 @@ public class MyHandler extends Handler {
 	public void close() ...
 }
 \end{lstlisting}
-
+\noindent
 The next step in custom handler implementation is to create \textit{module.xml} file with the following configuration:
 
 \begin{lstlisting}[caption = Custom handler module descriptor, label = custom_handler_module_descriptor, language=XML]
@@ -244,8 +245,9 @@ The next step in custom handler implementation is to create \textit{module.xml} 
 </module>
 \end{lstlisting}
 
+\noindent
 Then the \textit{myHandler.jar} with the \textit{module.xml} file is placed to proper module directory, which is \textit{JBOSS\_HOME/modules/system/layers/base/com/examples/myhandler/main}.
-
+\noindent
 Final step of the custom handler implementation is to add the custom handler to the logging subsystem configuration:
 \begin{lstlisting}[caption = Adding custom handler to the logging subsystem configuration, label = custom_handler_logging_subsystem, language=XML]
  <custom-handler name="MyHandler" class="com.examples.logging.MyHandler" module="com.examples.myhandler">
@@ -253,7 +255,7 @@ Final step of the custom handler implementation is to add the custom handler to 
  <formatter>...</formatter>
  </custom-handler>
 \end{lstlisting}
-
+\noindent
 After all previous steps, the \textit{MyHandler} will be used for processing of log messages in Wildfly.
 
 \chapter{Byteman}
@@ -720,17 +722,48 @@ The \textit{Node client} operates as a single node within a cluster, thus, it mu
 The \textit{Transport client} acts as a standard client in the client-server paradigm. It connects to a remote cluster using one or more transport addresses. Request which are sent over the transport addresses are processed in the round robin principle, thus, "double hop" is performed most of the time.
 
 \chapter{Analysis and Design}
-This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part of this work focuses on existing techniques which can be used to add log messages to the Wildfly server without modifying the server source code itself. As the Wildfly server is implemented in the Java language, only Java based technologies are taken in consideration for the purpose of this work.
+This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part of this work focuses on existing techniques which can be used to add log messages to the Wildfly without modifying the source code of the server itself. As the Wildfly is implemented in the Java language, only Java based technologies are taken in consideration for the purpose of this work.
 
 \section{Requirements}
-The main requirement of this work is to extend Wildfly logging capabilities. The result of such extension should include ability to log events to Elasticsearch, visualize log events using Kibana tool and add new log events to selected parts of the Wildfly without modifying Wildfly source code. This requirement can be split into the following set of functional requirements:
+The main requirement of this work is to extend Wildfly application server logging capabilities. The result of such extension must include ability to log events to Elasticsearch, visualize log events using Kibana tool and add new log events to the selected parts of the Wildfly without modifying Wildfly source code. This requirement can be split into the following requirements:
 
+\noindent
+\newline
+\textit{\textbf{Functional requirements}}
 \begin{itemize}
-	\item Log events to Elasticsearch
-	\item Visualize log events using Kibana
-	\item Add new log events to selected parts of the Wildfly
+	\item \textbf{Log events to Elasticsearch} \newline
+	In order to visualize log events using Kibana, the log events must be stored in an Elasticsearch cluster.
+	\item \textbf{Visualize log events using Kibana} \newline
+	As log events are persisted in Elasticsearch cluster, Kibana is employed to visualize the log events.
+	\item \textbf{Add new log events to the selected parts of Wildfly}  \newline
+	The selected parts of Wildfly must be analyzed and new log events should be added as needed. Such parts must include:
+	 \begin{itemize}
+	 	\item \textit{Web Container (Servlets, JSPs)}
+	 	\item \textit{REST endpoints}
+	 	\item \textit{WS endpoints}
+	 	\item \textit{EJB invocations}
+	 	\item \textit{JMS communication}
+	 \end{itemize}
 \end{itemize}
 
+\noindent
+\textit{\textbf{Non-functional requirements}}
+\begin{itemize}
+	\item \textbf{Add new log events without modifying Wildfly source code} \newline
+	New log events must be added and the source code of the Wildfly cannot be changed. Thus, the implementation is not dependent on the specific version of Wildfly.
+\end{itemize}
+
+\section{Bytecode manipulation}
+The non-functional requirement of this work is to use an approach which allows user to add log events to Wildfly and does not change its source code. The Wildfly source code is written in Java language and compiled into bytecode. Thus, new log events must be added only by modifying the Wildfly bytecode, whereas the current source code is left untouched. To fulfill such requirement, the bytecode manipulation must be employed. There are several bytecode manipulation tools depending on the level of abstraction they use. The following picture shows selected tools and level they operate on:
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=\textwidth]{images/bytecode_tools}
+	\caption{Bytecode manipulation tools}
+	\label{bytecode_tools}
+\end{figure}
+
+Choosing a suitable bytecode manipulation tool is critical decision as all additional log events are implemented using the selected tool. Thus, replacing one tool with another requires rewriting the source code, which is not trivial operation in case of large number of log events. Selection of a bytecode library does not depend only on the architecture of the library itself, it also requires analysis of the library used against an application server which can be implemented in various ways. For instance, Wildfly application server uses modular classloading system \ref{jboss_modules_sec} that can cause classloading problems with specific bytecode library. Another requirement on the selected bytecode library is reusability of the implemented log events across different releases of Wildfly. For this reason, the bytecode library should provide bytecode analysis which is able to target specific parts within bytecode based on class names, method names, method invocations, variable assignments, constructor invocations and others.
+ 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
 \end{document}
