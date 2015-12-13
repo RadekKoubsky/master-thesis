@@ -626,7 +626,7 @@ Inside the BytemanTest.main
 This chapter briefly describes Elasticsearch technology which is used to store and search data. In the context of this work, the data represents log messages from Wildfly Application Server \ref{wildfly_chapter}.
 
 \section{Introduction to Elasticsearch}
-Elasticsearch is mainly known as search engine. From \cite{elasticsearch_defnitive_guide}: ''Elasticsearch is an open-source search engine built on top of Apache Lucene™, a fulltext search-engine library.''
+Elasticsearch is mainly known as a search engine. From \cite{elasticsearch_defnitive_guide}: ''Elasticsearch is an open-source search engine built on top of Apache Lucene™, a fulltext search-engine library.''
 
 It is an abstract layer between complex \textit{Apache Lucene}\footnote{Lucene is arguably the most advanced, high-performance, and fully featured search engine library in existence today—both open source and proprietary \cite{elasticsearch_defnitive_guide}} library and user applications. Elasticsearch does not require for its users to fully understand the complexity of Lucene, it provides API for working with Lucene in simple way.
 
@@ -642,10 +642,10 @@ Elasticsearch is implemented in Java and packaged into standalone server. Access
 
 
 \section{Basic concept}
-Several concepts form the fundamentals of the Elasticsearch core. Therefore understanding of these concepts is required before using Elasticsearch in practice \cite{elasticsearch_doc}.
+Several concepts form the fundamentals of the Elasticsearch core. Therefore, understanding of these concepts is required before using Elasticsearch in practice \cite{elasticsearch_doc}.
 
 \subsection{Cluster}
-A \textit{Cluster} consists of one or more nodes (servers) that together store all data. Unified indexing and search operations are performed across all nodes in a cluster. Every cluster has its own name which is unique, default value of the name is \verb|elasticsearch|.
+A \textit{Cluster} consists of one or more nodes (servers) that together store all data. Unified indexing and search operations are performed across all nodes in a cluster. Every cluster has its own name which is unique; default value of the name is \verb|elasticsearch|.
 
 \subsection{Node}
 A \textit{Node} represents a server within a cluster. It is responsible for store, indexing and search operations in the context of a cluster that it belongs to. A node is identified by name. The name is used to configure which server in network is related to particular node in a cluster.
@@ -713,19 +713,19 @@ curl -XGET 'http://localhost:9200/bookstore/order/1?pretty'
 \end{lstlisting}
 
 \subsection{Java API}
-The Java API is the main API used for interaction with Elasticsearch. It directly communicates with Elasticsearch cluster using the native \textit{Elasticsearch transport protocol} over port \textit{9300}. Note that nodes within a cluster also use port \textit{9300} for communication in the cluster \cite[Talking to Elasticsearch]{elasticsearch_defnitive_guide}. The Java API provides fully asynchronous environment, thus, all operations are performed parallelly. In addition, the Bulk API can be used to aggregate and execute multiple client operations e.g. index several documents in a single request \cite[Java API]{elasticsearch_java_api_doc}. The core of all other APIs \cite{elasticsearch_doc} is formed by the Java API which internally executes requests from the APIs. The Java API provides two built-in clients, the \textit{Node client} and the \textit{Transport client}.
+The Java API is the main API used for interaction with Elasticsearch. It directly communicates with Elasticsearch cluster using the native \textit{Elasticsearch transport protocol} over port \textit{9300}. Note that nodes within a cluster also use port \textit{9300} for communication in the cluster \cite[Talking to Elasticsearch]{elasticsearch_defnitive_guide}. The Java API provides fully asynchronous environment, thus all operations are performed parallelly. In addition, the Bulk API can be used to aggregate and execute multiple client operations e.g. index several documents in a single request \cite[Java API]{elasticsearch_java_api_doc}. The core of all other APIs \cite{elasticsearch_doc} is formed by the Java API which internally executes requests from the APIs. The Java API provides two built-in clients, the \textit{Node client} and the \textit{Transport client}.
 
 \subsubsection{Node client}
-The \textit{Node client} operates as a single node within a cluster, thus, it must join the cluster to be a part of it. However, it does not hold any data, it only redirects all requests to proper node in a cluster. To find the corresponding node which holds requested data, the \textit{Node client} administrates information about every node and its data in a cluster. Thus, it is able to forward a request directly to the correct node without performing a "double hop".
+The \textit{Node client} operates as a single node within a cluster, thus it must join the cluster to be a part of it. However, it does not hold any data, it only redirects all requests to proper node in a cluster. To find the corresponding node which holds requested data, the \textit{Node client} administrates information about every node and its data in a cluster. Thus, it is able to forward a request directly to the correct node without performing a "double hop".
 
 \subsubsection{Transport client}
 The \textit{Transport client} acts as a standard client in the client-server paradigm. It connects to a remote cluster using one or more transport addresses. Request which are sent over the transport addresses are processed in the round robin principle, thus, "double hop" is performed most of the time.
 
 \chapter{Analysis and Design}
-This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part of this work focuses on existing techniques which can be used to add log messages to the Wildfly without modifying the source code of the server itself. As the Wildfly is implemented in the Java language, only Java based technologies are taken in consideration for the purpose of this work.
+This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part focuses on existing techniques which can be used to add log messages to the Wildfly without modifying the source code of the server itself. Wildfly is Open Source and is implemented in the Java language, thus only Open Source and Java based technologies are taken in consideration for the purpose of this work.
 
 \section{Requirements}
-The main requirement of this work is to extend Wildfly application server logging capabilities. The result of such extension must include ability to log events to Elasticsearch, visualize log events using Kibana tool and add new log events to the selected parts of the Wildfly without modifying Wildfly source code. This requirement can be split into the following requirements:
+The main requirement is to extend Wildfly application server logging capabilities. The result of such extension must include ability to log events to Elasticsearch, visualize log events using Kibana tool and add new log events to the selected parts of the Wildfly without modifying Wildfly source code. This requirement can be split into the following requirements:
 
 \noindent
 \newline
@@ -763,7 +763,9 @@ The non-functional requirement of this work is to use an approach which allows u
 \end{figure}
 
 Choosing a suitable bytecode manipulation tool is critical decision as all additional log events are implemented using the selected tool. Thus, replacing one tool with another requires rewriting the source code, which is not trivial operation in case of large number of log events. Selection of a bytecode library does not depend only on the architecture of the library itself, it also requires analysis of the library used against an application server which can be implemented in various ways. For instance, Wildfly application server uses modular classloading system \ref{jboss_modules_sec} that can cause classloading problems with specific bytecode library. Another requirement on the selected bytecode library is reusability of the implemented log events across different releases of Wildfly. For this reason, the bytecode library should provide bytecode analysis which is able to target specific parts within bytecode based on class names, method names, method invocations, variable assignments, constructor invocations and others.
- 
+
+
+
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
 \end{document}
