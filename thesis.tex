@@ -778,6 +778,9 @@ The following bytecode manipulation tools were chosen for analysis and testing: 
 	\item both Byteman and Wildfly are part of the \textit{JBoss Community}, this fact can simplify co-operation between developers in case of additional requirements
 \end{itemize}
 
+\section{Design}
+Extended Wildfly logging capabilities are designed in order to reflects functional requirements and provides maintainable, extensible and simple solution for end users. The extension of the logging capabilities consists of two parts, the Elasticsearch extension and the Byteman extension. Each part provides separate functionality. Note that a user does not need to use both extensions. For instance, there may be requirement only to store log events to the Elasticsearch cluster. Thus, the architecture must be decoupled into independent components, each responsible for particular functionality.
+
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
 \end{document}
