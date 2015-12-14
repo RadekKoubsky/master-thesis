@@ -259,6 +259,7 @@ Final step of the custom handler implementation is to add the custom handler to 
 After all previous steps, the \textit{MyHandler} will be used for processing of log messages in Wildfly.
 
 \chapter{Byteman}
+\label{byteman_chap}
 This chapter aims to introduce \textit{Byteman}, a bytecode manipulation tool, and its use in Java applications. Fundamental principles, functions, and structure of Byteman are described.
 At the end of the chapter, an example of simple java application is provided in order to understand bytecode injection which Byteman uses. More detailed documentation, tutorials, and guidelines 
 which cover almost every aspect of Byteman can be found in different versions at official website \url{http://byteman.jboss.org/}. Primary source for this thesis is Byteman documentation 3.0.0 \cite{byteman_doc}.
@@ -285,6 +286,7 @@ To simplify process of using Byteman in common use or in the test automation, th
 Byteman is an \textit{Open Source} project and plays important role in \textit{JBoss Community}. It helps other JBoss projects with test automation and quality assurance.
 
 \section{The Byteman Rule Language}
+\label{byteman_rule_language}
 This section introduces fundamentals of the Byteman Rule Language, its syntax, semantics and functionality. The Byteman Rule Language is the only way how to inject bytecode into Java applications via Byteman. Understanding of the Byteman Rule Language is required in order to write Byteman rule scripts which form the core functionality of this thesis. The following text is mainly focused on such parts of the Byteman Rule Language which are used in this work. Full description of the Byteman Rule Language is included in Byteman documentation \cite[The Byteman Rule Language]{byteman_doc}.
 
 \subsection{Event Condition Action Rules}
@@ -461,6 +463,7 @@ ENDRULE
 The rule ''example of an action'' employs built-in operation \textit{public boolean debug(String message)}  and return action. Note that the type of the return value which is returned by \textit{Response.noContent().build()} must be assignable to return type of the trigger method.
 
 \subsection{Built-In Calls}
+\label{built-in_calls}
 Built-in calls are operations which can be used within a rule body. Byteman provides a set of build-in calls in order to write comprehensive rules without additional complexity \cite[Built-In Calls]{byteman_doc}.
 
 Build-in calls are implemented as public methods of the default \textit{Helper} class. An instance of the \textit{Helper} class is assigned to a rule instance every time an instance is being created by the rule engine. Thus a rule can use all public methods exposed by the instance of the \textit{Helper} class.
@@ -764,7 +767,16 @@ The non-functional requirement of this work is to use an approach which allows u
 
 Choosing a suitable bytecode manipulation tool is critical decision as all additional log events are implemented using the selected tool. Thus, replacing one tool with another requires rewriting the source code, which is not trivial operation in case of large number of log events. Selection of a bytecode library does not depend only on the architecture of the library itself, it also requires analysis of the library used against an application server which can be implemented in various ways. For instance, Wildfly application server uses modular classloading system \ref{jboss_modules_sec} that can cause classloading problems with specific bytecode library. Another requirement on the selected bytecode library is reusability of the implemented log events across different releases of Wildfly. For this reason, the bytecode library should provide bytecode analysis which is able to target specific parts within bytecode based on class names, method names, method invocations, variable assignments, constructor invocations and others.
 
+The following bytecode manipulation tools were chosen for analysis and testing: \textit{Byteman} \ref{byteman_chap},  \textit{AspectJ}\footnote{\url{https://eclipse.org/aspectj/}}. There is significant distinction between Byteman and AspectJ as they use different approach for bytecode manipulation. Byteman is a low level library which requires work at bytecode level, whereas AspectJ uses Java classes to achieve manipulation with bytecode. After appropriate analysis based on documentation and testing of selected tools, Byteman is used by the following reasons:
 
+\begin{itemize}
+	\item Byteman uses simple and powerful mechanism (see \ref{subsec:eca_sec}) to perform bytecode manipulation 
+	\item AspectJ requires additional configuration using \textit{.xml} files for defining and working with aspects \cite[Configuration]{aspectj_doc}
+	\item Byteman Rule Language \ref{byteman_rule_language} provides comprehensive bytecode analysis \ref{subsec:rule_events} to identify target location within bytecode
+	\item in contrast to Byteman, AspectJ does not allow to manipulate with Java language classes defined in the \textit{java.lang} package \cite[Special cases]{aspectj_doc}
+	\item Byteman provides set of built-in operations \ref{built-in_calls} which can be used for debugging, monitoring and thread coordinating purposes, thus user does not have to implement such operations for specific requirements
+	\item both Byteman and Wildfly are part of the \textit{JBoss Community}, this fact can simplify co-operation between developers in case of additional requirements
+\end{itemize}
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
