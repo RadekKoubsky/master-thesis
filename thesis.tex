@@ -197,6 +197,7 @@ Wildfly logging subsystem defines the following set of logger levels \cite[Loggi
 \end{multicols}
 
 \subsection{Handlers}
+\label{handlers}
 Handlers represent next step in the log processing. If a log message is loggable, a handler processes the message e.g. sends the message to system console or stores the message to a file.
 
 Logging subsystem provides the following set of handlers \cite[Logging Configuration]{wildfly_doc}:
@@ -212,6 +213,7 @@ Logging subsystem provides the following set of handlers \cite[Logging Configura
 However, a custom handler can be implemented for user specific requirements.
 
 \subsection{Defining custom handler}
+\label{custom_handler}
 Logging subsystem provides straightforward process of custom handler implementation. A custom handler is standard module in the JBoss Modules architecture \ref{jboss_modules_sec}.
 
 The simplest way how to create a custom handler is to extend \textit{java.util.logging.Handler} class which is part of \textit{Java Logging API}. The \textit{Java Logging API} provides standard log handler lifecycle which is used to built a custom handler.
@@ -265,7 +267,7 @@ At the end of the chapter, an example of simple java application is provided in 
 which cover almost every aspect of Byteman can be found in different versions at official website \url{http://byteman.jboss.org/}. Primary source for this thesis is Byteman documentation 3.0.0 \cite{byteman_doc}.
 
 \section{Introduction to Byteman}
-Byteman is a bytecode manipulation tool which uses bytecode injection\footnote{Bytecode injection (or bytecode instrumentation) is a process of modifying the actual bytecode of a class} in order to change a java application as it is being loaded by \textit{Java virtual machine} or while the application is running \cite[Introduction to Byteman]{byteman_doc}.
+Byteman is a bytecode manipulation tool which uses bytecode injection\footnote{Bytecode injection (or bytecode instrumentation) is a process of modifying the actual bytecode of a class.} in order to change a java application as it is being loaded by \textit{Java virtual machine} or while the application is running \cite[Introduction to Byteman]{byteman_doc}.
 
 Because of the bytecode injection, there is no need to change the original source code nor to recompile or redeploy the application itself. In other words, it is possible to add, replace or remove injected code at runtime without interrupting a Java application. Byteman also provides a way to inject code into the Java language by modifying classes such as \textit{java.lang.Thread} and other classes from \textit{java.lang} package. Byteman uses simple scripting language called \textit{Event Condition Action} (\ref{subsec:eca_sec}) rules to determine how the original Java code should be transformed according to event and condition.
 
@@ -631,7 +633,7 @@ This chapter briefly describes Elasticsearch technology which is used to store a
 \section{Introduction to Elasticsearch}
 Elasticsearch is mainly known as a search engine. From \cite{elasticsearch_defnitive_guide}: ''Elasticsearch is an open-source search engine built on top of Apache Lucene™, a fulltext search-engine library.''
 
-It is an abstract layer between complex \textit{Apache Lucene}\footnote{Lucene is arguably the most advanced, high-performance, and fully featured search engine library in existence today—both open source and proprietary \cite{elasticsearch_defnitive_guide}} library and user applications. Elasticsearch does not require for its users to fully understand the complexity of Lucene, it provides API for working with Lucene in simple way.
+It is an abstract layer between complex \textit{Apache Lucene}\footnote{Lucene is arguably the most advanced, high-performance, and fully featured search engine library in existence today—both open source and proprietary \cite{elasticsearch_defnitive_guide}.} library and user applications. Elasticsearch does not require for its users to fully understand the complexity of Lucene, it provides API for working with Lucene in simple way.
 
 However, Elasticsearch is not only search engine, it can be defined as follows \cite{elasticsearch_defnitive_guide}:
 
@@ -641,7 +643,7 @@ However, Elasticsearch is not only search engine, it can be defined as follows \
 	\item Capable of scaling to hundreds of servers and petabytes of structured and unstructured data
 \end{itemize}
 
-Elasticsearch is implemented in Java and packaged into standalone server. Access to the Elasticsearch server can be done in various ways, such as RESTful API\footnote{Representational State Transfer (REST) is architectural style, developed as an abstract model of the Web architecture \cite{rest}}, web client (Java, .NET, Python etc.) or command line interface.
+Elasticsearch is implemented in Java and packaged into standalone server. Access to the Elasticsearch server can be done in various ways, such as RESTful API\footnote{Representational State Transfer (REST) is architectural style, developed as an abstract model of the Web architecture \cite{rest}.}, web client (Java, .NET, Python etc.) or command line interface.
 
 
 \section{Basic concept}
@@ -674,7 +676,7 @@ Connecting to Elasticsearch cluster can be done in several ways depending on use
 \subsection{RESTful API}
 Elasticsearch provides comprehensive RESTful API which uses HTTP protocol and JSON as a data format, the default port for communication is \textit{9200}. The RESTful API is used by the command line interface and web clients.
 
-The command line interface is the basic technique for communication with Elasticsearch. It uses the \textit{cURL}\footnote{cURL is a computer software project providing a library and command-line tool for transferring data using various protocols} for making HTTP requests and displaying content returned in responses.
+The command line interface is the basic technique for communication with Elasticsearch. It uses the \textit{cURL}\footnote{cURL is a computer software project providing a library and command-line tool for transferring data using various protocols.} for making HTTP requests and displaying content returned in responses.
 
 The web clients are built on the RESTful API and provides access to Elasticsearch in various languages such as .NET, JavaScript, Python and many others.
 
@@ -725,10 +727,10 @@ The \textit{Node client} operates as a single node within a cluster, thus it mus
 The \textit{Transport client} acts as a standard client in the client-server paradigm. It connects to a remote cluster using one or more transport addresses. Request which are sent over the transport addresses are processed in the round robin principle, thus, "double hop" is performed most of the time.
 
 \chapter{Analysis and Design}
-This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part focuses on existing techniques which can be used to add log messages to the Wildfly without modifying the source code of the server itself. Wildfly is Open Source and is implemented in the Java language, thus only Open Source and Java based technologies are taken in consideration for the purpose of this work.
+This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part focuses on existing techniques which can be used to add log messages to the Wildfly without modifying the source code of the server itself. Wildfly is Open Source and is implemented in the Java language, thus only Open Source and Java based technologies are taken in consideration.
 
 \section{Requirements}
-The main requirement is to extend Wildfly application server logging capabilities. The result of such extension must include ability to log events to Elasticsearch, visualize log events using Kibana tool and add new log events to the selected parts of the Wildfly without modifying Wildfly source code. This requirement can be split into the following requirements:
+The main requirement is to extend Wildfly application server logging capabilities. The outcome of such extension must include ability to log events to Elasticsearch, visualize log events using Kibana\footnote{Kibana is an open source data visualization plugin for Elasticsearch.} tool and add new log events to the selected parts of the Wildfly without modifying Wildfly source code. This requirement can be split into the following requirements:
 
 \noindent
 \newline
@@ -775,11 +777,19 @@ The following bytecode manipulation tools were chosen for analysis and testing: 
 	\item Byteman Rule Language \ref{byteman_rule_language} provides comprehensive bytecode analysis \ref{subsec:rule_events} to identify target location within bytecode
 	\item in contrast to Byteman, AspectJ does not allow to manipulate with Java language classes defined in the \textit{java.lang} package \cite[Special cases]{aspectj_doc}
 	\item Byteman provides set of built-in operations \ref{built-in_calls} which can be used for debugging, monitoring and thread coordinating purposes, thus user does not have to implement such operations for specific requirements
-	\item both Byteman and Wildfly are part of the \textit{JBoss Community}, this fact can simplify co-operation between developers in case of additional requirements
+	\item both Byteman and Wildfly are part of the \textit{JBoss Community}\footnote{JBoss Community is a community of open source projects.}, this fact can simplify co-operation between developers in case of additional requirements
 \end{itemize}
 
 \section{Design}
-Extended Wildfly logging capabilities are designed in order to reflects functional requirements and provides maintainable, extensible and simple solution for end users. The extension of the logging capabilities consists of two parts, the Elasticsearch extension and the Byteman extension. Each part provides separate functionality. Note that a user does not need to use both extensions. For instance, there may be requirement only to store log events to the Elasticsearch cluster. Thus, the architecture must be decoupled into independent components, each responsible for particular functionality.
+The extension of Wildfly logging capabilities is designed in order to reflects functional requirements and provides maintainable, extensible and simple solution for end users. The extension consists of two parts, the Elasticsearch extension and the Byteman extension. Each part provides separate functionality. Note that a user does not need to use both extensions. For instance, there may be requirement only to store log events to the Elasticsearch cluster. Thus, the architecture must be decoupled into independent components, each responsible for performing particular functionality. The architecture consists of 2 main components: Elasticsearch (Kibana) and Byteman.
+
+The Elasticsearch component is represented by the  Elasticsearch handler, which is implemented as a custom logging handler described in \ref{custom_handler}. The Elasticsearch handler is responsible for sending log events to an Elasticsearch cluster. The handler must be able to process large amount of log events and sends them to the cluster. In this case, Wildfly provides the \textit{async-handler} (\ref{handlers}) which can be used for asynchronous processing of log events. After storing log events to the Elasticsearch cluster, Kibana is employed to visualize the log events. In the context of this work, Kibana represents standalone system which is separated from the architecture of the logging extension as it does not require any additional implementation.
+
+The Byteman component is responsible for adding log events to the Wildfly without modifying its original source code. When a new log event is added to the Wildfly, it is processed by set of handlers including the Elasticsearh handler. Thus, the new log event is immediately sent to an Elasticsearch cluster.
+
+The following component diagram depicts the architecture of the logging extension:
+
+
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
