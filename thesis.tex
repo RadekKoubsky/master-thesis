@@ -54,7 +54,7 @@
     
 \chapter{Wildfly}
 \label{wildfly_chapter}
-In this chapter, the \textit{Wildfly Application Server} (former JBoss AS) is described. Because of the size of the server, only specific part are mentioned and description of its internal structure and configuration is provided. Further information about Wildfly can be found at official website \url{http://wildfly.org/}. Wildfly 8 Documetation \cite{wildfly_doc} is used as the main source for this chapter.
+In this chapter, the \textit{Wildfly Application Server} (former JBoss AS) is described. Because of the server complexity, only specific part are mentioned and description of its internal structure and configuration is provided. Further information about Wildfly can be found at official website \url{http://wildfly.org/}. Wildfly 8 Documetation \cite{wildfly_doc} is used as the main source for this chapter.
 
 Wildfly is one of the leading application servers in the area of enterprise solutions. From \cite[Getting Started with WildFly 8]{wildfly_doc}: ''WildFly 8 is an exceptionally fast, lightweight and powerful implementation of the Java Enterprise Edition 7 Platform specifications.'' The Wildfly project is licensed as \textit{Open Source} and supported by the \textit{JBoss Community}. However, there is commercial version of Wildfly, \textit{JBoss Enterprise Application Platform}, which is licensed and supported by Red Hat.
 
@@ -73,12 +73,12 @@ The core of the server was significantly changed in the version JBoss AS 7. It c
 	management between services.''
 \end{itemize}
 
-The structure of the core described above has remained to the last version of Wildfly. The following diagram illustrates basic architecture of the Wildfly core \cite{wildfly_book}:
+The structure of the core described above has remained to the last version of Wildfly. The following diagram illustrates basic architecture of the Wildfly core:
 
 \begin{figure}[ht!]
 	\centering
 	\includegraphics[width=\textwidth]{images/wildfly_core}
-	\caption{Wildfly core architecture}
+	\caption{Wildfly core architecture \cite{wildfly_book}}
 	\label{wildfly_core}
 \end{figure}
 
@@ -95,19 +95,19 @@ Wildfly defines two types of modules \cite{wildfly_book}:
 	\item Dynamic modules
 \end{itemize}
 
-The following diagram shows architecture of static and dynamic modules \cite{wildfly_book}:
+The following diagram shows architecture of static and dynamic modules:
 
 \begin{figure}[ht!]
 	\centering
 	\includegraphics[width=\textwidth]{images/jboss_modules}
-	\caption{JBoss modules architecture}
+	\caption{JBoss modules architecture \cite{wildfly_book}}
 	\label{jboss_modules_image}
 \end{figure}
 
 Static modules are defined in form of hierarchical directory structure. In Wildfly 8, static modules are located within \textit{JBOSS\_HOME/modules/system/layers/base} directory. A directory structure of a module is derived from the name and version of the module. The specific directory of the module contains module descriptor and resources required by the module (\textit{JAR} files).
 
-The module descriptor is represented by \textit{module.xml} file. The following example shows module descriptor of the \textit{javax.batch.api module.xml} module \cite{wildfly_book}:
-\begin{lstlisting}[caption = Example of a module descriptor, label = module_descriptor, language=XML]
+The module descriptor is represented by \textit{module.xml} file. The following example shows module descriptor of the \textit{javax.batch.api module.xml} module:
+\begin{lstlisting}[caption = Example of a module descriptor \cite{wildfly_book}, label = module_descriptor, language=XML]
 <module xmlns="urn:jboss:module:1.3" name="javax.batch.api">
  <resources>
   <resource-root path="jboss-batch-api_1.0_spec-1.0.0.Final.jar"/>
@@ -136,7 +136,7 @@ Dependencies: org.jboss.logging
 \newpage
 The second option is to configure \textit{deployment-structure.xml} by adding module dependency to it:
 
-\begin{lstlisting}[caption = Configuring deployment structure file, label = dynamic_module_descriptor, language=XML]
+\begin{lstlisting}[caption = Configuring deployment structure file \cite{wildfly_book}, label = dynamic_module_descriptor, language=XML]
 <jboss-deployment-structure>
  <deployment>
   <dependencies>
@@ -171,6 +171,13 @@ The logging configuration can be defined in XML files (standalone.xml, domain.xm
  </root-logger>
 </subsystem>
 \end{lstlisting}
+\noindent
+The \textit{console-handler} element identifies a handler which prints logs from Wildfly to a console. Handler element contains two child elements, the \textit{level} and the \textit{formatter} element. The level element specifies a log level the outgoing logs must match. The formatter element defines output format for logs in the console.
+
+The \textit{logger} element defines a logger and its level for specific package or class. Level is specified by the \textit{category} attribute.
+
+The \textit{root-logger} element is same as the logger element only it does not have the category attribute as it is the root logger.
+
 
 \subsection{Loggers}
 Log messages are created by loggers. Definition of a logger consists of a category which is represented by package or class name. Whenever the logger tries to log a message, it first checks the level of the message. If the level of the message is greater than the level of the logger, a filter is applied to the log message.  A filter determines whether the log message is loggable or not according to filter rule. The logging subsystem provides rich set of rules (expressions) for filters; detailed description of all rules can be found in the Logging documentation \cite[Logging Configuration]{wildfly_doc}.
@@ -179,19 +186,13 @@ Wildfly logging subsystem defines the following set of logger levels \cite[Loggi
 
 \begin{multicols}{2}
 	\begin{itemize}
-		\item ALL
-		\item FINEST
-		\item FINER
 		\item TRACE
 		\item DEBUG
 		\item FINE
-		\item CONFIG
 		\item INFO
 		\item WARN
-		\item WARNING
 		\item ERROR
 		\item SEVERE
-		\item FATAL
 		\item OFF
 	\end{itemize}
 \end{multicols}
@@ -216,7 +217,7 @@ However, a custom handler can be implemented for user specific requirements.
 \label{custom_handler}
 Logging subsystem provides straightforward process of custom handler implementation. A custom handler is standard module in the JBoss Modules architecture \ref{jboss_modules_sec}.
 
-The simplest way how to create a custom handler is to extend \textit{java.util.logging.Handler} class which is part of \textit{Java Logging API}. The \textit{Java Logging API} provides standard log handler lifecycle which is used to built a custom handler.
+The simplest way to create a custom handler is to extend \textit{java.util.logging.Handler} class which is part of \textit{Java Logging API}. The \textit{Java Logging API} provides standard log handler lifecycle which is used to built a custom handler.
 
 The following example shows custom handler class \textit{MyHandler.java}:
 \begin{lstlisting}[caption = Custom handler class, label = custom_handler_class, language=Java]
@@ -234,21 +235,7 @@ public class MyHandler extends Handler {
 }
 \end{lstlisting}
 \noindent
-The next step in custom handler implementation is to create \textit{module.xml} file with the following configuration:
-
-\begin{lstlisting}[caption = Custom handler module descriptor, label = custom_handler_module_descriptor, language=XML]
-<module xmlns="urn:jboss:module:1.3" name="com.examples.myhandler">
- <resources>
-  <resource-root path="myHandler.jar"/>
- </resources>
- <dependencies>
-  <module name="org.jboss.logging"/>
- </dependencies>    
-</module>
-\end{lstlisting}
-
-\noindent
-Then the \textit{myHandler.jar} with the \textit{module.xml} file is placed to proper module directory, which is \textit{JBOSS\_HOME/modules/system/layers/base/com/examples/myhandler/main}.
+The next step in custom handler implementation is to create \textit{module.xml} file with proper configuration according to \ref{module_descriptor}. Then the \textit{myHandler.jar} with the \textit{module.xml} file is placed to proper module directory, which is \textit{JBOSS\_HOME/modules/system/layers/base/com/examples/myhandler/main}.
 \noindent
 Final step of the custom handler implementation is to add the custom handler to the logging subsystem configuration:
 \begin{lstlisting}[caption = Adding custom handler to the logging subsystem configuration, label = custom_handler_logging_subsystem, language=XML]
@@ -258,7 +245,7 @@ Final step of the custom handler implementation is to add the custom handler to 
  </custom-handler>
 \end{lstlisting}
 \noindent
-After all previous steps, the \textit{MyHandler} will be used for processing of log messages in Wildfly.
+After all previous steps, the \textit{MyHandler} will be used to process of log messages in Wildfly.
 
 \chapter{Byteman}
 \label{byteman_chap}
@@ -308,9 +295,9 @@ A set of rules is defined in Byteman script which is a file with a \textit{.btm}
 
 The ECA formalism provides clear and easy-to-understand approach for performing bytecode injection without ambiguity.
 
-Syntax of the rule consists of several parts which can be parsed by the rule engine. The following code snippet illustrates rule scheme and its structure \cite[Rule Events]{byteman_doc}:
+Syntax of the rule consists of several parts which can be parsed by the rule engine. The following code snippet illustrates rule scheme and its structure:
 
-\begin{lstlisting}[caption = Byteman rule scheme, label = byteman_scheme]
+\begin{lstlisting}[caption = Byteman rule scheme \cite{byteman_doc}, label = byteman_scheme]
 # rule skeleton
 RULE <rule name>
 # comment line in rule body
@@ -344,7 +331,7 @@ AT ENTRY
 ENDRULE
 \end{lstlisting}
 
-For the rule above, only one trigger point will by inserted into the class \textit{CMTTxInterceptor} from package \textit{org.jboss.as.ejb3.tx}. The triggermethod is the method with name \textit{invokeInOurTx} and list of three parameters: \textit{InterceptorContext}, \textit{TransactionManager} and \textit{EJBComponent}. Note that the package qualification of all method parameters is omitted. The type checker will look up the package of each parameter of the matched method. Similarly, the same approach applies for the return type of the method. Inner classes can be located with \textit{\$} expression e.g.: \textit{my.package.OuterClass\$InnerClass}.
+For the rule above, only one trigger point will by inserted into the class \textit{CMTTxInterceptor} from package \textit{org.jboss.as.ejb3.tx}. The trigger method is the method with name \textit{invokeInOurTx} and list of three parameters: \textit{InterceptorContext}, \textit{TransactionManager} and \textit{EJBComponent}. Note that the package qualification of all method parameters is omitted. The type checker will look up the package of each parameter of the matched method. Similarly, the same approach applies for the return type of the method. Inner classes can be located with \textit{\$} expression e.g.: \textit{my.package.OuterClass\$InnerClass}.
 
 The rule event can employ any class of a Java application except the following classes:
 
@@ -687,19 +674,7 @@ An Elasticsearch request is similar to an HTTP request, it consists of the follo
 curl -X<VERB> '<PROTOCOL>://<HOST>:<PORT>/<PATH>?<QUERY_STRING>' -d '<BODY>'
 \end{lstlisting}
 
-The parts embraced within the \verb|< >| define:
-
-\begin{itemize}
-	\item \textit{\textbf{VERB}} -- an HTTP method: \textit{GET}, \textit{POST}, \textit{PUT}, \textit{HEAD} or \textit{DELETE}
-	\item \textit{\textbf{PROTOCOL}} -- an application protocol; \textit{HTTP} or \textit{HTTPS}
-	\item \textit{\textbf{HOST}} -- specifies the name of a node within a cluster e.g. \textit{localhost} for the local machine node
-	\item \textit{\textbf{PORT}} -- the port used by the Elasticsearch, default value is 9200
-	\item \textit{\textbf{PATH}} -- API Endpoint which exposes data on specified path (for example \textit{\_count} returns number of documents within a cluster)
-	\item \textit{\textbf{QUERY\_STRING}} -- query string containing list of query parameters e.g. \textit{?pretty} for pretty printed JSON
-	\item \textit{\textbf{BODY}} -- the request body in the JSON format
-\end{itemize}
-
-According to the rules above, the following command creates a document with \textit{id} 1 which belongs to \textit{bookstore} index and \textit{order} type:
+For example, the following command creates a document with \textit{id} 1 which belongs to \textit{bookstore} index and \textit{order} type:
 
 \begin{lstlisting}[caption = Example of indexing data in Elasticsearch, label = elastic_xput]
 curl -XPUT 'http://localhost:9200/bookstore/order/1' -d '
@@ -801,6 +776,17 @@ This section introduces set of tools and technologies used for the implementatio
 \end{itemize}
 
 \subsection{Maven}
+Effective development of an Java application requires an automation process for building the source code of the application. Maven is leading build automation tool for Java based projects. This work uses several aspects of Maven which are described in the following text.
+
+To build a project with Maven, a project must define its project object model and set of plugins which are shared across all projects using Maven. The project object model is defined by the \textit{pom.xml} file which is a part of every Maven project \cite{maven_doc}. 
+
+A Maven project must define its unique identification which consists of: \textit{groupId}, \textit{artifactId} and \textit{version}. This identification is defined within the \textit{pom.xml} file which also contains all configuration properties e.g. packaging (default is \textit{JAR}), project name, description and any custom properties defined by a user.
+
+One of the most important elements in Maven are \textit{dependencies}. It provides comprehensive administration of libraries used in a Maven project. Libraries represents Maven projects which were published in a Maven repository. A dependency is defined by its unique identification (groupId, artifactId, version) and the dependency scope\footnote{Dependency Scope defines certain limitations when processing a dependency.}. Dependencies are downloaded from a remote Maven repository during the build process of a Maven project.
+
+Maven repositories are defined in the \textit{settings.xml} file which is created after installing Maven on a user machine. Maven provides access only to the \textit{Maven Central Repository} by default, thus other repositories must be specified within the \textit{settings.xml}. In addition, a user can create its own repository which can be added to the \textit{settings.xml} as any other public repository.
+
+\subsection{Git}
 
 
 \bibliographystyle{IEEEtran}
