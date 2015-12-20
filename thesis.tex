@@ -734,28 +734,6 @@ The main requirement is to extend Wildfly application server logging capabilitie
 	New log events must be added and the source code of the Wildfly cannot be changed. Thus, the implementation is not dependent on the specific version of Wildfly.
 \end{itemize}
 
-\section{Bytecode manipulation tools}
-The non-functional requirement of this work is to use an approach which allows user to add log events to Wildfly and does not change its source code. The Wildfly source code is written in Java language and compiled into bytecode. Thus, new log events must be added only by modifying the Wildfly bytecode, whereas the current source code is left untouched. To fulfill such requirement, the bytecode manipulation must be employed. There are several bytecode manipulation tools depending on the level of abstraction they use. The following picture shows selected tools and level they operate on:
-\begin{figure}[ht!]
-	\centering
-	\includegraphics[width=\textwidth]{images/bytecode_tools}
-	\caption{Bytecode manipulation tools}
-	\label{bytecode_tools}
-\end{figure}
-
-Choosing a suitable bytecode manipulation tool is critical decision as all additional log events are implemented using the selected tool. Thus, replacing one tool with another requires rewriting the source code, which is not trivial operation in case of large number of log events. Selection of a bytecode library does not depend only on the architecture of the library itself, it also requires analysis of the library used against an application server which can be implemented in various ways. For instance, Wildfly application server uses modular classloading system \ref{jboss_modules_sec} that can cause classloading problems with specific bytecode library. Another requirement on the selected bytecode library is reusability of the implemented log events across different releases of Wildfly. For this reason, the bytecode library should provide bytecode analysis which is able to target specific parts within bytecode based on class names, method names, method invocations, variable assignments, constructor invocations and others.
-
-The following bytecode manipulation tools were chosen for analysis and testing: \textit{Byteman} \ref{byteman_chap},  \textit{AspectJ}\footnote{\url{https://eclipse.org/aspectj/}}. There is significant distinction between Byteman and AspectJ as they use different approach for bytecode manipulation. Byteman is a low level library which requires work at bytecode level, whereas AspectJ uses Java classes to achieve manipulation with bytecode. After appropriate analysis based on documentation and testing of selected tools, Byteman is used by the following reasons:
-
-\begin{itemize}
-	\item Byteman uses simple and powerful mechanism (see \ref{subsec:eca_sec}) to perform bytecode manipulation 
-	\item AspectJ requires additional configuration using \textit{.xml} files for defining and working with aspects \cite[Configuration]{aspectj_doc}
-	\item Byteman Rule Language \ref{byteman_rule_language} provides comprehensive bytecode analysis \ref{subsec:rule_events} to identify target location within bytecode
-	\item in contrast to Byteman, AspectJ does not allow to manipulate with Java language classes defined in the \textit{java.lang} package \cite[Special cases]{aspectj_doc}
-	\item Byteman provides set of built-in operations \ref{built-in_calls} which can be used for debugging, monitoring and thread coordinating purposes, thus user does not have to implement such operations for specific requirements
-	\item both Byteman and Wildfly are part of the \textit{JBoss Community}\footnote{JBoss Community is a community of open source projects.}, this fact can simplify co-operation between developers in case of additional requirements
-\end{itemize}
-
 \section{Design}
 The extension of Wildfly logging capabilities is designed in order to reflects functional requirements and provides maintainable, extensible and simple solution for end users. The extension consists of two parts, the Elasticsearch extension and the Byteman extension. Each part provides separate functionality. Note that a user does not need to use both extensions. For instance, there may be requirement only to store log events to the Elasticsearch cluster. Thus, the architecture must be decoupled into independent components, each responsible for performing particular functionality. The architecture consists of 3 main components: \textit{Elasticsearch}, \textit{Kibana} and \textit{Byteman}.
 
@@ -768,15 +746,18 @@ The Byteman component is responsible for adding log events to the Wildfly withou
 The following component diagram depicts the architecture of the logging extension:
 
 \section{Tools}
-This section introduces set of tools and technologies used for the implementation of the logging extension. Byteman and Elasticsearch are not mentioned in the following text as they are described in chapters \ref{byteman_chap} and \ref{elasticsearch_chap}. According to the nature of the Wildfly project, all tools and technologies must meet the following requirements:
+This section introduces set of tools and technologies used for the implementation of the logging extension. Byteman and Elasticsearch are not mentioned in the following text as they are described in chapters \ref{byteman_chap} and \ref{elasticsearch_chap}. According to the nature of the Wildfly project, all tools and technologies should meet the following requirements:
 
 \begin{itemize}
-	\item Wildfly is \textit{Open Source}, thus only Open Source technologies must be used for the implementation
+	\item Wildfly is \textit{Open Source}, thus only Open Source technologies should be used for the implementation
 	\item Wildfly is implemented in the \textit{Java} language, this fact must be taken in consideration when choosing appropriate technologies
 \end{itemize}
 
+\subsection{IDE}
+Effective development of any project should use an Integration Development Environment. It consists of several tools which help developer with fast and effective development. Such tools include text editor, debugger, build system, version control system and others. Eclipse is free Open Source IDE for Java. It uses plugins for integration with technologies such as Maven, Git, Wildfly and many JBoss projects. In addition, Red Hat JBoss Developer Studio can be used as it is built on top of Eclipse and includes plugins for JBoss technologies by default.
+
 \subsection{Maven}
-Effective development of an Java application requires an automation process for building the source code of the application. Maven is leading build automation tool for Java based projects. This work uses several aspects of Maven which are described in the following text.
+Development of an Java application requires an automation process for building the source code of the application. Maven is leading build automation tool for Java based projects. This work uses several aspects of Maven which are described in the following text.
 
 To build a project with Maven, a project must define its project object model and set of plugins which are shared across all projects using Maven. The project object model is defined by the \textit{pom.xml} file which is a part of every Maven project \cite{maven_doc}. 
 
@@ -787,7 +768,29 @@ One of the most important elements in Maven are \textit{dependencies}. It provid
 Maven repositories are defined in the \textit{settings.xml} file which is created after installing Maven on a user machine. Maven provides access only to the \textit{Maven Central Repository} by default, thus other repositories must be specified within the \textit{settings.xml}. In addition, a user can create its own repository which can be added to the \textit{settings.xml} as any other public repository.
 
 \subsection{Git}
+Version control system (CVS) provides necessary functions for software development such as history of changes in a project source code, resolving conflict within same file and others. Main characteristic of the Git CVS is strong support for distributed development. For instance, each developer uses its local repository for work, thus changes are committed to a local repository at first, then pushed to a remote repository. In order to provide web-based service for Git repositories, the Github\footnote{https://github.com/} was created. It allows user to manage its repositories via web interface.
 
+\subsection{Bytecode manipulation tools}
+The non-functional requirement of this work is to use an approach which allows user to add log events to Wildfly and does not change its source code. The Wildfly source code is written in Java language and compiled into bytecode. Thus, new log events must be added only by modifying the Wildfly bytecode, whereas the current source code is left untouched. To fulfill such requirement, the bytecode manipulation must be employed. There are several bytecode manipulation tools depending on the level of abstraction they use. The following picture shows selected tools and level they operate on:
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=\textwidth]{images/bytecode_tools}
+	\caption{Bytecode manipulation tools}
+	\label{bytecode_tools}
+\end{figure}
+
+Choosing a suitable bytecode manipulation tool is critical decision as all additional log events are implemented using the selected tool. Thus, replacing one tool with another requires rewriting the source code, which is not trivial operation in case of large number of log events. Selection of a bytecode library does not depend only on the architecture of the library itself, it also requires analysis of the library used against an application server which can be implemented in various ways. For instance, Wildfly application server uses modular classloading system \ref{jboss_modules_sec} that can cause classloading problems with specific bytecode library. Another requirement on the selected bytecode library is reusability of the implemented log events across different releases of Wildfly. For this reason, the bytecode library should provide bytecode analysis which is able to target specific parts within bytecode based on class names, method names, method invocations, variable assignments, constructor invocations and others.
+
+The following bytecode manipulation tools were chosen for analysis and testing: \textit{Byteman} and \textit{AspectJ}\footnote{\url{https://eclipse.org/aspectj/}}. There is significant distinction between Byteman and AspectJ as they use different approach for bytecode manipulation. Byteman is a low level library which requires work at bytecode level, whereas AspectJ uses Java classes to achieve manipulation with bytecode. After appropriate analysis based on documentation and testing of selected tools, Byteman is used by the following reasons:
+
+\begin{itemize}
+	\item Byteman uses simple and powerful mechanism (see \ref{subsec:eca_sec}) to perform bytecode manipulation 
+	\item AspectJ requires additional configuration using \textit{.xml} files for defining and working with aspects \cite[Configuration]{aspectj_doc}
+	\item Byteman Rule Language \ref{byteman_rule_language} provides comprehensive bytecode analysis \ref{subsec:rule_events} to identify target location within bytecode
+	\item in contrast to Byteman, AspectJ does not allow to manipulate with Java language classes defined in the \textit{java.lang} package \cite[Special cases]{aspectj_doc}
+	\item Byteman provides set of built-in operations \ref{built-in_calls} which can be used for debugging, monitoring and thread coordinating purposes, thus user does not have to implement such operations for specific requirements
+	\item both Byteman and Wildfly are part of the \textit{JBoss Community}\footnote{JBoss Community is a community of open source projects.}, this fact can simplify co-operation between developers in case of additional requirements
+\end{itemize}
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
