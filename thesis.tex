@@ -174,7 +174,7 @@ The logging configuration can be defined in XML files (standalone.xml, domain.xm
 \noindent
 The \textit{console-handler} element identifies a handler which prints logs from Wildfly to a console. Handler element contains two child elements, the \textit{level} and the \textit{formatter} element. The level element specifies a log level the outgoing logs must match. The formatter element defines output format for logs in the console.
 
-The \textit{logger} element defines a logger and its level for specific package or class. Level is specified by the \textit{category} attribute.
+The \textit{logger} element defines a logger and its level for specific package or class. Target package or class is specified by the \textit{category} attribute.
 
 The \textit{root-logger} element is same as the logger element only it does not have the category attribute as it is the root logger.
 
@@ -235,7 +235,7 @@ public class MyHandler extends Handler {
 }
 \end{lstlisting}
 \noindent
-The next step in custom handler implementation is to create \textit{module.xml} file with proper configuration according to \ref{module_descriptor}. Then the \textit{myHandler.jar} with the \textit{module.xml} file is placed to proper module directory, which is \textit{JBOSS\_HOME/modules/system/layers/base/com/examples/myhandler/main}.
+The next step in custom handler implementation is to create \textit{module.xml} file with proper configuration according to \ref{module_descriptor}. Then the \textit{myHandler.jar} with the \textit{module.xml} file is placed to specific module directory, for example \textit{JBOSS\_HOME/modules/system/layers/base/com/examples/myhandler/main}.
 \noindent
 Final step of the custom handler implementation is to add the custom handler to the logging subsystem configuration:
 \begin{lstlisting}[caption = Adding custom handler to the logging subsystem configuration, label = custom_handler_logging_subsystem, language=XML]
@@ -245,7 +245,7 @@ Final step of the custom handler implementation is to add the custom handler to 
  </custom-handler>
 \end{lstlisting}
 \noindent
-After all previous steps, the \textit{MyHandler} will be used to process of log messages in Wildfly.
+After all previous steps, the \textit{MyHandler} will be used to process log messages in Wildfly.
 
 \chapter{Byteman}
 \label{byteman_chap}
@@ -706,7 +706,7 @@ The \textit{Transport client} acts as a standard client in the client-server par
 This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part focuses on existing techniques which can be used to add log messages to the Wildfly without modifying the source code of the server itself.
 
 \section{Requirements}
-The main requirement is to extend Wildfly application server logging capabilities. The outcome of such extension must include ability to log events to Elasticsearch, visualize log events using Kibana\footnote{Kibana is an open source data visualization tool for Elasticsearch.} tool and add new log events to the selected parts of the Wildfly without modifying Wildfly source code. This requirement can be split into the following requirements:
+The main requirement is to extend Wildfly application server logging capabilities. The outcome of such extension must include ability to log events to Elasticsearch, visualize log events using Kibana\footnote{Kibana is an open source analytics and visualization platform designed to work with Elasticsearch \cite{kibana_doc}.} tool and add new log events to the selected parts of the Wildfly without changing Wildfly source code. This requirement can be split into the following requirements:
 
 \noindent
 \newline
@@ -745,6 +745,13 @@ The Byteman component is responsible for adding log events to the Wildfly withou
 
 The following component diagram depicts the architecture of the logging extension:
 
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=\textwidth]{images/component_diagram}
+	\caption{Component diagram}
+	\label{jboss_modules_image}
+\end{figure}
+
 \section{Tools}
 This section introduces set of tools and technologies used for the implementation of the logging extension. Byteman and Elasticsearch are not mentioned in the following text as they are described in chapters \ref{byteman_chap} and \ref{elasticsearch_chap}. According to the nature of the Wildfly project, all tools and technologies should meet the following requirements:
 
@@ -768,7 +775,10 @@ One of the most important elements in Maven are \textit{dependencies}. It provid
 Maven repositories are defined in the \textit{settings.xml} file which is created after installing Maven on a user machine. Maven provides access only to the \textit{Maven Central Repository} by default, thus other repositories must be specified within the \textit{settings.xml}. In addition, a user can create its own repository which can be added to the \textit{settings.xml} as any other public repository.
 
 \subsection{Git}
-Version control system (CVS) provides necessary functions for software development such as history of changes in a project source code, resolving conflict within same file and others. Main characteristic of the Git CVS is strong support for distributed development. For instance, each developer uses its local repository for work, thus changes are committed to a local repository at first, then pushed to a remote repository. In order to provide web-based service for Git repositories, the Github\footnote{https://github.com/} was created. It allows user to manage its repositories via web interface.
+Version control system (CVS) provides necessary functions for software development such as history of changes, resolving conflict within same file and others. Main characteristic of the Git CVS is strong support for distributed development. For instance, each developer uses its local repository for work, thus changes are committed to a local repository at first, then pushed to a remote repository. In order to provide web-based service for Git repositories, the Github\footnote{https://github.com/} was created. It allows user to manage its repositories via web interface.
+
+\subsection{Kibana}
+Elasticsearch stores large amount of data that user needs to work with. Kibana allows user to search, view and analyze data within the Elasticsearch. It represents simple web interface for browsing data in real time. Moreover, Kibana provides advanced data analysis and visualization using various charts, tables and maps \cite[Introduction]{kibana_doc}. Note that installing and running Kibana does not require any additional implementation on the client side, thus using Kibana is very simple and intuitive.
 
 \subsection{Bytecode manipulation tools}
 The non-functional requirement of this work is to use an approach which allows user to add log events to Wildfly and does not change its source code. The Wildfly source code is written in Java language and compiled into bytecode. Thus, new log events must be added only by modifying the Wildfly bytecode, whereas the current source code is left untouched. To fulfill such requirement, the bytecode manipulation must be employed. There are several bytecode manipulation tools depending on the level of abstraction they use. The following picture shows selected tools and level they operate on:
@@ -791,6 +801,16 @@ The following bytecode manipulation tools were chosen for analysis and testing: 
 	\item Byteman provides set of built-in operations \ref{built-in_calls} which can be used for debugging, monitoring and thread coordinating purposes, thus user does not have to implement such operations for specific requirements
 	\item both Byteman and Wildfly are part of the \textit{JBoss Community}\footnote{JBoss Community is a community of open source projects.}, this fact can simplify co-operation between developers in case of additional requirements
 \end{itemize}
+
+\chapter{Implementation}
+This chapter describes implementation of the extended Wildfly logging capabilities in detail. The logging extension is split into two Maven projects:
+
+\begin{itemize}
+	\item \textit{elasticsearch-wildfly-log}: extension for Elasticsearch
+	\item \textit{byteman-wildfly-log}: addition of new log events using Byteman
+\end{itemize}
+
+Both Maven projects are completely independent and can be used separately.
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
