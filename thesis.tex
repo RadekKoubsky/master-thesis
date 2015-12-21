@@ -172,11 +172,11 @@ The logging configuration can be defined in XML files (standalone.xml, domain.xm
 </subsystem>
 \end{lstlisting}
 \noindent
-The \textit{console-handler} element identifies a handler which prints logs from Wildfly to a console. Handler element contains two child elements, the \textit{level} and the \textit{formatter} element. The level element specifies a log level the outgoing logs must match. The formatter element defines output format for logs in the console.
+The \verb|<console-handler>| element identifies a handler which prints logs from Wildfly to a console. Handler element contains two child elements, the \verb|<level>| and the \verb|<formatter>| element. The level element specifies a log level the outgoing logs must match. The formatter element defines output format for logs in the console.
 
-The \textit{logger} element defines a logger and its level for specific package or class. Target package or class is specified by the \textit{category} attribute.
+The \verb|<logger>| element defines a logger and its level for specific package or class. Target package or class is specified by the \textit{category} attribute.
 
-The \textit{root-logger} element is same as the logger element only it does not have the category attribute as it is the root logger.
+The \verb|<root-logger>| element is same as the logger element only it does not have the category attribute as it is the root logger.
 
 
 \subsection{Loggers}
@@ -700,6 +700,7 @@ The Java API is the main API used for interaction with Elasticsearch. It directl
 The \textit{Node client} operates as a single node within a cluster, thus it must join the cluster to be a part of it. However, it does not hold any data, it only redirects all requests to proper node in a cluster. To find the corresponding node which holds requested data, the \textit{Node client} administrates information about every node and its data in a cluster. Thus, it is able to forward a request directly to the correct node without performing a "double hop".
 
 \subsubsection{Transport client}
+\label{transport_client}
 The \textit{Transport client} acts as a standard client in the client-server paradigm. It connects to a remote cluster using one or more transport addresses. Request which are sent over the transport addresses are processed in the round robin principle, thus, "double hop" is performed most of the time.
 
 \chapter{Analysis and Design}
@@ -712,7 +713,7 @@ The main requirement is to extend Wildfly application server logging capabilitie
 \newline
 \textit{\textbf{Functional requirements}}
 \begin{itemize}
-	\item \textbf{Log events to Elasticsearch} \newline
+	\item \textbf{Store log events to Elasticsearch} \newline
 	In order to visualize log events using Kibana, the log events must be stored in an Elasticsearch cluster.
 	\item \textbf{Visualize log events using Kibana} \newline
 	As log events are persisted in Elasticsearch cluster, Kibana is employed to visualize the log events.
@@ -749,7 +750,7 @@ The following component diagram depicts the architecture of the logging extensio
 	\centering
 	\includegraphics[width=\textwidth]{images/component_diagram}
 	\caption{Component diagram}
-	\label{jboss_modules_image}
+	\label{component_diagram}
 \end{figure}
 
 \section{Tools}
@@ -811,6 +812,52 @@ This chapter describes implementation of the extended Wildfly logging capabiliti
 \end{itemize}
 
 Both Maven projects are completely independent and can be used separately.
+
+\section{Elasticsearch Wildfly Log}
+Main functionality of the Elasticsearch Wildfly Log project is to store log events to Elasticsearch. This project is deployed as a static module in Wildfly. Thus, the project is built as a directory, which corresponds to the JBoss Module hierarchical directory structure depicted in figure \ref{jboss_modules_image}. The output directory has the following structure:
+
+\begin{lstlisting}[caption = Elasticsearch Wildfly Log module directory structure, label = elasticsearch_module_structure]
+org
+|--elasticsearch
+|   |--main
+|      |--elasticsearch-1.6.0.jar
+|      |--lucene-core-4.10.4.jar
+|      |-- ... rest of Lucene jars
+|      |-- module.xml
+|--wildfly
+    |--elasticsearch
+       |--log
+          |--main
+             |--elasticsearch-wildfly-log-0.0.1-SNAPSHOT.jar
+             |--module.xml
+\end{lstlisting}
+
+\noindent
+Note that there are two modules in the output directory as the \textit{org.wildfly.elasticsearch.log} module requires Elasticsearch jars which are included in the separate module located in \textit{org.elasticsearch} subdirectory.
+
+The storing process of log events includes several steps which are implemented in the \textit{ElasticsearchHandler} class. At first, the handler must establish a connection with an Elasticsearch cluster. To create such connection, a user must specify valid \textit{cluster name}, \textit{transport address} and \textit{port}.
+If correct configuration is provided, the handler implementation uses the \textit{Transport Client} \ref{transport_client} to connect to a running cluster.
+
+The next step in the storing process is to serialize a log event to the JSON format, which is used for data stored in Elasticsearch. The JSON format of the log event is designed to provide comprehensive data structure in order to support search operations in Elasticsearch.
+
+\begin{lstlisting}[caption = JSON format of a log event, label = json_log_event]
+{
+ "timestamp":"timestamp",
+ "jboss.bind.address":"server address",
+ "jboss.server.name":"server name",
+ "level":"log level",
+ "loggerName":"loger name",
+ "message":"log message",
+ "thrown":{
+  "name":"throwable name",
+  "message":"throwable message"
+ }
+}
+\end{lstlisting}
+
+Note that the \textit{jboss.bind.address} and \textit{jboss.server.name} are obtained from Wildfly system properties. Information about server name and address is important in case of multiple server instances (e.g. cluster or cloud installation).
+
+When a log event is successfully converted to the JSON format, transport client sends the log event to the Elasticsearch cluster which inserts received data into specific \textit{index} and \textit{type}. Index and type are defined by user when configuring the Elasticsearch handler in Wildfly logging subsystem (see \ref{logging_subsystem}).
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
