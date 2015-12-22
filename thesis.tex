@@ -859,6 +859,11 @@ Note that the \textit{jboss.bind.address} and \textit{jboss.server.name} are obt
 
 When a log event is successfully converted to the JSON format, transport client sends the log event to the Elasticsearch cluster which inserts received data into specific \textit{index} and \textit{type}. Index and type are defined by user when configuring the Elasticsearch handler in Wildfly logging subsystem (see \ref{logging_subsystem}).
 
+\section{Byteman Wildfly Log}
+This project is comprised of tools which provide bytecode manipulation in order to inject new log events into Wildfly bytecode. There are two main elements which forms the logging mechanism: \textit{LogHelper} class and \textit{Byteman rule script} files.
+
+
+
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
 \end{document}
