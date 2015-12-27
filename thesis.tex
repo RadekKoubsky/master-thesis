@@ -385,7 +385,7 @@ ENDRULE
 Binding defined in the rule above starts with the \textit{BIND} keyword which is followed with the variable \textit{bindMessage} on the left side, and the value on the right side. The assigned value is the value of the target method parameter at index 1. The type \textit{Message} of the \textit{bindMessage} variable is defined between the ":" character and "=" operator. If the type specification of the variable is omitted, it will be inferred from the type of the \textit{\$1} value. In case of multiple bindings, each binding is ended with semicolon.
 
 \subsection{Rule Expressions}
-\label{subsec:rule_exp}
+\label{rule_exp}
 Rule expressions can be used in the rule body and provide several operations such as method invocations, built-in calls and field references. Byteman defines the following set of expressions \cite[Rule Expressions]{byteman_doc}:
 
 \begin{itemize}
@@ -473,6 +473,7 @@ The build-in operations are grouped into the following categories\cite{byteman_d
 Full list of built-in operations and its description can be found in the documentation of Byteman \cite{byteman_doc}.
 
 \subsection{User-Defined Rule Helpers}
+\label{user_defined_helper_class}
 Built-in operations in the previous subsection provide default functionality for a user of Byteman. However, it is possible to define a \textit{CustomHelper} class which can override, replace or extend the existing default \textit{Helper} class \cite[User-Defined Rule Helpers]{byteman_doc}.
 
 The only requirement for the \textit{CustomHelper} is to extend the base \textit{Helper} class. The \textit{CustomHelper} automatically inherits all built-in methods from the base \textit{Helper} if the methods are not overridden. A new method in the \textit{CustomHelper} must have \textit{public} access level modifier. Thus, a rule can use methods exposed by the \textit{CustomHelper}.
@@ -707,6 +708,7 @@ The \textit{Transport client} acts as a standard client in the client-server par
 This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part focuses on existing techniques which can be used to add log messages to the Wildfly without modifying the source code of the server itself.
 
 \section{Requirements}
+\label{requirements}
 The main requirement is to extend Wildfly application server logging capabilities. The outcome of such extension must include ability to log events to Elasticsearch, visualize log events using Kibana\footnote{Kibana is an open source analytics and visualization platform designed to work with Elasticsearch \cite{kibana_doc}.} tool and add new log events to the selected parts of the Wildfly without changing Wildfly source code. This requirement can be split into the following requirements:
 
 \noindent
@@ -860,9 +862,48 @@ Note that the \textit{jboss.bind.address} and \textit{jboss.server.name} are obt
 When a log event is successfully converted to the JSON format, transport client sends the log event to the Elasticsearch cluster which inserts received data into specific \textit{index} and \textit{type}. Index and type are defined by user when configuring the Elasticsearch handler in Wildfly logging subsystem (see \ref{logging_subsystem}).
 
 \section{Byteman Wildfly Log}
-This project is comprised of tools which provide bytecode manipulation in order to inject new log events into Wildfly bytecode. There are two main elements which forms the logging mechanism: \textit{LogHelper} class and \textit{Byteman rule script} files.
+This project is comprised of tools which provide bytecode manipulation in order to inject new log events into Wildfly bytecode. There are two main elements which forms the logging mechanism: \textit{LogHelper} class and \textit{Byteman rules}.
 
+\subsection{Log Helper class}
+The \textit{LogHelper} class represents the Byteman rule helper described in \ref{user_defined_helper_class}. This class uses \textit{java.util.logging.LogManager} to obtain specific logger instance according to provided logger name. The logger instance is used to create a log event with the following parameters: \textit{level}, \textit{message} and \textit{Throwable} associated with the log event. The full package qualified logger name and parameters are passed by a byteman rule which uses the log helper class.
 
+The \textit{LogHelper} class contains two methods:
+\begin{lstlisting}[caption = LogHelper methods for creating log events., label = log_helper_methods, language=Java]
+public void log(String loggerName, String level, String message)
+
+public void log(String loggerName, String level, String message, Throwable thrown)
+\end{lstlisting}
+\noindent
+The methods above are responsible for creating log events which can have an exception attached to them.
+
+\subsection{Byteman rules}
+In order to employ the \textit{LogHelper} class described in previous section, the helper class must be used within a Byteman rule. The Byteman Wildfly Log project consists of five rule script files. Each rule script file defines a set of Byteman rules which add new log events to a particular part of Wildfly. The following rule script files cover selected parts of Wildfly specified in requirements section (\ref{requirements}): \textit{servelts.btm}, \textit{rest.btm}, \textit{ws.btm}, \textit{ejb.btm}, \textit{jms.btm}.
+
+The \textit{servlet.btm} rule file contains log events for JSP configuration and entire chain of servlet handlers including security context, thread context, HTTP metadata and others.
+
+Additional log events for Wildfly REST implementation are defined in the \textit{rest.btm} rule file. The log events provide more detailed information about REST procedures such as initializing resources, parsing parameters, validation of parameters and return value, invocation of resource method, building response.
+
+The \textit{ws.btm} rule file provides logging extension for Wildfly Web Services. The extension adds new log events to request handler call, manipulation with bus and endpoint metadata, initialization of WS bean, invoking WS bean and closing resources.
+
+Extension for the Wildfly EJB subsystem contains the biggest amount of new log events because of the complexity of the EJB implementation. The rules in the \textit{ejb.btm} rule script file provide additional monitoring of a stateful/stateless EJB and its entire interceptor chain, for example: method invocation on a proxy instance, security permissions, manipulation with interceptor context (thread stack, context metadata etc.), transaction processing, concurrency, component instance lifecycle, EJB request scope processing, stateful synchronization process, JSR299\footnote{JSR 299: Contexts and Dependency Injection - The purpose of this specification is to unify the JSF managed bean component model with the EJB component model, resulting in a significantly simplified programming model for web-based applications \cite{jsr299}.}, creating interceptor instance, invoking intercepted method and many others.
+
+The \textit{jms.btm} rule file focuses on the JMS subsystem. The rules add new log events to the JMS channel workflow, packet handling, context and session operations, processing queue and executing queue query, transactions, sending message and message expiration.
+
+The following example from \textit{servlets.btm} rule script illustrates implementation of a new log event injected into the Wildfly bytecode:
+\begin{lstlisting}[caption = An example of the rule implementation for a new log event, label = rule_log_example]
+HELPER org.jboss.byteman.koubsky.LogHelper
+RULE logServletHandler.handleRequest
+CLASS io.undertow.servlet.handlers.ServletHandler
+METHOD handleRequest(HttpServerExchange)
+AT ENTRY
+IF true
+DO log($CLASS, "DEBUG", "(Method handleRequest) Request info: " + 
+" URL = " + $1.getRequestURL() + ", protocol = " + $1.getProtocol() + 
+", method = " + $1.getRequestMethod() + ", query string: " + $1.getQueryString())
+ENDRULE
+\end{lstlisting}
+\noindent
+The rule above adds a new log event to the \textit{io.undertow.servlet.handlers.ServletHandler} class when entering the \textit{handleRequest(HttpServerExchange)} method. The message string is built using the \textit{\$} expression (\ref{rule_exp}) which provides access to runtime values of the trigger method.
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
