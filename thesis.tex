@@ -308,29 +308,13 @@ DO <actions>
 ENDRULE
 \end{lstlisting}
 
-Comments in Byteman script can be placed either between definitions of rules or within the rule body. Comment line begins with \textit{\#} symbol and must start and end with new line to be parsed correctly.
-
 A rule starts with a name placed after the \textit{RULE} keyword. The name can have any form of a character sequence which length is at least one non-white space character. Rule names can be duplicated, however, it causes ambiguity in debugging rule scripts. The rule name is the only identifier if an error occurs while parsing, type checking, compilation or execution of the rule.
 
 \subsection{Rule events}
 \label{subsec:rule_events}
-A rule event is an event related to an event part of the ECA language specification \ref{itm:eca_if_then}. Byteman specifies the rule event as a \textit{location} in a target \textit{method} within a target \textit{class} \cite[Rule Events]{byteman_doc}. There are three types of target method: \textit{a static method}, \textit{an instance method} and \textit{a constructor}. Implicit location is \textit{AT ENTRY} if location was not specified.
+A rule event is an event related to an event part of the ECA language specification \ref{itm:eca_if_then}. Byteman specifies the rule event as a \textit{location} in a target \textit{method} within a target \textit{class} \cite[Rule Events]{byteman_doc}. There are three types of target method: \textit{a static method}, \textit{an instance method} and \textit{a constructor}.
 
 Target class and target method are defined after the \textit{CLASS} and \textit{METHOD} keywords and must be in defined order on separate lines. The class name describes a class with or without the package specification. The method name can be defined either as a plain name or as a name with arguments and return type. The constructor method is defined by the special string \verb|<init>| in the method name.
-
-The following code is an example of the rule event specification:
-
-\begin{lstlisting}[caption = Rule event specification, label = rule_event_code]
-#Log CMTTxInterceptor - invoke in our tx
-RULE logCMTTxInterceptor.invokeInOurTx
-CLASS org.jboss.as.ejb3.tx.CMTTxInterceptor
-METHOD invokeInOurTx(InterceptorContext, TransactionManager, EJBComponent)
-AT ENTRY
-...
-ENDRULE
-\end{lstlisting}
-
-For the rule above, only one trigger point will by inserted into the class \textit{CMTTxInterceptor} from package \textit{org.jboss.as.ejb3.tx}. The trigger method is the method with name \textit{invokeInOurTx} and list of three parameters: \textit{InterceptorContext}, \textit{TransactionManager} and \textit{EJBComponent}. Note that the package qualification of all method parameters is omitted. The type checker will look up the package of each parameter of the matched method. Similarly, the same approach applies for the return type of the method. Inner classes can be located with \textit{\$} expression e.g.: \textit{my.package.OuterClass\$InnerClass}.
 
 The rule event can employ any class of a Java application except the following classes:
 
@@ -339,9 +323,9 @@ The rule event can employ any class of a Java application except the following c
    \item classes belonging to the Bytemam itself (\textit{org.jboss.byteman} package)
 \end{itemize}
 
-Injecting into Java classes is not allowed by default. Nevertheless, this option can be disabled by configuring the Java agent (here will be reference to Java agent section).
+Injecting into Java classes is not allowed by default. Nevertheless, this option can be disabled by configuring the Java agent (see \cite[Available -javaagent Options]{byteman_doc}).
 
-The example above uses the \textit{AT ENTRY} location specifier. Byteman includes rich set of location specifiers for the rule events. The following list of location specifiers is used in this work, for the full set of location specifiers, see section \cite[Location Specifiers]{byteman_doc}.
+Byteman includes rich set of location specifiers which are described in \cite[Location Specifiers]{byteman_doc}, the following list of location specifiers is used in this work:
 
 \begin{itemize}
 \item	AT ENTRY
@@ -352,131 +336,33 @@ The example above uses the \textit{AT ENTRY} location specifier. Byteman include
 \item	AFTER INVOKE \textit{[ type .] method [ ( argtypes ) ][count | ALL ]}
 \end{itemize}
 
-Location specifier must be placed after the \textit{METHOD} specifier. If location specifier is omitted, the rule engine uses the \textit{AT ENTRY} location specifier.
-
-An \textit{AT ENTRY} specifier defines a trigger point before the first bytecode instruction of a target method. If the target method is the constructor method, the trigger point is added immediately after the call to super constructor or to call to alternative constructor.
-
-An \textit{AT EXIT} specifier defines a trigger point after the last bytecode instruction of the target method. The last bytecode instruction is a return statement which is responsible for exiting the target method in standard program flow. Standard program flow is the flow where no exception has occurred during method execution.
-
-An \textit{AT LINE} specifier defines a trigger point before the first bytecode instruction which has source code line number greater than or equal to the line number argument provided in the specifier. The line number argument must be text which can be parsed to an integer number. If executable code does not exist at or after the line number, no trigger point will be inserted.
-
-An \textit{AFTER WRITE} specifier starts with a \textit{\$} prefix and continues with local variable name, parameter name or parameter index of the target method. This specifier locates a trigger point after the bytecode instruction which is responsible for the assignment of the named variable, parameter, or the parameter at specified index. The count argument defines the \textit{Nth} assignment to the variable, the default value is 1.
-
-An \textit{AT INVOKE} specifier locates a trigger point before the first instruction which invokes a method provided as an argument of the specifier. Trigger point can be an invocation of a method or a constructor within the target method. The name of the invoked method can be described with or without package qualification. Method parameters are expressed as a list of parameters types separated by comma. Parameter type may contain package qualification or the package is inferred by the type checker.
-
-An \textit{AFTER INVOKE} specifier locates a trigger point before the first instruction which follows an invocation of a method provided as an argument of the specifier. Method description follows same rules as in the \textit{AT INVOKE} specifier.
+Location specifier must be placed after the \textit{METHOD} keyword. If location specifier is omitted, the rule engine uses the \textit{AT ENTRY} location specifier.
 
 \subsection{Rule Bindings}
 \label{subsec:rule_bindings}
-The rule binding specification is used for binding values to variables in a context of a rule. It is possible to assign a value to a new variable or reassign an existing variable. The context of the rule provides access to methods and fields of target class instance (if the target method is not static) and local variables in the scope of the trigger method. The assignments are performed each time the rule is triggered \cite[Rule Bindings]{byteman_doc}. The following example shows simple binding in the rule body: 
-
-\begin{lstlisting}[caption = Rule binding specification, label = rule_binding_code]
-RULE logChainInitiationObserver.onMessage
-CLASS org.apache.cxf.transport.ChainInitiationObserver
-METHOD onMessage(Message)
-AT ENTRY
-BIND bindMessage:Message = $1;
-IF bindMessage != null
-DO ...
-ENDRULE
-\end{lstlisting}
-
-Binding defined in the rule above starts with the \textit{BIND} keyword which is followed with the variable \textit{bindMessage} on the left side, and the value on the right side. The assigned value is the value of the target method parameter at index 1. The type \textit{Message} of the \textit{bindMessage} variable is defined between the ":" character and "=" operator. If the type specification of the variable is omitted, it will be inferred from the type of the \textit{\$1} value. In case of multiple bindings, each binding is ended with semicolon.
+The rule binding specification is used for binding values to variables in a context of a rule. It is possible to assign a value to a new variable or reassign an existing variable. The context of the rule provides access to methods and fields of target class instance (if the target method is not static) and local variables in the scope of the trigger method. The assignments are performed each time the rule is triggered \cite[Rule Bindings]{byteman_doc}.
 
 \subsection{Rule Expressions}
 \label{rule_exp}
-Rule expressions can be used in the rule body and provide several operations such as method invocations, built-in calls and field references. Byteman defines the following set of expressions \cite[Rule Expressions]{byteman_doc}:
-
-\begin{itemize}
-	\item references to previously bound variables
-	\item references to the trigger method recipient or parameters
-	\item references to the local variables in scope at the trigger point
-	\item references to special variables:
-\begin{lstlisting}[frame=]
-$!, $^, $#, $*, $@, $CLASS and $METHOD
-\end{lstlisting}
-	\item static field references
-	\item primitive literals
-	\item field accesses
-	\item static or instance method invocations
-	\item built-in operation invocations
-\end{itemize}
-
-It is possible to combine simple expressions to construct complex expressions using standard Java operators:
-\begin{lstlisting}[frame=]
-+, -, *, /, %, &, |, ^, &&, ||, !, =, ==, !=, <. <=, >, >=, new, etc.
-\end{lstlisting}
-
-A reference to a trigger method instance is provided by the \textit{\$0} symbol. If the trigger method is a static method, the \textit{\$0} expression is invalid. A reference to the trigger method parameters is provided by the \textit{\$} symbol and index (1, 2, 3...). Index specifies position of a parameter in the trigger method.
-
-A \textit{\$CLASS} special variable provides a \textit{String} representation of the full package qualified class whose method is the target of a rule. In most cases, the variable has the same value as the target class after the \textit{CLASS} keyword. However, if the target class is an interface, the value of the \textit{\$CLASS} variable can vary depending on interface implementation.
-
-A \textit{\$METHOD} special variable provides a \textit{String} representation of the full name of the target method of a rule. Note that the method name is same as the target method specified after the \textit{METHOD} event specifier. The printed name of the method consists of full package qualified return type, bare method name and full package qualified list of parameters types.
-
-A \textit{\$@} expression can be used only with \textit{AT INVOKE} location specifier. The value of the expression refers to an \textit{Object[]} array. The first slot in the array is an instance of a class whose method is specified in \textit{AT INVOKE} (if the target method is static, the value is null). Values in slots at indexes 1, 2, 3... are values of the target method parameters.
-
-The following rule shows use of the expressions mentioned above:
-\begin{lstlisting}[caption = Rule Expressions, label = rule_expressions_code]
-RULE logPutData
-CLASS org.jboss.as.webservices.deployers.WSComponentInstanceAssociationInterceptor
-METHOD processInvocation(InterceptorContext)
-AT INVOKE putPrivateData(Class, Object)
-IF true
-DO log($CLASS, "DEBUG", "Putting component instance to interceptor context:" +
-"\nClass: " + $@[1] + "\nInstance: " + $@[2]);
-ENDRULE
-\end{lstlisting}
+Rule expressions can be used in the rule body and provide several operations such as method invocations, built-in calls and field references. The rule expressions are mostly composed by the \textit{\$} symbol followed by reserved words, for example \textit{\$0}, \textit{\$CLASS}, \textit{\$METHOD}. It is possible to combine simple expressions to construct complex expressions using standard Java operators. The full set of rule expressions is described in \cite[Rule Expressions]{byteman_doc}.
 
 \subsection{Rule actions}
 Rule actions can be represented by rule expressions \ref{rule_exp} or return or throw actions. A rule expression which is used in an action may have any type including void type \cite[Rule actions]{byteman_doc}. Several rule expressions are separated by semicolon. However, if an action contains only a single rule expression, the semicolon is omitted.
 
-A rule expression can employ standard built-in methods (link) or methods defined in additional helper class (link) bound to a rule.
-
-A return action starts with the \textit{return} keyword and can return a plain constant or a complex rule expression which is evaluated to a return value. Type of the constant or the complex expression must be assignable to the return type of the trigger method. If the type of the trigger method is void, the return value of the return action can be omitted \cite[Rule actions]{byteman_doc}.
-
-A throw action consists of two parts, the \textit{throw} keyword and a constructor of a \textit{throwable}. A constructor starts with the standard \textit{new} keyword followed by a class definition which can be: \textit{java.lang.RuntimeException}, \textit{java.lang.Error}, subclasses of previous two classes or \textit{throwable} defined in the trigger method signature \cite[Rule actions]{byteman_doc}.
-
-The following rule shows an example of rule action according to the definitions above:
-\begin{lstlisting}[caption = Rule Action, label = rule_action_code]
-RULE example of an action
-CLASS org.jboss.resteasy.core.ResourceMethodInvoker
-METHOD invoke(HttpRequest, HttpResponse, Object)
-AT ENTRY
-IF true
-DO debug("Returning empty response.");
-   return Response.noContent().build();
-ENDRULE
-\end{lstlisting}
-
-The rule ''example of an action'' employs built-in operation \textit{public boolean debug(String message)}  and return action. Note that the type of the return value which is returned by \textit{Response.noContent().build()} must be assignable to return type of the trigger method.
+A rule expression can employ standard built-in methods (\ref{built-in_calls}) or methods defined in additional helper class (\ref{user_defined_helper_class}) bound to a rule.
 
 \subsection{Built-In Calls}
 \label{built-in_calls}
 Built-in calls are operations which can be used within a rule body. Byteman provides a set of build-in calls in order to write comprehensive rules without additional complexity \cite[Built-In Calls]{byteman_doc}.
 
-Build-in calls are implemented as public methods of the default \textit{Helper} class. An instance of the \textit{Helper} class is assigned to a rule instance every time an instance is being created by the rule engine. Thus a rule can use all public methods exposed by the instance of the \textit{Helper} class.
-
-Built-in methods can be recognized as methods of \textit{this} in the context of a rule. Thus, when the type checker finds a method without caller, the method will be type checked as a method of the \textit{Helper} class. At the execution time the rule engine invokes the implementations of the built-in methods on the instance of the \textit{Helper} class bound to a rule.
-
-The architecture of the built-in calls allows simple extension of existing built-in operations. New built-in operations can be added to the rule engine by implementing new methods in the \textit{Helper} class. There is no need make changes in the parser,  type checker or compiler.
-
-The build-in operations are grouped into the following categories\cite{byteman_doc}:
-\begin{itemize}
-	\item	Thread Coordination Operations
-	\item	Rule State Management Operations
-	\item	Trace and Debug Operations
-	\item	Stack Management Operations
-	\item	Default Helper Lifecycle Methods
-\end{itemize}
- 
-Full list of built-in operations and its description can be found in the documentation of Byteman \cite{byteman_doc}.
+Build-in calls are implemented as public methods of the default \textit{Helper} class. An instance of the \textit{Helper} class is assigned to a rule instance every time an instance is being created by the rule engine. Thus a rule can use all public methods exposed by the instance of the \textit{Helper} class. Full list of built-in operations and its description can be found in the documentation of Byteman \cite{byteman_doc}.
 
 \subsection{User-Defined Rule Helpers}
 \label{user_defined_helper_class}
 Built-in operations in the previous subsection provide default functionality for a user of Byteman. However, it is possible to define a \textit{CustomHelper} class which can override, replace or extend the existing default \textit{Helper} class \cite[User-Defined Rule Helpers]{byteman_doc}.
 
 The only requirement for the \textit{CustomHelper} is to extend the base \textit{Helper} class. The \textit{CustomHelper} automatically inherits all built-in methods from the base \textit{Helper} if the methods are not overridden. A new method in the \textit{CustomHelper} must have \textit{public} access level modifier. Thus, a rule can use methods exposed by the \textit{CustomHelper}.
-\newpage
+
 The rule in the following example employs helper class \textit{MyHelper}:
 \begin{lstlisting}[caption = Rule with user-defined helper class, label = rule_with_helper]
 RULE rule with helper
@@ -502,24 +388,6 @@ public class MyHelper extends Helper{
 \end{lstlisting}
 
 A \textit{CustomHelper} can be bound either to a single rule or to all rules (without specific helper class) defined in a rule script. Custom helpers are identified by the full package qualified class definition.
-
-A \textit{CustomHelper} bound to a single rule is defined after the \textit{METHOD} event \ref{subsec:rule_events} in a rule definition.
-	
-A \textit{CustomHelper} bound to all rules without a helper class is placed at the start of a rule script before the definition of the first rule. The common \textit{CustomHelper} is applied to all rules in the rule script except rules with specific \textit{CustomHelper}.
-
-For example, the first two rules use \textit{CommonHelper}, the third rule uses \textit{SpecificHelper}:
-\begin{lstlisting}[caption = Rules with common helper, label = rules_common_helper]
-HELPER com.examples.CommonHelper
-RULE rule A ...
-
-RULE rule B ...
-
-RULE rule C with specific helper...
-CLASS ...
-METHOD ....
-HELPER com.examples.SpecificHelper
-ENDRULE
-\end{lstlisting}
 
 \section{Agent Transformation}
 Byteman employs Java agent to modify bytecode of the target Java application. From \cite{agent_def}: ''An agent is anything that can be viewed as perceiving its environment through sensors and acting upon that environment through effectors.''
@@ -876,7 +744,7 @@ public void log(String loggerName, String level, String message, Throwable throw
 The methods above are responsible for creating log events which can have an exception attached to them.
 
 \subsection{Byteman rules}
-In order to employ the \textit{LogHelper} class described in previous section, the helper class must be used within a Byteman rule. The Byteman Wildfly Log project consists of five rule script files. Each rule script file defines a set of Byteman rules which add new log events to a particular part of Wildfly. The following rule script files cover selected parts of Wildfly specified in requirements section (\ref{requirements}): \textit{servelts.btm}, \textit{rest.btm}, \textit{ws.btm}, \textit{ejb.btm}, \textit{jms.btm}.
+In order to employ the \textit{LogHelper} class described in previous section, the helper class must be used within a Byteman rule. The Byteman Wildfly Log project consists of five rule script files. Each rule script file defines a set of Byteman rules which add new log events to a particular part of Wildfly. The following rule script files cover selected parts of Wildfly specified in the requirements section (\ref{requirements}): \textit{servelts.btm}, \textit{rest.btm}, \textit{ws.btm}, \textit{ejb.btm}, \textit{jms.btm}.
 
 The \textit{servlet.btm} rule file contains log events for JSP configuration and entire chain of servlet handlers including security context, thread context, HTTP metadata and others.
 
