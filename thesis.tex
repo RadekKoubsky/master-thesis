@@ -182,7 +182,7 @@ The \verb|<root-logger>| element is same as the logger element only it does not 
 \subsection{Loggers}
 Log messages are created by loggers. Definition of a logger consists of a category which is represented by package or class name. Whenever the logger tries to log a message, it first checks the level of the message. If the level of the message is greater than the level of the logger, a filter is applied to the log message.  A filter determines whether the log message is loggable or not according to filter rule. The logging subsystem provides rich set of rules (expressions) for filters; detailed description of all rules can be found in the Logging documentation \cite[Logging Configuration]{wildfly_doc}.
 
-Wildfly logging subsystem defines the following set of logger levels \cite[Logging Configuration]{wildfly_doc}:
+Wildfly logging subsystem defines set of logger levels \cite[Logging Configuration]{wildfly_doc}, the most known examples:
 
 \begin{multicols}{2}
 	\begin{itemize}
@@ -196,12 +196,11 @@ Wildfly logging subsystem defines the following set of logger levels \cite[Loggi
 		\item OFF
 	\end{itemize}
 \end{multicols}
-
 \subsection{Handlers}
 \label{handlers}
 Handlers represent next step in the log processing. If a log message is loggable, a handler processes the message e.g. sends the message to system console or stores the message to a file.
 
-Logging subsystem provides the following set of handlers \cite[Logging Configuration]{wildfly_doc}:
+Logging subsystem provides the following set of handlers \cite{wildfly_doc}:
 \begin{itemize}
 	\item async-handler
 	\item console-handler
@@ -429,7 +428,7 @@ ENDRULE
 \end{lstlisting}
 
 \subsection{Rule actions}
-Rule actions can be represented by rule expressions \ref{subsec:rule_exp} or return or throw actions. A rule expression which is used in an action may have any type including void type \cite[Rule actions]{byteman_doc}. Several rule expressions are separated by semicolon. However, if an action contains only a single rule expression, the semicolon is omitted.
+Rule actions can be represented by rule expressions \ref{rule_exp} or return or throw actions. A rule expression which is used in an action may have any type including void type \cite[Rule actions]{byteman_doc}. Several rule expressions are separated by semicolon. However, if an action contains only a single rule expression, the semicolon is omitted.
 
 A rule expression can employ standard built-in methods (link) or methods defined in additional helper class (link) bound to a rule.
 
@@ -539,7 +538,7 @@ If there is more than one rule for the same trigger point, a sequence of \textit
 
 When a program flow reaches a location with a \textit{trigger call}, the rule engine searches for the rule which is bound to the trigger call and executes it. At the start of the rule execution, the rule engine initializes variables defined in rule bindings \ref{subsec:rule_bindings}. Then, the execution continues in the ECA formalism \ref{subsec:eca_sec}: if the rule condition is verified, the rule action is executed.
 
-The rule engine obtains an instance of a target method and method arguments from a \textit{trigger call}. To access the instance and method arguments in a rule body, \textit{\$0} (the instance) and \textit{\$1, \$2...} (method arguments) expressions are used \ref{subsec:rule_exp}. Local variables are also passed by the \textit{trigger call} and can be accessed with \textit{\$} symbol followed by a name of a local variable e.g. \textit{\$variableName}.
+The rule engine obtains an instance of a target method and method arguments from a \textit{trigger call}. To access the instance and method arguments in a rule body, \textit{\$0} (the instance) and \textit{\$1, \$2...} (method arguments) expressions are used \ref{rule_exp}. Local variables are also passed by the \textit{trigger call} and can be accessed with \textit{\$} symbol followed by a name of a local variable e.g. \textit{\$variableName}.
 
 The agent also provides exception handler which is wrapped around the \textit{trigger call} in order to process exceptions which can be thrown during the execution of a rule \cite[Agent Transformation]{byteman_doc}.
 
