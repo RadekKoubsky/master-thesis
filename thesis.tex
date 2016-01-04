@@ -767,6 +767,7 @@ When a log event is successfully converted to the JSON format, transport client 
 This project is comprised of tools which provide bytecode manipulation in order to inject new log events into Wildfly bytecode. There are two main elements which forms the logging mechanism: \textit{LogHelper} class and \textit{Byteman rules}.
 
 \subsection{Log Helper class}
+\label{log_helper_class}
 The \textit{LogHelper} class represents the Byteman rule helper described in \ref{user_defined_helper_class}. This class uses \textit{java.util.logging.LogManager} to obtain specific logger instance according to provided logger name. The logger instance is used to create a log event with the following parameters: \textit{level}, \textit{message} and \textit{Throwable} associated with the log event. The full package qualified logger name and parameters are passed by a byteman rule which uses the log helper class.
 
 The \textit{LogHelper} class contains two methods:
@@ -809,6 +810,19 @@ The rule above adds a new log event to the \textit{io.undertow.servlet.handlers.
 
 \chapter{Conclusion}
 \label{conclusion}
+The purpose of this work is to extend Wildly Application Server logging capabilities. The target version is Wildfly 8, however, the implementation is designed to be reusable in later releases of Wildfly.
+
+The logging extension consists of two independent projects hosted on Github: Elasticsearch Wildfly Log\footnote{\url{https://github.com/RadekKoubsky/elasticsearch-wildfly-log}} and Byteman Wildfly Log\footnote{\url{https://github.com/RadekKoubsky/byteman-wildfly-log}}.
+
+The Elasticsearch Wildfly Log is able to store log events to Elasticsearch from multiple server instances (e.g. cluster or cloud installation). The data model of the log event stored in Elasticsearch is designed to be easily analyzed by Kibana tool. Although the implementation was not tested under heavy load, Wildfly and Elasticsearch provide solutions for processing large amount of log events. When the project was finished, an article\footnote{\url{http://wildfly.org/news/2015/07/25/Wildfly-And-ELK/}} about similar idea was written by James R. Perkins. Perkins introduced the ELK (Elasticsearch, Logstash, Kibana) stack and its use to store log events from Wildfly to Elasticsearch. However, the ELK stack is standalone solution apart from Wildfly, thus specific requirements on the server side cannot be implemented.
+
+The Byteman Wildfly Log provides injecting new log events into Wildlfy bytecode. Because of the bytecode injection, there is no need to change the source code of the server, thus the new log events can be applied to different versions of Wildfly if there are no significant changes in the source code. In summary, 226 log events was added to selected parts of Wildfly: Web Container (Servlets, JSPs), REST endpoints, WS endpoints, EJB invocations and JMS communication.
+
+Two bugs, BYTEMAN-298\footnote{\url{https://issues.jboss.org/browse/BYTEMAN-298}} and BYTEMAN-299\footnote{\url{https://issues.jboss.org/browse/BYTEMAN-299}}, were found during the implementation of Byteman rules. Thanks to Andrew Dinn and the author of this work, both bugs were fixed and verified in Byteman 3.0.2 release. 
+
+One critical issue emerged from Byteman and Wildfly cooperation. When a Byteman rule passes a class from JBoss Modules system \ref{jboss_modules_sec} to the Log Helper class \ref{log_helper_class}, the \textit{java.lang.ClassNotFoundException} is thrown because the Log Helper class is loaded by different classloader. After a discussion with Andrew Dinn, an experimental solution of the classloading problem was implemented and is available in Byteman 3.0.3 release in form of JBoss Modules plugin\footnote{\url{http://bytemanblog.blogspot.cz/2015/11/byteman-303-release-trials-module.html}}. However, Byteman 3.0.2 was released 6 months after the original implementation of this work. Thus, Byteman rules must use the \textit{\$} expression to build log messages and pass them to the Log Helper class as \textit{java.lang.String}.
+
+Future work should focus on performance tests in order to provide results for further analysis of the logging extension. In addition, the original implementation of Byteman rules can be rewritten using the JBoss Modules plugin which solves the classloading problem.
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
