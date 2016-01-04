@@ -19,6 +19,7 @@
 \lstset{frame=lrtb, captionpos=b, breaklines=true, literate={\\\-}{}{0\discretionary{-}{}{}}}
 \usepackage{multicol}
 \usepackage{enumitem}
+\usepackage{nameref}
 
 \thesislang{en}                   % The language of the thesis
 \thesistitle{Extend WildFly Application Server logging capabilities}       % The title of the thesis
@@ -37,21 +38,53 @@
       \AdvisorName
     \end{ThesisDeclaration}
     \begin{ThesisThanks}            % The acknowledgements (optional)
-      I would like to thank my supervisor\,\dots
+      I would like to thank to my faculty supervisor RNDr. Adam Rambousek, Ph.D. for giving me valuable advices about writing this thesis. I would also like to thanks to my supervisor from Red Hat Czech, s.r.o, Mgr. Martin Večeřa, for helping me with critical decisions during the development. Many thanks are due to Andrew Dinn, the author of the Byteman, for his excellent technical and communication skills during our cooperation.
     \end{ThesisThanks}
     \begin{ThesisAbstract}          % The abstract
-      The aim of the bachelor work is to provide\,\dots
+      The aim of this thesis is to extend Wildfly Application Server logging capabilities. The extension consists of two parts. The first part provides storing log events to Elasticsearch in order to analyze and visualize the log events using Kibana tool across multiple server instances (e.g. cluster or cloud installation). The second part uses the Byteman project to inject new log events into selected parts of the Wildfly bytecode. Thus, the implementation of new log events can be used across different versions of Wildfly. Such parts include: \textit{Web Container (Servlets, JSPs)}, \textit{REST endpoints}, \textit{WS endpoints}, \textit{EJB invocations} and \textit{JMS communication}.
     \end{ThesisAbstract}
     \begin{ThesisKeyWords}          % The keywords
-      keyword1, keyword2\,\dots
+      wildfly, application server, logging, bytecode manipulation, byteman, java, elasticsearch, kibana, jboss
     \end{ThesisKeyWords}
     \tableofcontents                % The table of contents
 %   \listoftables                   % The list of tables (optional)
 %   \listoffigures                  % The list of figures (optional)
   
   \MainMatter                     % The main matter
-    \chapter{Introduction}   
+\chapter{Introduction}
+Any serious software project needs to have a mechanism to record the state of the project at runtime, thus it is possible to trace its unexpected behavior. This requirement comes from idea that perfect, bug free software does not exist. For this purpose, the \textit{logging} term was introduced. In IT terminology, there are various definitions of logging, one of them can be found in \cite{java_logging}: ''Logging is a systematic and controlled way of representing the state of an application in a human-readable fashion.'' There is no doubt about benefits emerging from logging, namely: \textit{problem diagnosis}, \textit{quick debugging}, \textit{cost and time saving}, \textit{easy maintanance} and \textit{history}.
+
+The benefits of logging should lead to design and implement applications with robust and comprehensive logging system. However, in the context of Open Source Software, there is a lack of logging information in many Open Source projects from particular reasons. For example, in the area of applications servers, one of these reasons can be performance requirements. The demand for a high performance application server requires fast and compact implementation, thus any additional log information is undesirable.
+
+Solution for insufficient logging information is to extend existing logging of a target application. Nevertheless, providing such extension is not trivial as it depends on many factors and requires deep analysis of the target application. One of the main problems of logging extension is different motivation between users of the application and developers. Whereas users require additional logging to be implemented, developers has lack of motivation to add new logging information to the source code. Thus, the only solution is to create separate branch of the existing source code in order to implement logging extension. However, this approach has clear disadvantage as the extension is valid only for specific version of an application.
+
+This work focuses on extension of Wildly Application Server logging capabilities. Wildfly is Open Source project with strong background in the \textit{JBoss Community}\footnote{JBoss Community is a community of open source projects.}. The server evolves fast in a short period of time to reflect requirements from the community. Thus, new versions of Wildfly are continuously released.
+
+\section{Goals}
+The main goal of this thesis is to extend Wildly Application Server logging capabilities. This goal can be split into three subgoals which together forms the logging extensions.
+
+The first goal is to study Wildfly logging subsystem and design the first part of extension; storing log events to Elasticsearch. Wildfly defines best practices in order to extend the logging subsystem, thus the implementation follows straightforwards steps designed for the extension.
+
+The second goal is to visualize the log events using Kibana tool. It should be possible to diligently monitor all important events across multiple server instances (e.g. cluster or cloud installation).
+
+The third and the most important goal is to analyze selected parts of the Wildlfy source code and identify missing logging information. Then, an appropriate methods (e.g. invocation handlers, AOP\footnote{AOP - Aspect-oriented programming}, reflection, bytecode manipulation) must be proposed and implemented. Selected parts of Wildfly must include: \textit{Web Container (Servlets, JSPs)}, \textit{REST endpoints}, \textit{WS endpoints}, \textit{EJB invocations} and \textit{JMS communication}.
+
+\section{Structure of the Thesis}
+The following text outlines individual chapters as they form the structure of this thesis.
+
+The chapter \nameref{wildfly_chapter} focuses on the Wildfly Application Server. It emphasizes on the architecture of the Wildfly core and logging subsystem. At the end of the chapter, the example of custom handler extension is described as it is used in the implementation part.
+
+The chapter \nameref{byteman_chap} describes Byteman, a bytecode manipulation tool which was selected for manipulation with Wildfly bytecode. Detail information about Byteman and its functionality is provided with simple example of using Byteman in Java application.
+
+The \nameref{elasticsearch_chap} chapter provides basic concept of the Elasticsearch technology in order to understand its role as a store of the log events from Wildfly.
+
+After knowledge about the key concepts of this work, the chapter \nameref{analysis} focuses on requirements analysis, design and used tools including analysis of bytecode manipulation tools.
+
+The chapter \nameref{implementation} shows technical details about the implementation, which is developed with best practices and emphasis on extendability, maintainability and readability of the source code.
+
+The last chapter \nameref{conclusion} summarizes achieved goals, problems emerged during the implementation and future work.
     
+	    
 \chapter{Wildfly}
 \label{wildfly_chapter}
 In this chapter, the \textit{Wildfly Application Server} (former JBoss AS) is described. Because of the server complexity, only specific part are mentioned and description of its internal structure and configuration is provided. Further information about Wildfly can be found at official website \url{http://wildfly.org/}. Wildfly 8 Documetation \cite{wildfly_doc} is used as the main source for this chapter.
@@ -150,7 +183,7 @@ The second option is to configure \textit{deployment-structure.xml} by adding mo
 \label{wildfly_logging}
 Logging subsystem is responsible for displaying all logs which appear in the application server i.e. in every subsystem and user applications. The logging subsystem consists of the following parts: \textit{handler configurations}, \textit{logger}, \textit{the root logger declarations} and \textit{logging profiles}. Loggers declare set of handlers which send logs to defined destinations such as console, a file, network and others \cite[Logging Configuration]{wildfly_doc}.
 
-The logging configuration can be defined in XML files (standalone.xml, domain.xml etc.), web console or command line interface. The following example illustrates a snippet of logging subsystem configuration from XML configuration file:
+The logging configuration can be defined in XML files (e.g. standalone.xml, domain.xml etc.), web console or command line interface. The following example illustrates a snippet of logging subsystem configuration from XML configuration file:
 
 \begin{lstlisting}[caption = Configuring logging subsystem, label = logging_subsystem, language=XML]
 <subsystem xmlns="urn:jboss:domain:logging:1.0">
@@ -572,11 +605,12 @@ The \textit{Node client} operates as a single node within a cluster, thus it mus
 The \textit{Transport client} acts as a standard client in the client-server paradigm. It connects to a remote cluster using one or more transport addresses. Request which are sent over the transport addresses are processed in the round robin principle, thus, "double hop" is performed most of the time.
 
 \chapter{Analysis and Design}
+\label{analysis}
 This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part focuses on existing techniques which can be used to add log messages to the Wildfly without modifying the source code of the server itself.
 
 \section{Requirements}
 \label{requirements}
-The main requirement is to extend Wildfly application server logging capabilities. The outcome of such extension must include ability to log events to Elasticsearch, visualize log events using Kibana\footnote{Kibana is an open source analytics and visualization platform designed to work with Elasticsearch \cite{kibana_doc}.} tool and add new log events to the selected parts of the Wildfly without changing Wildfly source code. This requirement can be split into the following requirements:
+The main requirement is to extend Wildfly application server logging capabilities. The outcome of such extension must include ability to store log events to Elasticsearch, visualize log events using Kibana\footnote{Kibana is an open source analytics and visualization platform designed to work with Elasticsearch \cite{kibana_doc}.} tool and add new log events to the selected parts of the Wildfly without changing Wildfly source code. This requirement can be split into the following requirements:
 
 \noindent
 \newline
@@ -669,10 +703,11 @@ The following bytecode manipulation tools were chosen for analysis and testing: 
 	\item Byteman Rule Language \ref{byteman_rule_language} provides comprehensive bytecode analysis \ref{subsec:rule_events} to identify target location within bytecode
 	\item in contrast to Byteman, AspectJ does not allow to manipulate with Java language classes defined in the \textit{java.lang} package \cite[Special cases]{aspectj_doc}
 	\item Byteman provides set of built-in operations \ref{built-in_calls} which can be used for debugging, monitoring and thread coordinating purposes, thus user does not have to implement such operations for specific requirements
-	\item both Byteman and Wildfly are part of the \textit{JBoss Community}\footnote{JBoss Community is a community of open source projects.}, this fact can simplify co-operation between developers in case of additional requirements
+	\item both Byteman and Wildfly are part of the \textit{JBoss Community}, this fact can simplify co-operation between developers in case of additional requirements
 \end{itemize}
 
 \chapter{Implementation}
+\label{implementation}
 This chapter describes implementation of the extended Wildfly logging capabilities in detail. The logging extension is split into two Maven projects:
 
 \begin{itemize}
@@ -771,6 +806,9 @@ ENDRULE
 \end{lstlisting}
 \noindent
 The rule above adds a new log event to the \textit{io.undertow.servlet.handlers.ServletHandler} class when entering the \textit{handleRequest(HttpServerExchange)} method. The message string is built using the \textit{\$} expression (\ref{rule_exp}) which provides access to runtime values of the trigger method.
+
+\chapter{Conclusion}
+\label{conclusion}
 
 \bibliographystyle{IEEEtran}
 \bibliography{sources}
