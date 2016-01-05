@@ -16,7 +16,66 @@
   pdfpagelabels                     % Generate pdf page labels
 ]{hyperref}            % Lorem ipsum generator
 \usepackage{listings}
-\lstset{frame=lrtb, captionpos=b, breaklines=true, literate={\\\-}{}{0\discretionary{-}{}{}}}
+\usepackage[svgnames]{xcolor}
+
+\definecolor{javared}{rgb}{0.6,0,0} % for strings
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
+\definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
+\definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
+\definecolor{maroon}{rgb}{0.5,0,0}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+
+\lstdefinestyle{eclipse_java}
+{
+	language=Java,
+	basicstyle=\ttfamily,
+	keywordstyle=\color{javapurple}\bfseries,
+	stringstyle=\color{javared},
+	commentstyle=\color{javagreen},
+	morecomment=[s][\color{javadocblue}]{/**}{*/},
+	tabsize=4,
+	showspaces=false,
+	showstringspaces=false
+}
+
+
+\lstdefinestyle{my_xml}
+{
+	language=XML,
+	basicstyle=\ttfamily,
+	morestring=[s]{"}{"},
+	morecomment=[s]{?}{?},
+	morecomment=[s]{!--}{--},
+	commentstyle=\color{darkgreen},
+	moredelim=[s][\color{black}]{>}{<},
+	moredelim=[s][\color{red}]{\ }{=},
+	stringstyle=\color{blue},
+	identifierstyle=\color{maroon},
+	tabsize=2,
+	showstringspaces=false
+}
+
+\lstdefinestyle{json}
+{
+	basicstyle=\ttfamily,
+	tabsize=2,
+	showstringspaces=false,
+	keywordstyle=\bfseries,
+	morekeywords={thrown}
+}
+
+\lstdefinestyle{byteman}
+{
+	tabsize=2,
+	showstringspaces=false,
+	basicstyle=\ttfamily,
+}
+
+\lstset{frame=lrtb, captionpos=b, breaklines=true, showstringspaces=false, basicstyle=\ttfamily}
+\lstset{language=Java}
+\lstset{language=XML}
+
+
 \usepackage{multicol}
 \usepackage{enumitem}
 \usepackage{nameref}
@@ -140,15 +199,15 @@ The following diagram shows architecture of static and dynamic modules:
 Static modules are defined in form of hierarchical directory structure. In Wildfly 8, static modules are located within \textit{JBOSS\_HOME/modules/system/layers/base} directory. A directory structure of a module is derived from the name and version of the module. The specific directory of the module contains module descriptor and resources required by the module (\textit{JAR} files).
 
 The module descriptor is represented by \textit{module.xml} file. The following example shows module descriptor of the \textit{javax.batch.api module.xml} module:
-\begin{lstlisting}[caption = Example of a module descriptor \cite{wildfly_book}, label = module_descriptor, language=XML]
+\begin{lstlisting}[caption = Example of a module descriptor \cite{wildfly_book}, label = module_descriptor, style=my_xml]
 <module xmlns="urn:jboss:module:1.3" name="javax.batch.api">
- <resources>
-  <resource-root path="jboss-batch-api_1.0_spec-1.0.0.Final.jar"/>
- </resources>
- <dependencies>
-  <module name="javax.api"/>
-  <module name="javax.enterprise.api"/>
- </dependencies>    
+	<resources>
+		<resource-root path="jboss-batch-api_1.0_spec-1.0.0.Final.jar"/>
+	</resources>
+	<dependencies>
+		<module name="javax.api"/>
+		<module name="javax.enterprise.api"/>
+	</dependencies>    
 </module>
 \end{lstlisting}
 \noindent	
@@ -169,13 +228,13 @@ Dependencies: org.jboss.logging
 \newpage
 The second option is to configure \textit{deployment-structure.xml} by adding module dependency to it:
 
-\begin{lstlisting}[caption = Configuring deployment structure file \cite{wildfly_book}, label = dynamic_module_descriptor, language=XML]
+\begin{lstlisting}[caption = Configuring deployment structure file \cite{wildfly_book}, label = dynamic_module_descriptor, style=my_xml]
 <jboss-deployment-structure>
- <deployment>
-  <dependencies>
-   <module name="org.jboss.logging" />
-  </dependencies>
- </deployment>
+	<deployment>
+		<dependencies>
+			<module name="org.jboss.logging"/>
+		</dependencies>
+	</deployment>
 </jboss-deployment-structure>
 \end{lstlisting}
 
@@ -185,23 +244,23 @@ Logging subsystem is responsible for displaying all logs which appear in the app
 
 The logging configuration can be defined in XML files (e.g. standalone.xml, domain.xml etc.), web console or command line interface. The following example illustrates a snippet of logging subsystem configuration from XML configuration file:
 
-\begin{lstlisting}[caption = Configuring logging subsystem, label = logging_subsystem, language=XML]
+\begin{lstlisting}[caption = Configuring logging subsystem, label = logging_subsystem, style=my_xml]
 <subsystem xmlns="urn:jboss:domain:logging:1.0">
- <console-handler name="CONSOLE" autoflush="true">
-  <level name="DEBUG"/>
-  <formatter>
-   <pattern-formatter pattern="%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%E%n"/>
-  </formatter>
- </console-handler>
- <logger category="com.arjuna">
-  <level name="WARN"/>
- </logger>
- <root-logger>
-  <level name="DEBUG"/>
-   <handlers>
-    <handler name="CONSOLE"/>
-   </handlers>
- </root-logger>
+	<console-handler name="CONSOLE">
+		<level name="DEBUG"/>
+		<formatter>
+			<pattern-formatter pattern="%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%E%n"/>
+		</formatter>
+	</console-handler>
+	<logger category="com.arjuna">
+		<level name="WARN"/>
+	</logger>
+	<root-logger>
+		<level name="DEBUG"/>
+		<handlers>
+			<handler name="CONSOLE"/>
+		</handlers>
+	</root-logger>
 </subsystem>
 \end{lstlisting}
 \noindent
@@ -247,12 +306,13 @@ However, a custom handler can be implemented for user specific requirements.
 
 \subsection{Defining custom handler}
 \label{custom_handler}
-Logging subsystem provides straightforward process of custom handler implementation. A custom handler is standard module in the JBoss Modules architecture \ref{jboss_modules_sec}.
+Logging subsystem provides straightforward process of a custom handler implementation. The custom handler represents standard module within the JBoss Modules architecture \ref{jboss_modules_sec}. Thus, the handler as a module can benefit from the module system, for example defining dependencies to other modules, version management etc.
 
-The simplest way to create a custom handler is to extend \textit{java.util.logging.Handler} class which is part of \textit{Java Logging API}. The \textit{Java Logging API} provides standard log handler lifecycle which is used to built a custom handler.
+The simplest way to create a custom handler is to extend the \textit{java.util.logging.Handler} abstract class which is part of \textit{Java Logging API}. The logging API consists of several classes that provide manipulation with logging information within an Java application. The Wildfly logging subsystem uses the abstract handler class and its implementations to process all log events within Wildfly.
 
+\newpage
 The following example shows custom handler class \textit{MyHandler.java}:
-\begin{lstlisting}[caption = Custom handler class, label = custom_handler_class, language=Java]
+\begin{lstlisting}[caption = Custom handler class, label = custom_handler_class, style=eclipse_java]
 package com.examples.logging
 public class MyHandler extends Handler {
 	@Override
@@ -270,14 +330,15 @@ public class MyHandler extends Handler {
 The next step in custom handler implementation is to create \textit{module.xml} file with proper configuration according to \ref{module_descriptor}. Then the \textit{myHandler.jar} with the \textit{module.xml} file is placed to specific module directory, for example \textit{JBOSS\_HOME/modules/system/layers/base/com/examples/myhandler/main}.
 \noindent
 Final step of the custom handler implementation is to add the custom handler to the logging subsystem configuration:
-\begin{lstlisting}[caption = Adding custom handler to the logging subsystem configuration, label = custom_handler_logging_subsystem, language=XML]
- <custom-handler name="MyHandler" class="com.examples.logging.MyHandler" module="com.examples.myhandler">
-  <level name="DEBUG"/>
- <formatter>...</formatter>
- </custom-handler>
+\begin{lstlisting}[caption = Adding custom handler to the logging subsystem configuration, label = custom_handler_logging_subsystem, style=my_xml]
+<custom-handler name="MyHandler" class="com.examples.logging.MyHandler" module="com.examples.myhandler">
+	<level name="DEBUG"/>
+	<formatter>...</formatter>
+</custom-handler>
 \end{lstlisting}
 \noindent
-After all previous steps, the \textit{MyHandler} will be used to process log messages in Wildfly.
+
+After all previous steps, the \textit{MyHandler} will be used to process log events in Wildfly.
 
 \chapter{Byteman}
 \label{byteman_chap}
@@ -329,7 +390,7 @@ The ECA formalism provides clear and easy-to-understand approach for performing 
 
 Syntax of the rule consists of several parts which can be parsed by the rule engine. The following code snippet illustrates rule scheme and its structure:
 
-\begin{lstlisting}[caption = Byteman rule scheme \cite{byteman_doc}, label = byteman_scheme]
+\begin{lstlisting}[caption = Byteman rule scheme \cite{byteman_doc}, label = byteman_scheme, style=byteman]
 # rule skeleton
 RULE <rule name>
 # comment line in rule body
@@ -397,7 +458,7 @@ Built-in operations in the previous subsection provide default functionality for
 The only requirement for the \textit{CustomHelper} is to extend the base \textit{Helper} class. The \textit{CustomHelper} automatically inherits all built-in methods from the base \textit{Helper} if the methods are not overridden. A new method in the \textit{CustomHelper} must have \textit{public} access level modifier. Thus, a rule can use methods exposed by the \textit{CustomHelper}.
 
 The rule in the following example employs helper class \textit{MyHelper}:
-\begin{lstlisting}[caption = Rule with user-defined helper class, label = rule_with_helper]
+\begin{lstlisting}[caption = Rule with user-defined helper class, label = rule_with_helper, style=byteman]
 RULE rule with helper
 CLASS org.jboss.as.ejb3.security.SecurityContextInterceptor
 METHOD processInvocation(InterceptorContext)
@@ -409,7 +470,7 @@ ENDRULE
 \end{lstlisting}
 
 When the rule above is executed, an instance of \textit{MyHelper} class is created and method \textit{myMethod()} is invoked in the rule action. \textit{MyHelper} class is defined as standard Java class:
-\begin{lstlisting}[caption = User-Defined helper class, label = rule_helper, language=Java]
+\begin{lstlisting}[caption = User-Defined helper class, label = rule_helper, style=eclipse_java]
 public class MyHelper extends Helper{
 	protected MyHelper(final Rule rule) {
 		super(rule);
@@ -482,7 +543,7 @@ The full description of all agent options can be found at \cite[Available -javaa
 
 \subsection{Example of Byteman in Java application}
 The following definition of a java class represents simple Java application which will be used to show Byteman basic functionality:
-\begin{lstlisting}[caption = Java class bypassed by the Byteman, label = class_use_case, language=Java]
+\begin{lstlisting}[caption = Java class bypassed by the Byteman, label = class_use_case, style=eclipse_java]
 package com.examples;
 public class BytemanTest{
 	public static void main(String[] args){
@@ -493,7 +554,7 @@ public class BytemanTest{
 The class above contains only \textit{main} method which prints text "Inside the BytemanTest.main" to system output.
 
 The next step is to create Byteman rule script \textit{script.btm} and definition of a rule which is responsible for injecting bytecode into the class above. The following rule is defined for the \textit{BytemanTest} class and its \textit{main} method:
-\begin{lstlisting}[caption = Example of Byteman rule, label = rule_use_case]
+\begin{lstlisting}[caption = Example of Byteman rule, label = rule_use_case, style=byteman]
 RULE testByteman
 CLASS com.examples.BytemanTest
 METHOD main
@@ -502,17 +563,17 @@ IF true
 DO debug("Main method bypassed by Byteman.");
 ENDRULE
 \end{lstlisting}
-To run the application with Byteman, the \textit{-javaagent} option must be placed before the run of the application \textit{com.examples.BytemanTest}. The following example runs the application in Linux command line:
+To run the application with Byteman, the \textit{-javaagent} option must be placed before launching the \textit{com.examples.BytemanTest} application. The following example runs the application in Linux command line:
 \begin{lstlisting}[frame=]
 > java -javaagent:${BYTEMAN_HOME}/lib/byteman.jar=script:script.btm com.examples.BytemanTest
 \end{lstlisting}
 
-Running the application with the command above produces the following output in command line:
+\newpage
+Running the application with the command on previous page produces the following output in command line:
 \begin{lstlisting}[frame=]
 > java -javaagent:${BYTEMAN_HOME}...
-Main method bypassed by Byteman.
-Inside the BytemanTest.main
->
+> Main method bypassed by Byteman.
+> Inside the BytemanTest.main
 \end{lstlisting}
 
 \chapter{Elasticsearch}
@@ -565,7 +626,7 @@ Connecting to Elasticsearch cluster can be done in several ways depending on use
 \subsection{RESTful API}
 Elasticsearch provides comprehensive RESTful API which uses HTTP protocol and JSON as a data format, the default port for communication is \textit{9200}. The RESTful API is used by the command line interface and web clients.
 
-The command line interface is the basic technique for communication with Elasticsearch. It uses the \textit{cURL}\footnote{cURL is a computer software project providing a library and command-line tool for transferring data using various protocols.} for making HTTP requests and displaying content returned in responses.
+The command line interface is the basic technique for communication with Elasticsearch. It uses \textit{cURL}\footnote{cURL is a computer software project providing a library and command-line tool for transferring data using various protocols.} for making HTTP requests and displaying content returned in responses.
 
 The web clients are built on the RESTful API and provides access to Elasticsearch in various languages such as .NET, JavaScript, Python and many others.
 
@@ -679,7 +740,7 @@ One of the most important elements in Maven are \textit{dependencies}. It provid
 Maven repositories are defined in the \textit{settings.xml} file which is created after installing Maven on a user machine. Maven provides access only to the \textit{Maven Central Repository} by default, thus other repositories must be specified within the \textit{settings.xml}. In addition, a user can create its own repository which can be added to the \textit{settings.xml} as any other public repository.
 
 \subsection{Git}
-Version control system (CVS) provides necessary functions for software development such as history of changes, resolving conflict within same file and others. Main characteristic of the Git CVS is strong support for distributed development. For instance, each developer uses its local repository for work, thus changes are committed to a local repository at first, then pushed to a remote repository. In order to provide web-based service for Git repositories, the Github\footnote{https://github.com/} was created. It allows user to manage its repositories via web interface.
+Version control system (CVS) provides necessary functions for software development such as history of changes, resolving conflict within same file and others. Main characteristic of the Git CVS is strong support for distributed development. For instance, each developer uses its local repository for work, thus changes are committed to a local repository at first, then pushed to a remote repository. In order to provide web-based service for Git repositories, the Github\footnote{\url{https://github.com/}} was created. It allows user to manage its repositories via web interface.
 
 \subsection{Kibana}
 Elasticsearch stores large amount of data that user needs to work with. Kibana allows user to search, view and analyze data within the Elasticsearch. It represents simple web interface for browsing data in real time. Moreover, Kibana provides advanced data analysis and visualization using various charts, tables and maps \cite[Introduction]{kibana_doc}. Note that installing and running Kibana does not require any additional implementation on the client side, thus using Kibana is very simple and intuitive.
@@ -744,18 +805,18 @@ If correct configuration is provided, the handler implementation uses the \texti
 
 The next step in the storing process is to serialize a log event to the JSON format, which is used for data stored in Elasticsearch. The JSON format of the log event is designed to provide comprehensive data structure in order to support search operations in Elasticsearch.
 
-\begin{lstlisting}[caption = JSON format of a log event, label = json_log_event]
+\begin{lstlisting}[caption = JSON format of a log event, label = json_log_event, style=json]
 {
- "timestamp":"timestamp",
- "jboss.bind.address":"server address",
- "jboss.server.name":"server name",
- "level":"log level",
- "loggerName":"loger name",
- "message":"log message",
- "thrown":{
-  "name":"throwable name",
-  "message":"throwable message"
- }
+	"timestamp":"timestamp",
+	"jboss.bind.address":"server address",
+	"jboss.server.name":"server name",
+	"level":"log level",
+	"loggerName":"loger name",
+	"message":"log message",
+	"thrown":{
+		"name":"throwable name",
+		"message":"throwable message"
+		}
 }
 \end{lstlisting}
 
@@ -771,7 +832,7 @@ This project is comprised of tools which provide bytecode manipulation in order 
 The \textit{LogHelper} class represents the Byteman rule helper described in \ref{user_defined_helper_class}. This class uses \textit{java.util.logging.LogManager} to obtain specific logger instance according to provided logger name. The logger instance is used to create a log event with the following parameters: \textit{level}, \textit{message} and \textit{Throwable} associated with the log event. The full package qualified logger name and parameters are passed by a byteman rule which uses the log helper class.
 
 The \textit{LogHelper} class contains two methods:
-\begin{lstlisting}[caption = LogHelper methods for creating log events., label = log_helper_methods, language=Java]
+\begin{lstlisting}[caption = LogHelper methods for creating log events., label = log_helper_methods, style=eclipse_java]
 public void log(String loggerName, String level, String message)
 
 public void log(String loggerName, String level, String message, Throwable thrown)
@@ -793,7 +854,7 @@ Extension for the Wildfly EJB subsystem contains the biggest amount of new log e
 The \textit{jms.btm} rule file focuses on the JMS subsystem. The rules add new log events to the JMS channel workflow, packet handling, context and session operations, processing queue and executing queue query, transactions, sending message and message expiration.
 
 The following example from \textit{servlets.btm} rule script illustrates implementation of a new log event injected into the Wildfly bytecode:
-\begin{lstlisting}[caption = An example of the rule implementation for a new log event, label = rule_log_example]
+\begin{lstlisting}[caption = An example of the rule implementation for a new log event, label = rule_log_example, style=byteman]
 HELPER org.jboss.byteman.koubsky.LogHelper
 RULE logServletHandler.handleRequest
 CLASS io.undertow.servlet.handlers.ServletHandler
