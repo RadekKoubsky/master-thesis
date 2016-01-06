@@ -13,7 +13,8 @@
 \usepackage[hyphens]{url}
 \usepackage[                      % Clickable links
   plainpages = false,               % We have multiple page numberings
-  pdfpagelabels                     % Generate pdf page labels
+  pdfpagelabels,
+  hidelinks                     % Generate pdf page labels
 ]{hyperref}            % Lorem ipsum generator
 \usepackage{listings}
 \usepackage[svgnames]{xcolor}
@@ -75,6 +76,7 @@
 \lstset{language=Java}
 \lstset{language=XML}
 
+\usepackage[chapter]{minted}
 
 \usepackage{multicol}
 \usepackage{enumitem}
@@ -805,7 +807,9 @@ If correct configuration is provided, the handler implementation uses the \texti
 
 The next step in the storing process is to serialize a log event to the JSON format, which is used for data stored in Elasticsearch. The JSON format of the log event is designed to provide comprehensive data structure in order to support search operations in Elasticsearch.
 
-\begin{lstlisting}[caption = JSON format of a log event, label = json_log_event, style=json]
+
+
+\begin{minted}[frame=single, tabsize=3]{json}
 {
 	"timestamp":"timestamp",
 	"jboss.bind.address":"server address",
@@ -816,8 +820,10 @@ The next step in the storing process is to serialize a log event to the JSON for
 	"thrown":{
 		"name":"throwable name",
 		"message":"throwable message"
-		}
-}
+	}
+}	
+\end{minted}
+\begin{lstlisting}[aboveskip = 0em, frame = none, caption = JSON format of a log event]
 \end{lstlisting}
 
 Note that the \textit{jboss.bind.address} and \textit{jboss.server.name} are obtained from Wildfly system properties. Information about server name and address is important in case of multiple server instances (e.g. cluster or cloud installation).
@@ -829,9 +835,7 @@ This project is comprised of tools which provide bytecode manipulation in order 
 
 \subsection{Log Helper class}
 \label{log_helper_class}
-The \textit{LogHelper} class represents the Byteman rule helper described in \ref{user_defined_helper_class}. This class uses \textit{java.util.logging.LogManager} to obtain specific logger instance according to provided logger name. The logger instance is used to create a log event with the following parameters: \textit{level}, \textit{message} and \textit{Throwable} associated with the log event. The full package qualified logger name and parameters are passed by a byteman rule which uses the log helper class.
-
-The \textit{LogHelper} class contains two methods:
+The \textit{LogHelper} class represents the Byteman rule helper described in \ref{user_defined_helper_class}. This class uses \textit{java.util.logging.LogManager} to obtain specific logger instance according to provided logger name. The logger instance is used to create a log event with the following parameters: \textit{level}, \textit{message} and \textit{Throwable} associated with the log event. The full package qualified logger name and parameters are passed by a byteman rule which uses the log helper class. The \textit{LogHelper} class contains two  public methods:
 \begin{lstlisting}[caption = LogHelper methods for creating log events., label = log_helper_methods, style=eclipse_java]
 public void log(String loggerName, String level, String message)
 
@@ -878,6 +882,8 @@ The logging extension consists of two independent projects hosted on Github: Ela
 The Elasticsearch Wildfly Log is able to store log events to Elasticsearch from multiple server instances (e.g. cluster or cloud installation). The data model of the log event stored in Elasticsearch is designed to be easily analyzed by Kibana tool. Although the implementation was not tested under heavy load, Wildfly and Elasticsearch provide solutions for processing large amount of log events. When the project was finished, an article\footnote{\url{http://wildfly.org/news/2015/07/25/Wildfly-And-ELK/}} about similar idea was written by James R. Perkins. Perkins introduced the ELK (Elasticsearch, Logstash, Kibana) stack and its use to store log events from Wildfly to Elasticsearch. However, the ELK stack is standalone solution apart from Wildfly, thus specific requirements on the server side cannot be implemented.
 
 The Byteman Wildfly Log provides injecting new log events into Wildlfy bytecode. Because of the bytecode injection, there is no need to change the source code of the server, thus the new log events can be applied to different versions of Wildfly if there are no significant changes in the source code. In summary, 226 log events was added to selected parts of Wildfly: Web Container (Servlets, JSPs), REST endpoints, WS endpoints, EJB invocations and JMS communication.
+
+Adding log events using Byteman may seem to be inappropriate as log events can be added directly to source code. Advantage of this approach is a unified process of adding log events in a broader context than only certain method in a class. Thus, it is possible to manipulate with log events in a context of a component or a whole system. For example, a thread id is attached to all log events added using Byteman. In addition, the Elasticsearch extension attaches server address and server name to every log event within Wildfly, thus log events from specific server can be easily identified in case of multiple server instances.
 
 Two bugs, BYTEMAN-298\footnote{\url{https://issues.jboss.org/browse/BYTEMAN-298}} and BYTEMAN-299\footnote{\url{https://issues.jboss.org/browse/BYTEMAN-299}}, were found during the implementation of Byteman rules. Thanks to Andrew Dinn and the author of this work, both bugs were fixed and verified in Byteman 3.0.2 release. 
 
