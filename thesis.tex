@@ -124,9 +124,9 @@ This work focuses on extension of Wildly Application Server logging capabilities
 \section{Goals}
 The main goal of this thesis is to extend Wildly Application Server logging capabilities. This goal can be split into three subgoals which together forms the logging extensions.
 
-The first goal is to study Wildfly logging subsystem and design the first part of extension; storing log events to Elasticsearch. Wildfly defines best practices in order to extend the logging subsystem, thus the implementation follows straightforwards steps designed for the extension.
+The first goal is to study Wildfly logging subsystem and design the first part of the extension; storing log events to Elasticsearch. Wildfly defines best practices in order to extend the logging subsystem, thus the implementation follows straightforwards steps designed for the extension.
 
-The second goal is to visualize the log events using Kibana tool. It should be possible to diligently monitor all important events across multiple server instances (e.g. cluster or cloud installation).
+The second goal is to visualize log events using Kibana tool. It should be possible to diligently monitor all important events across multiple server instances (e.g. cluster or cloud installation).
 
 The third and the most important goal is to analyze selected parts of the Wildlfy source code and identify missing logging information. Then, an appropriate methods (e.g. invocation handlers, AOP\footnote{AOP - Aspect-oriented programming}, reflection, bytecode manipulation) must be proposed and implemented. Selected parts of Wildfly must include: \textit{Web Container (Servlets, JSPs)}, \textit{REST endpoints}, \textit{WS endpoints}, \textit{EJB invocations} and \textit{JMS communication}.
 
@@ -141,7 +141,7 @@ The \nameref{elasticsearch_chap} chapter provides basic concept of the Elasticse
 
 After knowledge about the key concepts of this work, the chapter \nameref{analysis} focuses on requirements analysis, design and used tools including analysis of bytecode manipulation tools.
 
-The chapter \nameref{implementation} shows technical details about the implementation, which is developed with best practices and emphasis on extendability, maintainability and readability of the source code.
+The chapter \nameref{implementation} shows technical details about the implementation, which is developed with best practices and emphasis on extensibility, maintainability and readability of the source code.
 
 The last chapter \nameref{conclusion} summarizes achieved goals, problems emerged during the implementation and future work.
     
@@ -153,7 +153,7 @@ In this chapter, the \textit{Wildfly Application Server} (former JBoss AS) is de
 Wildfly is one of the leading application servers in the area of enterprise solutions. From \cite[Getting Started with WildFly 8]{wildfly_doc}: ''WildFly 8 is an exceptionally fast, lightweight and powerful implementation of the Java Enterprise Edition 7 Platform specifications.'' The Wildfly project is licensed as \textit{Open Source} and supported by the \textit{JBoss Community}. However, there is commercial version of Wildfly, \textit{JBoss Enterprise Application Platform}, which is licensed and supported by Red Hat.
 
 \section{Structure of Wildfly}
-The structure of Wildfly has been changed in recent years due to requirements on maintainability and performance. Wildfly is formed by the wildfly core and set of subsystems. Subsystems are defined as on-demand services which are called by applications deployed on the server. Each subsystem is responsible for specific functionality.
+The structure of Wildfly has been changed in recent years due to requirements on maintainability and performance. Wildfly is formed by the wildfly core and the set of subsystems. Subsystems are defined as on-demand services which are called by applications deployed on the server. Each subsystem is responsible for specific functionality.
 
 The core of the server was significantly changed in the version JBoss AS 7. It consists of two parts \cite{jboss_as_book}:
 
@@ -178,9 +178,9 @@ The structure of the core described above has remained to the last version of Wi
 
 \section{JBoss Modules}
 \label{jboss_modules_sec}
-Class loading is problematic domain in the context of application servers. Wildfly comes with the \textit{JBoss Modules} class loading system which provides effective way of loading classes into class path. \textit{JBoss Modules} is defined as follows \cite[Introduction]{jboss_modules_doc}: ''JBoss Modules is a standalone implementation of a modular (non-hierarchical) class loading and execution environment for Java.''
+Class loading is a problematic domain in the context of application servers. Wildfly comes with the \textit{JBoss Modules} class loading system which provides an effective way of loading classes into a class path. \textit{JBoss Modules} is defined as follows \cite[Introduction]{jboss_modules_doc}: ''JBoss Modules is a standalone implementation of a modular (non-hierarchical) class loading and execution environment for Java.''
 
-\textit{JBoss Modules} is implemented as delegating class loader model which is thread-safe, fast, and highly concurrent. Each \textit{JAR} which is loaded into class path is handled as a \textit{module}. A module must define list of dependencies only to modules it depends on. Modules are loaded only on request by an application, thus the performance of the application is dependent on modules which are currently used by the application.
+\textit{JBoss Modules} is implemented as a delegating class loader model which is thread-safe, fast, and highly concurrent. Each \textit{JAR} which is loaded into the class path is handled as a \textit{module}. A module must define a list of dependencies only to modules it depends on. Modules are loaded only on a request by an application, thus the performance of the application is dependent on modules which are currently used by the application.
 
 Wildfly defines two types of modules \cite{wildfly_book}:
 
@@ -189,7 +189,7 @@ Wildfly defines two types of modules \cite{wildfly_book}:
 	\item Dynamic modules
 \end{itemize}
 
-The following diagram shows architecture of static and dynamic modules:
+The following diagram shows the architecture of the static and dynamic modules:
 
 \begin{figure}[ht!]
 	\centering
@@ -198,10 +198,10 @@ The following diagram shows architecture of static and dynamic modules:
 	\label{jboss_modules_image}
 \end{figure}
 
-Static modules are defined in form of hierarchical directory structure. In Wildfly 8, static modules are located within \textit{JBOSS\_HOME/modules/system/layers/base} directory. A directory structure of a module is derived from the name and version of the module. The specific directory of the module contains module descriptor and resources required by the module (\textit{JAR} files).
+Static modules are defined in form of a hierarchical directory structure. In Wildfly 8, static modules are located within the \textit{JBOSS\_HOM-E/modules/system/layers/base} directory. A directory structure of a module is derived from the name and version of the module. The specific directory of the module contains a module descriptor and resources required by the module (\textit{JAR} files).
 
-The module descriptor is represented by \textit{module.xml} file. The following example shows module descriptor of the \textit{javax.batch.api module.xml} module:
-\begin{lstlisting}[caption = Example of a module descriptor \cite{wildfly_book}, label = module_descriptor, style=my_xml]
+The module descriptor is represented by the \textit{module.xml} file. The following example shows the module descriptor of the \textit{javax.batch.api module.xml} module:
+\begin{lstlisting}[caption =  An example of a module descriptor \cite{wildfly_book}, label = module_descriptor, style=my_xml]
 <module xmlns="urn:jboss:module:1.3" name="javax.batch.api">
 	<resources>
 		<resource-root path="jboss-batch-api_1.0_spec-1.0.0.Final.jar"/>
@@ -215,22 +215,22 @@ The module descriptor is represented by \textit{module.xml} file. The following 
 \noindent	
 The root \verb|<module>| element defines resources and dependencies of the module. 
 
-Resources are defined within the \verb|<resources>| element which contains one or more \verb|resource-root>| elements. Each \verb|<resource-root>| element has the \textit{path} attribute which specifies path to the \textit{JAR} file. The example above uses only one resource, the \textit{jboss-batch-api\_1.0\_spec-1.0.0.Final.jar} file located in the module directory next to the \textit{module.xml} file.
+Resources are defined within the \verb|<resources>| element which contains one or more \verb|resource-root>| elements. Each \verb|<resource-root>| element has the \textit{path} attribute which specifies a path to the \textit{JAR} file. The example above uses only one resource, the \textit{jboss-batch-api\_1.0\_spec-1.0.0.Final.jar} file located in the module directory next to the \textit{module.xml} file.
 
-The next element, \verb|<dependencies>|, is used to define dependencies for a module. A dependency is defined by the \verb|<module>| element which identifies specific module in the hierarchical directory structure. In the example above, \textit{javax.api} and \textit{javax.enterprise.api} modules will be resolved in the name resolution process as dependencies for the \textit{javax.batch.api} module.
+The next element, \verb|<dependencies>|, is used to define dependencies for a module. A dependency is defined by the \verb|<module>| element which identifies specific module in the hierarchical directory structure. In the example above, \textit{javax.api} and \textit{javax.enterprise.api} modules will be resolved as dependencies for the \textit{javax.batch.api} module.
 
 Dynamic modules are defined for each deployment of an application. There are two approaches how to create dynamic module \cite{wildfly_book}.
 
-First option is to define dependencies within a file called \textit{MANIFEST} which is placed in a \textit{JAR} file of an application. Dependencies of a \textit{JAR} file are defined in the \textit{Dependencies} header; each dependency is separated by comma. The following line is an example of a \textit{MANIFEST} file with one dependency:
+First option is to define dependencies within a file called \textit{MANIFEST} which is placed in a \textit{JAR} file of an application. Dependencies of the \textit{JAR} file are defined in the \textit{Dependencies} header; each dependency is separated by comma. The following line is an example of a \textit{MANIFEST} file with one dependency:
 
 \begin{lstlisting}[frame=]
 Dependencies: org.jboss.logging
 \end{lstlisting}
 
 \newpage
-The second option is to configure \textit{deployment-structure.xml} by adding module dependency to it:
+The second option is to configure the \textit{deployment-structure.xml} file by adding module dependency to it:
 
-\begin{lstlisting}[caption = Configuring deployment structure file \cite{wildfly_book}, label = dynamic_module_descriptor, style=my_xml]
+\begin{lstlisting}[caption = Configuring the deployment structure file \cite{wildfly_book}, label = dynamic_module_descriptor, style=my_xml]
 <jboss-deployment-structure>
 	<deployment>
 		<dependencies>
@@ -242,11 +242,11 @@ The second option is to configure \textit{deployment-structure.xml} by adding mo
 
 \section{Wildfly logging subsystem}
 \label{wildfly_logging}
-Logging subsystem is responsible for displaying all logs which appear in the application server i.e. in every subsystem and user applications. The logging subsystem consists of the following parts: \textit{handler configurations}, \textit{logger}, \textit{the root logger declarations} and \textit{logging profiles}. Loggers declare set of handlers which send logs to defined destinations such as console, a file, network and others \cite[Logging Configuration]{wildfly_doc}.
+The logging subsystem is responsible for displaying all logs which appear in the application server i.e. in every subsystem and user applications. The logging subsystem consists of the following parts: \textit{handler configurations}, \textit{logger}, \textit{the root logger declarations} and \textit{logging profiles}. The loggers declare a set of handlers which send logs to defined destinations such as a console, a file, a network and others \cite[Logging Configuration]{wildfly_doc}.
 
-The logging configuration can be defined in XML files (e.g. standalone.xml, domain.xml etc.), web console or command line interface. The following example illustrates a snippet of logging subsystem configuration from XML configuration file:
+The logging configuration can be defined in XML files (e.g. standalone.xml, domain.xml etc.), a web console or a command line interface. The following example illustrates a snippet of the logging subsystem configuration from an XML file:
 
-\begin{lstlisting}[caption = Configuring logging subsystem, label = logging_subsystem, style=my_xml]
+\begin{lstlisting}[caption = Configuring the logging subsystem, label = logging_subsystem, style=my_xml]
 <subsystem xmlns="urn:jboss:domain:logging:1.0">
 	<console-handler name="CONSOLE">
 		<level name="DEBUG"/>
@@ -266,7 +266,7 @@ The logging configuration can be defined in XML files (e.g. standalone.xml, doma
 </subsystem>
 \end{lstlisting}
 \noindent
-The \verb|<console-handler>| element identifies a handler which prints logs from Wildfly to a console. Handler element contains two child elements, the \verb|<level>| and the \verb|<formatter>| element. The level element specifies a log level the outgoing logs must match. The formatter element defines output format for logs in the console.
+The \verb|<console-handler>| element identifies a handler which prints log events from Wildfly to a console. Handler element contains two child elements, the \verb|<level>| and the \verb|<formatter>| element. The level element specifies a log level the outgoing logs must match. The formatter element defines output format for logs in the console.
 
 The \verb|<logger>| element defines a logger and its level for specific package or class. Target package or class is specified by the \textit{category} attribute.
 
@@ -274,9 +274,9 @@ The \verb|<root-logger>| element is same as the logger element only it does not 
 
 
 \subsection{Loggers}
-Log messages are created by loggers. Definition of a logger consists of a category which is represented by package or class name. Whenever the logger tries to log a message, it first checks the level of the message. If the level of the message is greater than the level of the logger, a filter is applied to the log message.  A filter determines whether the log message is loggable or not according to filter rule. The logging subsystem provides rich set of rules (expressions) for filters; detailed description of all rules can be found in the Logging documentation \cite[Logging Configuration]{wildfly_doc}.
+Log messages are created by loggers. Definition of a logger consists of a category which is represented by package or class name. Whenever a logger tries to log a message, it first checks a level of the message. If the level of the message is greater than the level of the logger, a filter is applied to the log message. A filter determines whether a log message is loggable or not according to the filter rule. The logging subsystem provides rich set of rules (expressions) for filters; detailed description of all rules can be found in the Logging documentation \cite[Logging Configuration]{wildfly_doc}.
 
-Wildfly logging subsystem defines set of logger levels \cite[Logging Configuration]{wildfly_doc}, the most known examples:
+Wildfly logging subsystem defines a set of logger levels \cite[Logging Configuration]{wildfly_doc}, the most known examples:
 
 \begin{multicols}{2}
 	\begin{itemize}
@@ -292,9 +292,9 @@ Wildfly logging subsystem defines set of logger levels \cite[Logging Configurati
 \end{multicols}
 \subsection{Handlers}
 \label{handlers}
-Handlers represent next step in the log processing. If a log message is loggable, a handler processes the message e.g. sends the message to system console or stores the message to a file.
+Handlers represent next step in the log processing. If a log message is loggable, a handler processes the message e.g. sends the message to a system console or stores the message to a file.
 
-Logging subsystem provides the following set of handlers \cite{wildfly_doc}:
+The logging subsystem provides the following set of handlers \cite{wildfly_doc}:
 \begin{itemize}
 	\item async-handler
 	\item console-handler
@@ -308,12 +308,12 @@ However, a custom handler can be implemented for user specific requirements.
 
 \subsection{Defining custom handler}
 \label{custom_handler}
-Logging subsystem provides straightforward process of a custom handler implementation. The custom handler represents standard module within the JBoss Modules architecture \ref{jboss_modules_sec}. Thus, the handler as a module can benefit from the module system, for example defining dependencies to other modules, version management etc.
+The logging subsystem provides straightforward process of a custom handler implementation. The custom handler represents standard module within the JBoss Modules architecture \ref{jboss_modules_sec}. Thus, the handler as a module can benefit from the module system, for example defining dependencies to other modules, version management etc.
 
-The simplest way to create a custom handler is to extend the \textit{java.util.logging.Handler} abstract class which is part of \textit{Java Logging API}. The logging API consists of several classes that provide manipulation with logging information within an Java application. The Wildfly logging subsystem uses the abstract handler class and its implementations to process all log events within Wildfly.
+The simplest way to create a custom handler is to extend the \textit{java.u-til.logging.Handler} abstract class which is a part of \textit{Java Logging API}. The logging API consists of several classes that provide manipulation with logging information within an Java application. The Wildfly logging subsystem uses the abstract handler class and its implementations to process all log events within Wildfly.
 
 \newpage
-The following example shows custom handler class \textit{MyHandler.java}:
+The following example shows the custom handler class \textit{MyHandler.java}:
 \begin{lstlisting}[caption = Custom handler class, label = custom_handler_class, style=eclipse_java]
 package com.examples.logging
 public class MyHandler extends Handler {
@@ -329,9 +329,9 @@ public class MyHandler extends Handler {
 }
 \end{lstlisting}
 \noindent
-The next step in custom handler implementation is to create \textit{module.xml} file with proper configuration according to \ref{module_descriptor}. Then the \textit{myHandler.jar} with the \textit{module.xml} file is placed to specific module directory, for example \textit{JBOSS\_HOME/modules/system/layers/base/com/examples/myhandler/main}.
+The next step in custom handler implementation is to create the \textit{module.xml} file with proper configuration according to \ref{module_descriptor}. Then the \textit{myHandler.jar} with the \textit{module.xml} file is placed to a specific module directory, for example \textit{JBOSS\_HOME/modules/system/layers/base/com/ex-amples/myhandler/main}.
 \noindent
-Final step of the custom handler implementation is to add the custom handler to the logging subsystem configuration:
+The final step of the custom handler implementation is to add the custom handler to the logging subsystem configuration:
 \begin{lstlisting}[caption = Adding custom handler to the logging subsystem configuration, label = custom_handler_logging_subsystem, style=my_xml]
 <custom-handler name="MyHandler" class="com.examples.logging.MyHandler" module="com.examples.myhandler">
 	<level name="DEBUG"/>
@@ -504,7 +504,7 @@ When a program flow reaches a location with a \textit{trigger call}, the rule en
 
 The rule engine obtains an instance of a target method and method arguments from a \textit{trigger call}. To access the instance and method arguments in a rule body, \textit{\$0} (the instance) and \textit{\$1, \$2...} (method arguments) expressions are used \ref{rule_exp}. Local variables are also passed by the \textit{trigger call} and can be accessed with \textit{\$} symbol followed by a name of a local variable e.g. \textit{\$variableName}.
 
-The agent also provides exception handler which is wrapped around the \textit{trigger call} in order to process exceptions which can be thrown during the execution of a rule \cite[Agent Transformation]{byteman_doc}.
+The agent also provides exception handler which is wrapped aro-und the \textit{trigger call} in order to process exceptions which can be thrown during the execution of a rule \cite[Agent Transformation]{byteman_doc}.
 
 \section{Rule engine}
 \label{sec:rule_engine}
@@ -527,7 +527,7 @@ Using Byteman in a Java application means running the Java agent in the backgrou
 \begin{lstlisting}[frame=]
 -javaagent:path_to_Byteman.jar=option1, option2, ...
 \end{lstlisting}
-Byteman agent provides set of agent options for different purposes, the following list shows several important options \cite[Available -javaagent Options]{byteman_doc}:
+Byteman agent provides a set of agent options for different purposes, the following list shows several important options used in this work:
 
 \begin{itemize}
 	\item	\verb|script:scriptfile|
@@ -583,7 +583,7 @@ Running the application with the command on previous page produces the following
 This chapter briefly describes Elasticsearch technology which is used to store and search data. In the context of this work, the data represents log messages from Wildfly Application Server \ref{wildfly_chapter}.
 
 \section{Introduction to Elasticsearch}
-Elasticsearch is mainly known as a search engine. From \cite{elasticsearch_defnitive_guide}: ''Elasticsearch is an open-source search engine built on top of Apache Lucene™, a fulltext search-engine library.''
+Elasticsearch is mainly known as a search engine. From \cite{elasticsearch_defnitive_guide}: ''Elasticsearch is an open-source search engine built on top of Apache Lucene, a fulltext search-engine library.''
 
 It is an abstract layer between complex \textit{Apache Lucene}\footnote{Lucene is arguably the most advanced, high-performance, and fully featured search engine library in existence today—both open source and proprietary \cite{elasticsearch_defnitive_guide}.} library and user applications. Elasticsearch does not require for its users to fully understand the complexity of Lucene, it provides API for working with Lucene in simple way.
 
@@ -599,7 +599,7 @@ Elasticsearch is implemented in Java and packaged into standalone server. Access
 
 
 \section{Basic concept}
-Several concepts form the fundamentals of the Elasticsearch core. Therefore, understanding of these concepts is required before using Elasticsearch in practice \cite{elasticsearch_doc}.
+Several concepts form the fundamentals of the Elasticsearch core, thus understanding of these concepts is required before using Elasticsearch in practice \cite{elasticsearch_doc}.
 
 \subsection{Cluster}
 A \textit{Cluster} consists of one or more nodes (servers) that together store all data. Unified indexing and search operations are performed across all nodes in a cluster. Every cluster has its own name which is unique; default value of the name is \verb|elasticsearch|.
@@ -665,26 +665,26 @@ The \textit{Node client} operates as a single node within a cluster, thus it mus
 
 \subsubsection{Transport client}
 \label{transport_client}
-The \textit{Transport client} acts as a standard client in the client-server paradigm. It connects to a remote cluster using one or more transport addresses. Request which are sent over the transport addresses are processed in the round robin principle, thus, "double hop" is performed most of the time.
+The \textit{Transport client} acts as a standard client in the client-server parad-igm. It connects to a remote cluster using one or more transport addresses. Request which are sent over the transport addresses are processed in the round robin principle, thus, "double hop" is performed most of the time.
 
 \chapter{Analysis and Design}
 \label{analysis}
-This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part focuses on existing techniques which can be used to add log messages to the Wildfly without modifying the source code of the server itself.
+This chapter covers requirements analysis and design of the extended Wildfly logging capabilities. Wildfly clearly defines the architecture of the logging subsystem which is described in \ref{wildfly_logging}. Thus the design of the first part of this work follows the steps provided by the logging framework. On the contrary, the analysis of the second part focuses on existing techniques which can be used to add log messages to Wildfly without modifying the source code of the server itself.
 
 \section{Requirements}
 \label{requirements}
-The main requirement is to extend Wildfly application server logging capabilities. The outcome of such extension must include ability to store log events to Elasticsearch, visualize log events using Kibana\footnote{Kibana is an open source analytics and visualization platform designed to work with Elasticsearch \cite{kibana_doc}.} tool and add new log events to the selected parts of the Wildfly without changing Wildfly source code. This requirement can be split into the following requirements:
+The main requirement is to extend Wildfly application server logging capabilities. The outcome of such extension must include an ability to store log events to Elasticsearch, visualize log events using Kibana\footnote{Kibana is an open source analytics and visualization platform designed to work with Elasticsearch \cite{kibana_doc}.} tool and add new log events to selected parts of Wildfly without changing Wildfly source code. This requirement can be split into the following requirements:
 
 \noindent
 \newline
 \textit{\textbf{Functional requirements}}
 \begin{itemize}
 	\item \textbf{Store log events to Elasticsearch} \newline
-	In order to visualize log events using Kibana, the log events must be stored in an Elasticsearch cluster.
+	In order to visualize log events using Kibana, log events must be stored in an Elasticsearch cluster.
 	\item \textbf{Visualize log events using Kibana} \newline
 	As log events are persisted in Elasticsearch cluster, Kibana is employed to visualize the log events.
 	\item \textbf{Add new log events to the selected parts of Wildfly}  \newline
-	The selected parts of Wildfly must be analyzed and new log events should be added as needed. Such parts must include:
+	Selected parts of Wildfly must be analyzed and new log events should be added as needed. Such parts must include:
 	 \begin{itemize}
 	 	\item \textit{Web Container (Servlets, JSPs)}
 	 	\item \textit{REST endpoints}
@@ -698,57 +698,57 @@ The main requirement is to extend Wildfly application server logging capabilitie
 \textit{\textbf{Non-functional requirements}}
 \begin{itemize}
 	\item \textbf{Add new log events without modifying Wildfly source code} \newline
-	New log events must be added and the source code of the Wildfly cannot be changed. Thus, the implementation is not dependent on the specific version of Wildfly.
+	New log events must be added and the source code of Wildfly cannot be changed. Thus, the implementation is not dependent on a specific version of Wildfly.
 \end{itemize}
 
 \section{Design}
-The extension of Wildfly logging capabilities is designed in order to reflects functional requirements and provides maintainable, extensible and simple solution for end users. The extension consists of two parts, the Elasticsearch extension and the Byteman extension. Each part provides separate functionality. Note that a user does not need to use both extensions. For instance, there may be requirement only to store log events to the Elasticsearch cluster. Thus, the architecture must be decoupled into independent components, each responsible for performing particular functionality. The architecture consists of 3 main components: \textit{Elasticsearch}, \textit{Kibana} and \textit{Byteman}.
+The extension of the Wildfly logging capabilities is designed in order to reflects functional requirements and provides maintainable, extensible and simple solution for end users. The extension consists of two parts, the Elasticsearch extension and the Byteman extension. Each part provides separate functionality. Note that a user does not need to use both extensions. For instance, there may be requirement only to store log events to the Elasticsearch cluster. Thus, the architecture must be decoupled into independent components, each responsible for performing particular functionality. The architecture consists of 3 main components: \textit{Elasticsearch}, \textit{Kibana} and \textit{Byteman}.
 
-The Elasticsearch component is represented by the  Elasticsearch handler, which is implemented as a custom logging handler described in \ref{custom_handler}. The Elasticsearch handler is responsible for sending log events to an Elasticsearch cluster. The handler must be able to process large amount of log events and sends them to the cluster. In this case, Wildfly provides the \textit{async-handler} (\ref{handlers}) which can be used for asynchronous processing of log events.
+The Elasticsearch component is represented by the  Elasticsearch handler, which is implemented as a custom logging handler described in \ref{custom_handler}. The Elasticsearch handler is responsible for sending all log events from Wildfly to an Elasticsearch cluster. The handler must be able to process large amount of log events and sends them to the cluster. In this case, Wildfly provides the \textit{async-handler} (\ref{handlers}) which can be used for asynchron-ous processing of log events.
 
 After storing log events to the Elasticsearch cluster, Kibana is employed to visualize the log events. In the context of this work, Kibana represents standalone system which is separated from the architecture of the logging extension as it does not require any additional implementation.
 
-The Byteman component is responsible for adding log events to the Wildfly without modifying its original source code. When a new log event is added to the Wildfly, it is processed by set of handlers including the Elasticsearh handler. Thus, the new log event is immediately sent to an Elasticsearch cluster.
+The Byteman component is responsible for adding log events to Wildfly without modifying its original source code. When a new log event is added to Wildfly, it is processed by a set of handlers including the Elasticsearh handler. Thus, the new log event is immediately sent to an Elasticsearch cluster.
 
 The following component diagram depicts the architecture of the logging extension:
 
 \begin{figure}[ht!]
 	\centering
 	\includegraphics[width=\textwidth]{images/component_diagram}
-	\caption{Component diagram}
+	\caption{The component diagram of the logging extension}
 	\label{component_diagram}
 \end{figure}
 
 \section{Tools}
-This section introduces set of tools and technologies used for the implementation of the logging extension. Byteman and Elasticsearch are not mentioned in the following text as they are described in chapters \ref{byteman_chap} and \ref{elasticsearch_chap}. According to the nature of the Wildfly project, all tools and technologies should meet the following requirements:
+This section introduces a set of tools and technologies used for the implementation of the logging extension. Byteman and Elasticsearch are not mentioned in the following text as they are described in chapters \ref{byteman_chap} and \ref{elasticsearch_chap}. According to the nature of the Wildfly project, all tools and technologies should meet the following requirements:
 
 \begin{itemize}
-	\item Wildfly is \textit{Open Source}, thus only Open Source technologies should be used for the implementation
+	\item Wildfly is \textit{Open Source}, thus only Open Source technologies sho-uld be used for the implementation
 	\item Wildfly is implemented in the \textit{Java} language, this fact must be taken in consideration when choosing appropriate technologies
 \end{itemize}
 
 \subsection{IDE}
-Effective development of any project should use an Integration Development Environment. It consists of several tools which help developer with fast and effective development. Such tools include text editor, debugger, build system, version control system and others. Eclipse is free Open Source IDE for Java. It uses plugins for integration with technologies such as Maven, Git, Wildfly and many JBoss projects. In addition, Red Hat JBoss Developer Studio can be used as it is built on top of Eclipse and includes plugins for JBoss technologies by default.
+Effective development of any project should use an Integration Development Environment. It consists of several tools which help developer with fast and effective development. Such tools include a text editor, a debugger, a build system, a version control system and others. Eclipse is free Open Source IDE for Java. It uses plugins for integration with technologies such as Maven, Git, Wildfly and many JBoss projects. In addition, Red Hat JBoss Developer Studio can be used as it is built on top of Eclipse and includes plugins for JBoss technologies by default.
 
 \subsection{Maven}
-Development of an Java application requires an automation process for building the source code of the application. Maven is leading build automation tool for Java based projects. This work uses several aspects of Maven which are described in the following text.
+Development of an Java application requires an automation process for building the source code of the application. Maven is a leading build automation tool for Java based projects. This work uses several aspects of Maven which are described in the following text.
 
-To build a project with Maven, a project must define its project object model and set of plugins which are shared across all projects using Maven. The project object model is defined by the \textit{pom.xml} file which is a part of every Maven project \cite{maven_doc}. 
+To build a project with Maven, a project must define its project object model and a set of plugins which are shared across all projects using Maven. The project object model is defined by the \textit{pom.xml} file which is a part of every Maven project \cite{maven_doc}. 
 
-A Maven project must define its unique identification which consists of: \textit{groupId}, \textit{artifactId} and \textit{version}. This identification is defined within the \textit{pom.xml} file which also contains all configuration properties e.g. packaging (default is \textit{JAR}), project name, description and any custom properties defined by a user.
+A Maven project must define its unique identification which consists of: \textit{groupId}, \textit{artifactId} and \textit{version}. This identification is defined within the \textit{pom.xml} file which also contains all configuration properties e.g. packaging (default is \textit{JAR}), a project name, a description and any custom properties defined by a user.
 
-One of the most important elements in Maven are \textit{dependencies}. It provides comprehensive administration of libraries used in a Maven project. Libraries represents Maven projects which were published in a Maven repository. A dependency is defined by its unique identification (groupId, artifactId, version) and the dependency scope\footnote{Dependency Scope defines certain limitations when processing a dependency.}. Dependencies are downloaded from a remote Maven repository during the build process of a Maven project.
+One of the most important elements in Maven are \textit{dependencies}. It provides comprehensive administration of libraries used in a Maven project. Libraries represents Maven projects which were published in a Maven repository. A dependency is defined by its unique identification (groupId, artifactId, version) and a dependency scope\footnote{Dependency Scope defines certain limitations when processing a dependency.}. Dependencies are downloaded from a remote Maven repository during a build process of a Maven project.
 
-Maven repositories are defined in the \textit{settings.xml} file which is created after installing Maven on a user machine. Maven provides access only to the \textit{Maven Central Repository} by default, thus other repositories must be specified within the \textit{settings.xml}. In addition, a user can create its own repository which can be added to the \textit{settings.xml} as any other public repository.
+Maven repositories are defined in the \textit{settings.xml} file which is created after installing Maven on a user machine. Maven provides access only to \textit{Maven Central Repository} by default, thus other repositories must be specified within the \textit{settings.xml}. In addition, a user can create its own repository which can be added to the \textit{settings.xml} file as any other public repository.
 
 \subsection{Git}
-Version control system (CVS) provides necessary functions for software development such as history of changes, resolving conflict within same file and others. Main characteristic of the Git CVS is strong support for distributed development. For instance, each developer uses its local repository for work, thus changes are committed to a local repository at first, then pushed to a remote repository. In order to provide web-based service for Git repositories, the Github\footnote{\url{https://github.com/}} was created. It allows user to manage its repositories via web interface.
+A version control system (CVS) provides necessary functions for software development such as history of changes, resolving conflict and others. Main characteristic of the Git CVS is strong support for a distributed development. For instance, each developer uses its local repo-sitory for work, thus changes are committed to a local repository at first, then pushed to a remote repository. In order to provide a web-based service for Git repositories, the Github\footnote{\url{https://github.com/}} was created. It allows user to manage its repositories via web interface.
 
 \subsection{Kibana}
-Elasticsearch stores large amount of data that user needs to work with. Kibana allows user to search, view and analyze data within the Elasticsearch. It represents simple web interface for browsing data in real time. Moreover, Kibana provides advanced data analysis and visualization using various charts, tables and maps \cite[Introduction]{kibana_doc}. Note that installing and running Kibana does not require any additional implementation on the client side, thus using Kibana is very simple and intuitive.
+Elasticsearch stores large volumes of data that a user needs to work with. Kibana allows a user to search, view and analyze data within the Elasticsearch. It represents a simple web interface for browsing data in real time. Moreover, Kibana provides advanced data analysis and visualization using various charts, tables and maps \cite[Introduction]{kibana_doc}. Note that installing and running Kibana does not require any additional implementation on the client side, thus using Kibana is very simple and intuitive.
 
 \subsection{Bytecode manipulation tools}
-The non-functional requirement of this work is to use an approach which allows user to add log events to Wildfly and does not change its source code. The Wildfly source code is written in Java language and compiled into bytecode. Thus, new log events must be added only by modifying the Wildfly bytecode, whereas the current source code is left untouched. To fulfill such requirement, the bytecode manipulation must be employed. There are several bytecode manipulation tools depending on the level of abstraction they use. The following picture shows selected tools and level they operate on:
+The non-functional requirement of this work is to use an approach which allows a user to add log events to Wildfly and does not change its source code. The Wildfly source code is written in the Java language and compiled into Bytecode. Thus, new log events must be added only by modifying the Wildfly bytecode, whereas the current source code is left untouched. To fulfill such requirement, the bytecode manipulation must be employed. There are several bytecode manipulation tools depending on a level of abstraction they use. The following picture shows selected tools and the level they operate on:
 \begin{figure}[ht!]
 	\centering
 	\includegraphics[width=\textwidth]{images/bytecode_tools}
@@ -883,7 +883,7 @@ The Elasticsearch Wildfly Log is able to store log events to Elasticsearch from 
 
 The Byteman Wildfly Log provides injecting new log events into Wildlfy bytecode. Because of the bytecode injection, there is no need to change the source code of the server, thus the new log events can be applied to different versions of Wildfly if there are no significant changes in the source code. In summary, 226 log events was added to selected parts of Wildfly: Web Container (Servlets, JSPs), REST endpoints, WS endpoints, EJB invocations and JMS communication.
 
-Adding log events using Byteman may seem to be inappropriate as log events can be added directly to source code. Advantage of this approach is a unified process of adding log events in a broader context than only certain method in a class. Thus, it is possible to manipulate with log events in a context of a component or a whole system. For example, a thread id is attached to all log events added using Byteman. In addition, the Elasticsearch extension attaches server address and server name to every log event within Wildfly, thus log events from specific server can be easily identified in case of multiple server instances.
+Adding log events using Byteman may seem to be inappropriate as log events can be added directly to source code. Advantage of this approach is a unified process of adding log events in a broader context than only in a context of a certain method within a class. Thus, it is possible to manipulate with log events in a context of a component or a whole system. For example, a thread id is attached to all log events added using Byteman. In addition, the Elasticsearch extension attaches server address and server name to every log event within Wildfly, thus log events from specific server can be easily identified in case of multiple server instances.
 
 Two bugs, BYTEMAN-298\footnote{\url{https://issues.jboss.org/browse/BYTEMAN-298}} and BYTEMAN-299\footnote{\url{https://issues.jboss.org/browse/BYTEMAN-299}}, were found during the implementation of Byteman rules. Thanks to Andrew Dinn and the author of this work, both bugs were fixed and verified in Byteman 3.0.2 release. 
 
