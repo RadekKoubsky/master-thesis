@@ -421,7 +421,7 @@ The rule event can employ any class of a Java application except the following c
 
 Injecting into Java classes is not allowed by default. Nevertheless, this option can be disabled by configuring the Java agent (see \cite[Available -javaagent Options]{byteman_doc}).
 
-Byteman includes rich set of location specifiers which are described in \cite[Location Specifiers]{byteman_doc}, the following list of location specifiers is used in this work:
+Byteman includes a set of location specifiers which are described in \cite[Location Specifiers]{byteman_doc}, the following list of location specifiers is used in this work:
 
 \begin{itemize}
 \item	AT ENTRY
@@ -544,7 +544,7 @@ The \textit{boot:jarfile} option is similar to the \textit{sys:jarfile}. Only di
 The full description of all agent options can be found at \cite[Available -javaagent Options]{byteman_doc}.
 
 \subsection{Example of Byteman in Java application}
-The following definition of a java class represents simple Java application which will be used to show Byteman basic functionality:
+The following definition of a java class represents simple Java application which will be used to show the Byteman basic functionality:
 \begin{lstlisting}[caption = Java class bypassed by the Byteman, label = class_use_case, style=eclipse_java]
 package com.examples;
 public class BytemanTest{
@@ -756,22 +756,22 @@ The non-functional requirement of this work is to use an approach which allows a
 	\label{bytecode_tools}
 \end{figure}
 
-Choosing a suitable bytecode manipulation tool is critical decision as all additional log events are implemented using the selected tool. Thus, replacing one tool with another requires rewriting the source code, which is not trivial operation in case of large number of log events. Selection of a bytecode library does not depend only on the architecture of the library itself, it also requires analysis of the library used against an application server which can be implemented in various ways. For instance, Wildfly application server uses modular classloading system \ref{jboss_modules_sec} that can cause classloading problems with specific bytecode library. Another requirement on the selected bytecode library is reusability of the implemented log events across different releases of Wildfly. For this reason, the bytecode library should provide bytecode analysis which is able to target specific parts within bytecode based on class names, method names, method invocations, variable assignments, constructor invocations and others.
+Choosing a suitable bytecode manipulation tool is a critical decision as all additional log events are implemented using the selected tool. Thus, replacing one tool with another requires the source code to be rewritten, which is not trivial operation in case of large number of log events. Selection of a bytecode library does not depend only on the architecture of the library itself, it also requires analysis of the library used against an application server which can be implemented in various ways. For instance, Wildfly application server uses a modular classloading system \ref{jboss_modules_sec} that can cause classloading problems with specific bytecode library. Another requirement on the selected bytecode library is reusability of implemented log events across different releases of Wildfly. For this reason, the bytecode library should provide bytecode analysis which is able to target specific parts within bytecode based on class names, method names, method invocations, variable assignments, constructor invocations and others.
 
-The following bytecode manipulation tools were chosen for analysis and testing: \textit{Byteman} and \textit{AspectJ}\footnote{\url{https://eclipse.org/aspectj/}}. There is significant distinction between Byteman and AspectJ as they use different approach for bytecode manipulation. Byteman is a low level library which requires work at bytecode level, whereas AspectJ uses Java classes to achieve manipulation with bytecode. After appropriate analysis based on documentation and testing of selected tools, Byteman is used by the following reasons:
+The following bytecode manipulation tools were chosen for analysis and testing: \textit{Byteman} and \textit{AspectJ}\footnote{\url{https://eclipse.org/aspectj/}}. There is a significant distinction between Byteman and AspectJ as they use different approach for bytecode manipulation. Byteman is a low level library which requires work at bytecode level, whereas AspectJ uses Java classes to achieve manipulation with bytecode. After an appropriate analysis based on the documentation and testing of selected tools, Byteman is used by the following reasons:
 
 \begin{itemize}
-	\item Byteman uses simple and powerful mechanism (see \ref{subsec:eca_sec}) to perform bytecode manipulation 
+	\item Byteman uses a simple and powerful mechanism (see \ref{subsec:eca_sec}) to perform bytecode manipulation 
 	\item AspectJ requires additional configuration using \textit{.xml} files for defining and working with aspects \cite[Configuration]{aspectj_doc}
-	\item Byteman Rule Language \ref{byteman_rule_language} provides comprehensive bytecode analysis \ref{subsec:rule_events} to identify target location within bytecode
+	\item Byteman Rule Language \ref{byteman_rule_language} provides a comprehensive bytecode analysis \ref{subsec:rule_events} to identify target location within bytecode
 	\item in contrast to Byteman, AspectJ does not allow to manipulate with Java language classes defined in the \textit{java.lang} package \cite[Special cases]{aspectj_doc}
-	\item Byteman provides set of built-in operations \ref{built-in_calls} which can be used for debugging, monitoring and thread coordinating purposes, thus user does not have to implement such operations for specific requirements
+	\item Byteman provides a set of built-in operations \ref{built-in_calls} which can be used for debugging, monitoring and thread coordinating purposes, thus a user does not have to implement such operations for specific requirements
 	\item both Byteman and Wildfly are part of the \textit{JBoss Community}, this fact can simplify co-operation between developers in case of additional requirements
 \end{itemize}
 
 \chapter{Implementation}
 \label{implementation}
-This chapter describes implementation of the extended Wildfly logging capabilities in detail. The logging extension is split into two Maven projects:
+This chapter describes the implementation of extended Wildfly logging capabilities in detail. The logging extension is split into two Mav-en projects:
 
 \begin{itemize}
 	\item \textit{elasticsearch-wildfly-log}: extension for Elasticsearch
@@ -800,14 +800,12 @@ org
 \end{lstlisting}
 
 \noindent
-Note that there are two modules in the output directory as the \textit{org.wildfly.elasticsearch.log} module requires Elasticsearch jars which are included in the separate module located in \textit{org.elasticsearch} subdirectory.
+Note that there are two modules in the output directory as the \textit{org.wil-dfly.elasticsearch.log} module requires the Elasticsearch jars which are included in the separate module located in the \textit{org.elasticsearch} subdirectory.
 
 The storing process of log events includes several steps which are implemented in the \textit{ElasticsearchHandler} class. At first, the handler must establish a connection with an Elasticsearch cluster. To create such connection, a user must specify valid \textit{cluster name}, \textit{transport address} and \textit{port}.
 If correct configuration is provided, the handler implementation uses the \textit{Transport Client} \ref{transport_client} to connect to a running cluster.
 
-The next step in the storing process is to serialize a log event to the JSON format, which is used for data stored in Elasticsearch. The JSON format of the log event is designed to provide comprehensive data structure in order to support search operations in Elasticsearch.
-
-
+The next step in the storing process is to serialize a log event to the JSON format, which is used for data stored in Elasticsearch. The JSON format of the log event is designed to provide a comprehensive data structure in order to support search operations in Elasticsearch.
 
 \begin{minted}[frame=single, tabsize=3]{json}
 {
@@ -826,16 +824,16 @@ The next step in the storing process is to serialize a log event to the JSON for
 \begin{lstlisting}[aboveskip = 0em, frame = none, caption = JSON format of a log event]
 \end{lstlisting}
 
-Note that the \textit{jboss.bind.address} and \textit{jboss.server.name} are obtained from Wildfly system properties. Information about server name and address is important in case of multiple server instances (e.g. cluster or cloud installation).
+Note that the \textit{jboss.bind.address} and \textit{jboss.server.name} values are obtained from Wildfly system properties. Information about the server name and address is important in case of multiple server instances (e.g. cluster or cloud installation).
 
-When a log event is successfully converted to the JSON format, transport client sends the log event to the Elasticsearch cluster which inserts received data into specific \textit{index} and \textit{type}. Index and type are defined by user when configuring the Elasticsearch handler in Wildfly logging subsystem (see \ref{logging_subsystem}).
+When a log event is successfully converted to the JSON format, transport client sends the log event to an Elasticsearch cluster which inserts received data into specific \textit{index} and \textit{type}. The index and type are defined by a user when configuring the Elasticsearch handler in Wildfly logging subsystem (see \ref{logging_subsystem}).
 
 \section{Byteman Wildfly Log}
-This project is comprised of tools which provide bytecode manipulation in order to inject new log events into Wildfly bytecode. There are two main elements which forms the logging mechanism: \textit{LogHelper} class and \textit{Byteman rules}.
+This project is comprised of tools which provide bytecode manipulation in order to inject new log events into the Wildfly bytecode. There are two main elements which forms the logging mechanism: \textit{LogHelper} class and \textit{Byteman rules}.
 
 \subsection{Log Helper class}
 \label{log_helper_class}
-The \textit{LogHelper} class represents the Byteman rule helper described in \ref{user_defined_helper_class}. This class uses \textit{java.util.logging.LogManager} to obtain specific logger instance according to provided logger name. The logger instance is used to create a log event with the following parameters: \textit{level}, \textit{message} and \textit{Throwable} associated with the log event. The full package qualified logger name and parameters are passed by a byteman rule which uses the log helper class. The \textit{LogHelper} class contains two  public methods:
+The \textit{LogHelper} class represents a Byteman rule helper described in \ref{user_defined_helper_class}. This class uses \textit{java.util.logging.LogManager} to obtain a specific logger instance according to provided logger name. The logger instance is used to create a log event with the following parameters: \textit{level}, \textit{message} and \textit{Throwable} associated with the log event. The full package qualified logger name and parameters are passed by a byteman rule which uses the log helper class. The \textit{LogHelper} class contains two public methods:
 \begin{lstlisting}[caption = LogHelper methods for creating log events., label = log_helper_methods, style=eclipse_java]
 public void log(String loggerName, String level, String message)
 
@@ -847,17 +845,18 @@ The methods above are responsible for creating log events which can have an exce
 \subsection{Byteman rules}
 In order to employ the \textit{LogHelper} class described in previous section, the helper class must be used within a Byteman rule. The Byteman Wildfly Log project consists of five rule script files. Each rule script file defines a set of Byteman rules which add new log events to a particular part of Wildfly. The following rule script files cover selected parts of Wildfly specified in the requirements section (\ref{requirements}): \textit{servelts.btm}, \textit{rest.btm}, \textit{ws.btm}, \textit{ejb.btm}, \textit{jms.btm}.
 
-The \textit{servlet.btm} rule file contains log events for JSP configuration and entire chain of servlet handlers including security context, thread context, HTTP metadata and others.
+The \textit{servlet.btm} rule file contains log events for JSP configuration and the entire chain of servlet handlers including security context, thread context, HTTP metadata and others.
 
 Additional log events for Wildfly REST implementation are defined in the \textit{rest.btm} rule file. The log events provide more detailed information about REST procedures such as initializing resources, parsing parameters, validation of parameters and return value, invocation of resource method, building response.
 
 The \textit{ws.btm} rule file provides logging extension for Wildfly Web Services. The extension adds new log events to request handler call, manipulation with bus and endpoint metadata, initialization of WS bean, invoking WS bean and closing resources.
 
-Extension for the Wildfly EJB subsystem contains the biggest amount of new log events because of the complexity of the EJB implementation. The rules in the \textit{ejb.btm} rule script file provide additional monitoring of a stateful/stateless EJB and its entire interceptor chain, for example: method invocation on a proxy instance, security permissions, manipulation with interceptor context (thread stack, context metadata etc.), transaction processing, concurrency, component instance lifecycle, EJB request scope processing, stateful synchronization process, JSR299\footnote{JSR 299: Contexts and Dependency Injection - The purpose of this specification is to unify the JSF managed bean component model with the EJB component model, resulting in a significantly simplified programming model for web-based applications \cite{jsr299}.}, creating interceptor instance, invoking intercepted method and many others.
+Extension for the Wildfly EJB subsystem contains the largest amo-unt of new log events because of the complexity of the EJB implementation. The rules in the \textit{ejb.btm} rule script file provide additional monitoring of a stateful/stateless EJB and its entire interceptor chain, for example: method invocation on a proxy instance, security permissions, manipulation with interceptor context (thread stack, context metadata etc.), transaction processing, concurrency, component instance lifecycle, EJB request scope processing, stateful synchronization process, JSR299\footnote{JSR 299: Contexts and Dependency Injection - The purpose of this specification is to unify the JSF managed bean component model with the EJB component model, resulting in a significantly simplified programming model for web-based applications \cite{jsr299}.}, creating interceptor instance, invoking intercepted method and many others.
 
 The \textit{jms.btm} rule file focuses on the JMS subsystem. The rules add new log events to the JMS channel workflow, packet handling, context and session operations, processing queue and executing queue query, transactions, sending message and message expiration.
 
 The following example from \textit{servlets.btm} rule script illustrates implementation of a new log event injected into the Wildfly bytecode:
+\newpage
 \begin{lstlisting}[caption = An example of the rule implementation for a new log event, label = rule_log_example, style=byteman]
 HELPER org.jboss.byteman.koubsky.LogHelper
 RULE logServletHandler.handleRequest
@@ -871,7 +870,7 @@ DO log($CLASS, "DEBUG", "(Method handleRequest) Request info: " +
 ENDRULE
 \end{lstlisting}
 \noindent
-The rule above adds a new log event to the \textit{io.undertow.servlet.handlers.ServletHandler} class when entering the \textit{handleRequest(HttpServerExchange)} method. The message string is built using the \textit{\$} expression (\ref{rule_exp}) which provides access to runtime values of the trigger method.
+The rule above adds a new log event to the \textit{io.undertow.servlet.handlers.-ServletHandler} class when entering the \textit{handleRequest(HttpServerExcha-nge)} method. The message string is built using the \textit{\$} expression (\ref{rule_exp}) which provides access to runtime values of the trigger method.
 
 \chapter{Conclusion}
 \label{conclusion}
