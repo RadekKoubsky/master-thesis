@@ -1,0 +1,11 @@
+\beamer@endinputifotherversion {3.24pt}
+\select@language {czech}
+\beamer@sectionintoc {1}{Kl\IeC {\'\i }\IeC {\v c}ov\IeC {\'e} technologie}{4}{0}{1}
+\beamer@subsectionintoc {1}{1}{WildFly}{4}{0}{1}
+\beamer@subsectionintoc {1}{2}{Elasticsearch \& Kibana}{5}{0}{1}
+\beamer@subsectionintoc {1}{3}{Byteman}{6}{0}{1}
+\beamer@sectionintoc {2}{Roz\IeC {\v s}\IeC {\'\i }\IeC {\v r}en\IeC {\'\i } zaznamen\IeC {\'a}v\IeC {\'a}n\IeC {\'\i } ud\IeC {\'a}lost\IeC {\'\i } ve WildFly}{7}{0}{2}
+\beamer@subsectionintoc {2}{1}{elasticsearch-wildfly-log}{9}{0}{2}
+\beamer@subsectionintoc {2}{2}{byteman-wildfly-log}{11}{0}{2}
+\beamer@sectionintoc {3}{Shrnut\IeC {\'\i }}{12}{0}{3}
+\beamer@subsectionintoc {3}{1}{P\IeC {\v r}\IeC {\'\i }nos, probl\IeC {\'e}my, pr\IeC {\'a}ce do budoucna}{12}{0}{3}

@@ -1,0 +1,12 @@
+\frametitle{byteman-wildfly-log}
+\begin{itemize}
+\item vkládání nových logovacích záznamů do vybraných částí serveru
+\begin{itemize}
+\item \textit{Web Container (Servlets, JSPs)}
+\item \textit{REST endpoints}
+\item \textit{WS endpoints}
+\item \textit{EJB invocations}
+\item \textit{JMS communication}
+\end{itemize}
+\item přidávání globálních informací do logovacích záznamů (thread-id)
+\end{itemize}
