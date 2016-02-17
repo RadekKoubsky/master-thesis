@@ -133,12 +133,12 @@ Masarykova univerzita \\ % Your institution for the title page
 
 \subsection{WildFly}
 \begin{frame}
-	\frametitle{WildFly (JBoss) Appliaction Server}
+	\frametitle{Aplikační server WildFly (JBoss)}
 	\begin{itemize}
 		\item úplná implementace Java EE 7
-		\item vysoká rychlost
-		\item JBoss Modules class loading
-		\item Open Source (JBoss Community)
+		\item architektura: jádro + podsystémy
+		\item JBoss Modules nahrávání tříd
+		\item Open Source - JBoss Community
 		\item dynamický vývoj (aktuální verze 10)
 	\end{itemize}
 \end{frame}
@@ -153,8 +153,9 @@ Masarykova univerzita \\ % Your institution for the title page
 		\item distribuovaný úložný systém
 		\item indexace každého pole (data ve formátu JSON)
 		\item real-time analýza dat
-		\item výkonný search engine postavený na Apache Lucene
+		\item výkonný vyhledávací engine postavený na Apache Lucene
 		\item vysoká škálovatelnost
+		\item RESTFul, Java API
 	\end{itemize}
 	\item Kibana
 	\begin{itemize}
@@ -168,16 +169,16 @@ Masarykova univerzita \\ % Your institution for the title page
 \begin{frame}
 	\frametitle{(\textbf{Byte})code (\textbf{Man})ipulation}
 \begin{itemize}
-	\item Rule engine
+%	\item Byteman Rule engine, Byteman Rules
 	\item Event Condition Action pravidla
 	\begin{enumerate}
-		\item when \textit{Event} occurs
-		\item if \textit{Condition} is verified
-		\item then execute \textit{Action}
+		\item pokud nastane \textit{Událost}
+		\item a \textit{Podmínka} je splněna
+		\item vykonej \textit{Akci}
 	\end{enumerate}
 	\item Rule Helper
 	\item Java agent
-	\item Byteman vs AspectJ
+	\item Byteman vs. AspectJ
 \end{itemize}
 \end{frame}
 
@@ -215,6 +216,10 @@ Masarykova univerzita \\ % Your institution for the title page
 \begin{frame}
 	\frametitle{elasticsearch-wildly-log}
 	\begin{itemize}
+		\item rozšíření logovacího podsystému Wildfly
+		\begin{itemize}
+			\item Custom Log Handler
+		\end{itemize}
 		\item připojení k Elasticsearch
 		\item převod události do formátu JSON
 		\item přidání jména a adresy serveru k události
@@ -232,7 +237,7 @@ Masarykova univerzita \\ % Your institution for the title page
 \begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
 \frametitle{byteman-wildfly-log}
 \begin{itemize}
-	\item vkládání nových logovacích záznamů do vybraných částí serveru
+	\item vkládání nových logovacích záznamů do vybraných částí serveru pomocí pravidel Byteman
 	\begin{itemize}
 		\item \textit{Web Container (Servlets, JSPs)}
 		\item \textit{REST endpoints}
@@ -240,6 +245,8 @@ Masarykova univerzita \\ % Your institution for the title page
 		\item \textit{EJB invocations}
 		\item \textit{JMS communication}
 	\end{itemize}
+	\item celkem přidáno 226 logovacích událostí
+	\item Log Helper
 	\item přidávání globálních informací do logovacích záznamů (thread-id)
 \end{itemize}
 \end{frame}
@@ -255,7 +262,7 @@ Masarykova univerzita \\ % Your institution for the title page
 		\begin{itemize}
 			\item vydána verze Byteman 3.0.2 (Byteman blog)
 		\end{itemize}
-		\item konflikt mezi Byteman a JBoss Modules class loading (16. 7. 2015)
+		\item konflikt mezi Byteman a JBoss Modules (16. 7. 2015)
 		\begin{itemize}
 			\item návrh řešení (Andrew Dinn)
 			\item dokončení experimentální implementace (JBoss Modules plugin)
@@ -275,6 +282,7 @@ Masarykova univerzita \\ % Your institution for the title page
 			\item princip agenta lze aplikovat na jakýkoliv jiný aplikační server
 		\end{itemize}
 		\item rozšíření Open Source projektu Byteman
+		\item oba projekty zdokumentovány a umístěny na GitHub
 	\end{itemize}
 \end{frame}
 
