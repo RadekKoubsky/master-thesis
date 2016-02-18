@@ -9,5 +9,6 @@
 \item \textit{JMS communication}
 \end{itemize}
 \item celkem přidáno 226 logovacích událostí
+\item Log Helper
 \item přidávání globálních informací do logovacích záznamů (thread-id)
 \end{itemize}
